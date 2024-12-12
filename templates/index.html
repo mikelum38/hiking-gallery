@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photos de Randonnées</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="home-page">
+    <div class="fullscreen-bg">
+        <div class="overlay"></div>
+    </div>
+
+    <div class="main-content">
+        <header class="site-header">
+            <h1>Randonnées</h1>
+            <p>Capturez vos plus belles aventures en montagne</p>
+        </header>
+
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <button class="create-gallery-toggle" onclick="toggleCreateGallery()">
+                <span class="plus-icon">+</span> Nouvelle Collection
+            </button>
+
+            <div class="create-gallery" id="createGalleryForm" style="display: none;">
+                <form action="{{ url_for('create_gallery') }}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Nom de la collection*</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo_date">Date des photos*</label>
+                        <input type="date" id="photo_date" name="photo_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cover_image">Image de couverture</label>
+                        <input type="file" id="cover_image" name="cover_image" accept="image/*">
+                    </div>
+                    <button type="submit">Créer la collection</button>
+                </form>
+            </div>
+
+            <div class="months-grid">
+                {% for month, data in galleries_by_month.items() %}
+                <div class="month-card">
+                    <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}">
+                        <div class="month-cover" {% if data.cover %}style="background-image: url('{{ url_for('uploaded_file', filename=data.cover) }}')"{% endif %}>
+                            <div class="month-overlay">
+                                <h2>{{ month }}</h2>
+                                <p>{{ data.galleries|length }} collection{% if data.galleries|length > 1 %}s{% endif %}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCreateGallery() {
+            const form = document.getElementById('createGalleryForm');
+            const isHidden = form.style.display === 'none';
+            form.style.display = isHidden ? 'block' : 'none';
+            
+            if (isHidden) {
+                form.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>

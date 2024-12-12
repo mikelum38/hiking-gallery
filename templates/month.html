@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ month }} - Photos de Randonnées</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="month-page">
+    <div class="fullscreen-bg" {% if galleries and galleries[0][3] %}style="background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('{{ url_for('uploaded_file', filename=galleries[0][3]) }}')"{% endif %}>
+        <div class="overlay"></div>
+    </div>
+
+    <div class="main-content">
+        <header class="site-header">
+            <h1>Randonnées - {{ month }}</h1>
+            <a href="{{ url_for('index') }}" class="back-link">
+                <span class="back-icon">←</span> Retour à l'accueil
+            </a>
+        </header>
+
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="galleries-grid">
+                {% for gallery in galleries %}
+                <a href="{{ url_for('view_gallery', gallery_id=gallery[0]) }}" class="gallery-card">
+                    <div class="gallery-cover" {% if gallery[3] %}style="background-image: url('{{ url_for('uploaded_file', filename=gallery[3]) }}')"{% endif %}>
+                        <div class="gallery-overlay">
+                            <div class="gallery-content">
+                                <h2>{{ gallery[1] }}</h2>
+                                <p class="gallery-date">{{ gallery[7].split('-')[2] }}/{{ gallery[7].split('-')[1] }}/{{ gallery[7].split('-')[0] if gallery[7] else '' }}</p>
+                                {% if gallery[2] %}
+                                <p class="gallery-description">{{ gallery[2] }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
