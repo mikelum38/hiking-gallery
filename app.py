@@ -4,6 +4,9 @@ from werkzeug.utils import secure_filename
 import sqlite3
 from datetime import datetime
 import locale
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 MOIS_FR = {
     1: "Janvier", 2: "Février", 3: "Mars", 4: "Avril",
@@ -17,6 +20,13 @@ app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024
 app.config['DEV_MODE'] = os.environ.get('FLASK_ENV') == 'development'
 app.secret_key = 'votre_clé_secrète_ici'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Configuration Cloudinary
+cloudinary.config(
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key = os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+)
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -154,8 +164,9 @@ def create_gallery():
         return redirect(url_for('index'))
     
     if cover_image and allowed_file(cover_image.filename):
-        filename = secure_filename(cover_image.filename)
-        cover_image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        # Upload to Cloudinary
+        result = cloudinary.uploader.upload(cover_image)
+        filename = result['secure_url']
     else:
         filename = None
     
@@ -205,8 +216,9 @@ def upload_files(gallery_id):
     
     for file in files:
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # Upload to Cloudinary
+            result = cloudinary.uploader.upload(file)
+            filename = result['secure_url']
             c.execute('INSERT INTO photos (gallery_id, filename) VALUES (?, ?)',
                      (gallery_id, filename))
     
