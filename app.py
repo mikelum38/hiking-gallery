@@ -14,10 +14,12 @@ MOIS_FR = {
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024
+app.config['DEV_MODE'] = os.environ.get('FLASK_ENV') == 'development'
 app.secret_key = 'votre_clé_secrète_ici'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 def init_db():
     # Vérifie si la base de données existe déjà
@@ -56,6 +58,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_galleries_by_month():
+    print("Fetching galleries by month")  # Debug log
     conn = sqlite3.connect('galleries.db')
     c = conn.cursor()
     
@@ -66,12 +69,14 @@ def get_galleries_by_month():
         ORDER BY year DESC, month DESC, photo_date DESC
     ''')
     galleries = c.fetchall()
+    print(f"Found {len(galleries)} total galleries")  # Debug log
     conn.close()
 
     galleries_by_month = {}
     
     for gallery in galleries:
         month_key = f"{MOIS_FR[gallery[5]]} {gallery[4]}"  # Mois Année
+        print(f"Processing gallery for {month_key}")  # Debug log
         
         if month_key not in galleries_by_month:
             galleries_by_month[month_key] = {
@@ -85,6 +90,7 @@ def get_galleries_by_month():
         if galleries_by_month[month_key]['cover'] is None and gallery[3]:
             galleries_by_month[month_key]['cover'] = gallery[3]
 
+    print(f"Organized into {len(galleries_by_month)} months")  # Debug log
     return galleries_by_month
 
 @app.route('/')
@@ -94,16 +100,37 @@ def index():
 
 @app.route('/month/<int:year>/<int:month>')
 def month_galleries(year, month):
-    month_key = f"{MOIS_FR[month]} {year}"
-    galleries_by_month = get_galleries_by_month()
-    
-    if month_key in galleries_by_month:
-        return render_template('month.html', 
-                             month=month_key, 
-                             galleries=galleries_by_month[month_key]['galleries'])
-    
-    flash('Mois non trouvé')
-    return redirect(url_for('index'))
+    try:
+        print(f"Accessing month page for {year}/{month}")  # Debug log
+        
+        if month < 1 or month > 12:
+            print(f"Invalid month number: {month}")
+            flash('Mois invalide')
+            return redirect(url_for('index'))
+            
+        month_key = f"{MOIS_FR[month]} {year}"
+        print(f"Month key: {month_key}")  # Debug log
+        
+        galleries_by_month = get_galleries_by_month()
+        print(f"Available months: {list(galleries_by_month.keys())}")  # Debug log
+        
+        if month_key in galleries_by_month:
+            galleries = galleries_by_month[month_key]['galleries']
+            print(f"Found {len(galleries)} galleries for {month_key}")  # Debug log
+            return render_template('month.html', 
+                                 month=month_key, 
+                                 galleries=galleries,
+                                 year=year,
+                                 month_num=month)
+        
+        print(f"Month {month_key} not found in available months")  # Debug log
+        flash('Aucune galerie trouvée pour ce mois')
+        return redirect(url_for('index'))
+        
+    except Exception as e:
+        print(f"Error in month_galleries: {str(e)}")  # Debug log
+        flash('Une erreur est survenue')
+        return redirect(url_for('index'))
 
 @app.route('/create_gallery', methods=['POST'])
 def create_gallery():
@@ -164,7 +191,7 @@ def view_gallery(gallery_id):
     photos = c.fetchall()
     conn.close()
     
-    return render_template('gallery.html', gallery=gallery, photos=photos)
+    return render_template('gallery.html', gallery=gallery, photos=photos, MOIS_FR=MOIS_FR)
 
 @app.route('/upload/<int:gallery_id>', methods=['POST'])
 def upload_files(gallery_id):

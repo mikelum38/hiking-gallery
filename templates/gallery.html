@@ -4,64 +4,432 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ gallery[1] }} - Galerie de Randonnées</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .gallery-page {
+            min-height: 100vh;
+            background: #f5f5f5;
+            position: relative;
+        }
+
+        .gallery-hero {
+            height: 100vh;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            text-align: center;
+            color: white;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-link:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: translateX(-5px);
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .gallery-meta {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .gallery-description {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .gallery-content {
+            position: relative;
+            z-index: 4;
+            background: white;
+            margin-top: 90vh;
+            padding: 2rem;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            max-width: 1400px;
+            margin: 0 auto 2rem;
+            text-align: center;
+        }
+
+        .file-input-wrapper {
+            display: inline-flex;
+            gap: 1rem;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #dee2e6;
+        }
+
+        .upload-button {
+            padding: 0.8rem 1.5rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-button:hover {
+            background: #2980b9;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .photo-item {
+            aspect-ratio: 3/2;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .photo-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover .photo-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+        }
+
+        .lightbox-toolbar {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 1002;
+        }
+
+        .lightbox-button {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .lightbox-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+
+        .lightbox-content.zoomed {
+            cursor: zoom-out;
+            max-width: none;
+            max-height: none;
+            transform: scale(1.5);
+        }
+
+        .lightbox-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 1rem 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+        }
+
+        .lightbox-prev {
+            left: 1rem;
+        }
+
+        .lightbox-next {
+            right: 1rem;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .lightbox-info {
+            position: fixed;
+            bottom: 1rem;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            color: white;
+            z-index: 1001;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+        }
+
+        .lightbox-counter {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .gallery-content {
+                padding: 1.5rem;
+                margin-top: 80vh;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+            }
+
+            .lightbox-nav {
+                padding: 0.5rem;
+            }
+
+            .lightbox-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="gallery-hero" {% if gallery[3] %}style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('{{ url_for('uploaded_file', filename=gallery[3]) }}')"{% endif %}>
-        <div class="hero-content">
-            <a href="{{ url_for('index') }}" class="back-link">← Retour aux galeries</a>
-            <h1>{{ gallery[1] }}</h1>
-            {% if gallery[2] %}
-                <p class="gallery-description">{{ gallery[2] }}</p>
-            {% endif %}
-            <div class="gallery-meta">
-                <span class="gallery-date">{{ gallery[6][:10] }}</span>
-                <a href="{{ url_for('edit_gallery_date', gallery_id=gallery[0]) }}" class="button">Modifier la date ({{ gallery[4] }}/{{ gallery[5] }})</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="upload-section">
-            <h2>Ajouter des photos</h2>
-            <form action="{{ url_for('upload_files', gallery_id=gallery[0]) }}" method="post" enctype="multipart/form-data" class="upload-form">
-                <div class="file-input-wrapper">
-                    <input type="file" name="files[]" multiple accept="image/*" id="file-input" class="file-input">
-                    <label for="file-input" class="file-input-label">
-                        <svg class="upload-icon" viewBox="0 0 24 24" width="24" height="24">
-                            <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-                        </svg>
-                        <span class="file-input-text">Choisir des photos</span>
-                    </label>
+    <div class="gallery-page">
+        <div class="gallery-hero" {% if gallery[3] %}style="background-image: url('{{ url_for('uploaded_file', filename=gallery[3]) }}')"{% endif %}>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>{{ gallery[1] }}</h1>
+                <div class="gallery-meta">
+                    <span class="gallery-date">{{ gallery[7][:10] }}</span>
                 </div>
-                <button type="submit" class="upload-button">Télécharger</button>
-            </form>
+                {% if gallery[2] %}
+                    <p class="gallery-description">{{ gallery[2] }}</p>
+                {% endif %}
+            </div>
         </div>
 
-        {% if photos %}
-        <div class="photo-grid">
-            {% for photo in photos %}
-            <div class="photo-item">
-                <img src="{{ url_for('uploaded_file', filename=photo[0]) }}" 
-                     alt="Photo de randonnée"
-                     loading="lazy"
-                     onclick="openLightbox('{{ url_for('uploaded_file', filename=photo[0]) }}')"
-                     class="photo-thumbnail">
+        <a href="{{ url_for('index') }}" class="back-link">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Retour aux galeries
+        </a>
+
+        <div class="gallery-content">
+            {% if config.DEV_MODE %}
+            <div class="upload-section">
+                <form action="{{ url_for('upload_files', gallery_id=gallery[0]) }}" method="post" enctype="multipart/form-data" class="upload-form">
+                    <div class="file-input-wrapper">
+                        <input type="file" name="files[]" multiple accept="image/*" id="file-input" class="file-input">
+                        <label for="file-input" class="file-input-label">
+                            <svg class="upload-icon" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                            </svg>
+                            <span class="file-input-text">Ajouter des photos</span>
+                        </label>
+                        <button type="submit" class="upload-button">Télécharger</button>
+                    </div>
+                </form>
             </div>
-            {% endfor %}
+            {% endif %}
+
+            {% if photos %}
+            <div class="photo-grid">
+                {% for photo in photos %}
+                <div class="photo-item">
+                    <img src="{{ url_for('uploaded_file', filename=photo[0]) }}" 
+                         alt="Photo de randonnée"
+                         loading="lazy"
+                         onclick="openLightbox('{{ url_for('uploaded_file', filename=photo[0]) }}')"
+                         class="photo-thumbnail">
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-photos">
+                <p>Aucune photo dans cette galerie</p>
+                {% if config.DEV_MODE %}
+                <p>Commencez par ajouter quelques photos !</p>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="no-photos">
-            <p>Aucune photo dans cette galerie</p>
-            <p>Commencez par ajouter quelques photos !</p>
-        </div>
-        {% endif %}
     </div>
 
     <!-- Lightbox -->
     <div id="lightbox" class="lightbox">
-        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-        <img id="lightbox-img" class="lightbox-content" src="" alt="Photo en plein écran">
+        <div class="lightbox-toolbar">
+            <button class="lightbox-button" onclick="toggleZoom()" title="Zoom">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+            </button>
+            <button class="lightbox-close" onclick="closeLightbox()" title="Fermer">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        
+        <button class="lightbox-nav lightbox-prev" onclick="previousImage()" title="Photo précédente">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
+        
+        <div class="lightbox-container">
+            <img id="lightbox-img" class="lightbox-content" src="" alt="Photo en plein écran">
+        </div>
+        
+        <button class="lightbox-nav lightbox-next" onclick="nextImage()" title="Photo suivante">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
+
+        <div class="lightbox-info">
+            <span class="lightbox-counter">Photo <span id="current-index">1</span> sur <span id="total-photos">1</span></span>
+            <button class="lightbox-button" onclick="closeLightbox()" title="Retour à la galerie">
+                Retour à la galerie
+            </button>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
