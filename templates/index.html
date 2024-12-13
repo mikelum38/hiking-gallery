@@ -44,21 +44,23 @@
 
         .months-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            width: 100%;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
         }
 
         .month-card {
-            position: relative;
-            border-radius: 15px;
+            background: white;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
-            aspect-ratio: 16/9;
+            text-decoration: none;
+            color: inherit;
+            height: 250px;
+            position: relative;
         }
 
         .month-card:hover {
@@ -75,37 +77,28 @@
 
         .month-overlay {
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.7));
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
             color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 1.5rem;
-            transition: background 0.3s ease;
         }
 
-        .month-card:hover .month-overlay {
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
-        }
-
-        .month-overlay h2 {
+        .month-name {
+            font-size: 1.5rem;
             margin: 0;
-            font-size: 1.8rem;
             font-weight: 600;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
 
-        .month-overlay p {
-            margin: 0.5rem 0 0;
-            font-size: 1rem;
+        .gallery-count {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
             opacity: 0.9;
         }
 
-        .create-gallery-toggle {
+        .action-button {
             margin-top: 2rem;
             padding: 1rem 2rem;
             font-size: 1.1rem;
@@ -118,17 +111,12 @@
             backdrop-filter: blur(5px);
         }
 
-        .create-gallery-toggle:hover {
+        .action-button:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
 
-        .plus-icon {
-            font-size: 1.2em;
-            margin-right: 0.5rem;
-        }
-
-        .create-gallery {
+        .modal {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -140,6 +128,11 @@
             width: 90%;
             max-width: 500px;
             z-index: 1000;
+            display: none;
+        }
+
+        .modal-content {
+            padding: 2rem;
         }
 
         .form-group {
@@ -164,6 +157,30 @@
         .form-group textarea {
             resize: vertical;
             min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .cancel-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         @media (max-width: 768px) {
@@ -191,10 +208,10 @@
         <div class="months-grid">
             {% for month, data in galleries_by_month.items() %}
             <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
-                <div class="month-cover" {% if data.cover %}style="background-image: url('{{ url_for('uploaded_file', filename=data.cover) }}')"{% endif %}>
+                <div class="month-cover" {% if data.cover %}style="background-image: url('{{ data.cover }}')"{% endif %}>
                     <div class="month-overlay">
-                        <h2>{{ month }}</h2>
-                        <p>{{ data.galleries|length }} randonnée{% if data.galleries|length > 1 %}s{% endif %}</p>
+                        <h2 class="month-name">{{ month }}</h2>
+                        <p class="gallery-count">{{ data.galleries|length }} randonnée{% if data.galleries|length > 1 %}s{% endif %}</p>
                     </div>
                 </div>
             </a>
@@ -209,33 +226,44 @@
             {% endif %}
         {% endwith %}
 
-        {% if config.DEV_MODE %}
-        <button class="create-gallery-toggle" onclick="toggleCreateGallery()">
-            <span class="plus-icon">+</span> Nouvelle randonnée
+        {% if dev_mode %}
+        <button id="createGalleryBtn" class="action-button" onclick="toggleCreateGallery()">
+            Nouvelle randonnée
         </button>
-        {% endif %}
 
-        <div class="create-gallery" id="createGalleryForm" style="display: none;">
-            <form action="{{ url_for('create_gallery') }}" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="name">Nom de la randonnée*</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="photo_date">Date de la randonnée*</label>
-                    <input type="date" id="photo_date" name="photo_date" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="cover_image">Image de couverture</label>
-                    <input type="file" id="cover_image" name="cover_image" accept="image/*">
-                </div>
-                <button type="submit">Créer la randonnée</button>
-            </form>
+        <div id="createGalleryForm" class="modal">
+            <div class="modal-content">
+                <form action="{{ url_for('create_gallery') }}" method="post" enctype="multipart/form-data">
+                    <h2>Nouvelle randonnée</h2>
+                    
+                    <div class="form-group">
+                        <label for="name">Nom de la randonnée:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cover_image">Image de couverture:</label>
+                        <input type="file" id="cover_image" name="cover_image" accept="image/*">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" class="submit-button">Créer</button>
+                        <button type="button" class="cancel-button" onclick="toggleCreateGallery()">Annuler</button>
+                    </div>
+                </form>
+            </div>
         </div>
+        {% endif %}
     </div>
 
     <script>

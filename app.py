@@ -1,25 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash
-import os
-from werkzeug.utils import secure_filename
-import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
+import json
 from datetime import datetime
-import locale
 import cloudinary
 import cloudinary.uploader
-import cloudinary.api
-
-MOIS_FR = {
-    1: "Janvier", 2: "Février", 3: "Mars", 4: "Avril",
-    5: "Mai", 6: "Juin", 7: "Juillet", 8: "Août",
-    9: "Septembre", 10: "Octobre", 11: "Novembre", 12: "Décembre"
-}
+import os
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024
-app.config['DEV_MODE'] = os.environ.get('FLASK_ENV') == 'development'
+app.config['DEV_MODE'] = os.getenv('DEV_MODE', 'False').lower() == 'true'  # Par défaut False
 app.secret_key = 'votre_clé_secrète_ici'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Configuration Cloudinary
 cloudinary.config(
@@ -28,244 +16,194 @@ cloudinary.config(
     api_secret = os.environ.get('CLOUDINARY_API_SECRET')
 )
 
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Liste des mois en français
+MOIS_FR = [
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+]
 
-def init_db():
-    # Vérifie si la base de données existe déjà
-    if not os.path.exists('galleries.db'):
-        conn = sqlite3.connect('galleries.db')
-        c = conn.cursor()
-        
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS galleries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                description TEXT,
-                cover_image TEXT,
-                year INTEGER NOT NULL,
-                month INTEGER NOT NULL,
-                created_at TEXT NOT NULL,
-                photo_date TEXT NOT NULL
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS photos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                gallery_id INTEGER,
-                filename TEXT NOT NULL,
-                FOREIGN KEY (gallery_id) REFERENCES galleries (id)
-            )
-        ''')
-        conn.commit()
-        conn.close()
-        print("Base de données initialisée avec succès!")
+def save_gallery_data(data):
+    with open('galleries.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
-# Initialise la base de données au démarrage
-init_db()
+def load_gallery_data():
+    try:
+        with open('galleries.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def format_date(date_str):
+    date = datetime.strptime(date_str, '%Y-%m-%d')
+    return f"{date.day} {MOIS_FR[date.month-1]} {date.year}"
 
-def get_galleries_by_month():
-    print("Fetching galleries by month")  # Debug log
-    conn = sqlite3.connect('galleries.db')
-    c = conn.cursor()
+@app.route('/')
+def index():
+    galleries = load_gallery_data()
     
-    # Récupérer toutes les galeries triées par année et mois
-    c.execute('''
-        SELECT id, name, description, cover_image, year, month, created_at, photo_date
-        FROM galleries
-        ORDER BY year DESC, month DESC, photo_date DESC
-    ''')
-    galleries = c.fetchall()
-    print(f"Found {len(galleries)} total galleries")  # Debug log
-    conn.close()
-
     galleries_by_month = {}
     
-    for gallery in galleries:
-        month_key = f"{MOIS_FR[gallery[5]]} {gallery[4]}"  # Mois Année
-        print(f"Processing gallery for {month_key}")  # Debug log
+    for gallery_id, gallery in galleries.items():
+        date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+        month_num = date.strftime('%m')
+        year = date.strftime('%Y')
         
         if month_key not in galleries_by_month:
             galleries_by_month[month_key] = {
                 'galleries': [],
-                'cover': None,
-                'year': gallery[4],
-                'month': gallery[5]
+                'month': int(month_num),
+                'year': int(year),
+                'cover': None
             }
         
         galleries_by_month[month_key]['galleries'].append(gallery)
-        if galleries_by_month[month_key]['cover'] is None and gallery[3]:
-            galleries_by_month[month_key]['cover'] = gallery[3]
+        
+        # Utiliser la première image de couverture trouvée comme cover du mois
+        if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+            galleries_by_month[month_key]['cover'] = gallery['cover_image']
+    
+    return render_template('index.html', 
+                         galleries_by_month=galleries_by_month,
+                         dev_mode=app.config['DEV_MODE'])
 
-    print(f"Organized into {len(galleries_by_month)} months")  # Debug log
-    return galleries_by_month
+@app.route('/gallery/<gallery_id>')
+def gallery(gallery_id):
+    galleries = load_gallery_data()
+    gallery = galleries.get(gallery_id)
+    if not gallery:
+        return "Gallery not found", 404
+    return render_template('gallery.html', gallery=gallery, dev_mode=app.config['DEV_MODE'])
 
-@app.route('/')
-def index():
-    galleries_by_month = get_galleries_by_month()
-    return render_template('index.html', galleries_by_month=galleries_by_month)
-
-@app.route('/month/<int:year>/<int:month>')
+@app.route('/<int:year>/<int:month>')
 def month_galleries(year, month):
     try:
-        print(f"Accessing month page for {year}/{month}")  # Debug log
+        app.logger.info(f"Accessing month_galleries for {month}/{year}")
         
-        if month < 1 or month > 12:
-            print(f"Invalid month number: {month}")
-            flash('Mois invalide')
-            return redirect(url_for('index'))
+        with open('galleries.json', 'r', encoding='utf-8') as f:
+            galleries = json.load(f)
+        
+        app.logger.info(f"Loaded galleries: {len(galleries)} found")
+        
+        # Filtrer les galeries pour ce mois
+        month_galleries = []
+        background_image = None
+        
+        for gallery_id, gallery in galleries.items():
+            app.logger.debug(f"Processing gallery {gallery_id}: {gallery.get('date')}")
+            gallery_date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+            if gallery_date.year == year and gallery_date.month == month:
+                gallery = gallery.copy()  # Create a copy to avoid modifying the original
+                gallery['id'] = gallery_id
+                month_galleries.append(gallery)
+                # Utiliser la première photo de la première galerie comme fond d'écran
+                if not background_image and gallery.get('photos'):
+                    background_image = gallery['photos'][0]['url']
+        
+        app.logger.info(f"Found {len(month_galleries)} galleries for {month}/{year}")
+        
+        if not month_galleries:
+            app.logger.warning(f"No galleries found for {month}/{year}")
+            abort(404)
+        
+        # Trier les galeries par date
+        month_galleries.sort(key=lambda x: x['date'], reverse=True)
+        
+        # S'assurer que month est un entier valide entre 1 et 12
+        if not (1 <= month <= 12):
+            app.logger.error(f"Invalid month value: {month}")
+            abort(404)
             
-        month_key = f"{MOIS_FR[month]} {year}"
-        print(f"Month key: {month_key}")  # Debug log
+        month_name = f"{MOIS_FR[month-1]} {year}"
+        app.logger.info(f"Rendering template with month_name: {month_name}")
         
-        galleries_by_month = get_galleries_by_month()
-        print(f"Available months: {list(galleries_by_month.keys())}")  # Debug log
-        
-        if month_key in galleries_by_month:
-            galleries = galleries_by_month[month_key]['galleries']
-            print(f"Found {len(galleries)} galleries for {month_key}")  # Debug log
-            return render_template('month.html', 
-                                 month=month_key, 
-                                 galleries=galleries,
-                                 year=year,
-                                 month_num=month)
-        
-        print(f"Month {month_key} not found in available months")  # Debug log
-        flash('Aucune galerie trouvée pour ce mois')
-        return redirect(url_for('index'))
-        
+        return render_template('month.html', 
+                             month=month_name,
+                             galleries=month_galleries,
+                             background_image=background_image)
+                             
     except Exception as e:
-        print(f"Error in month_galleries: {str(e)}")  # Debug log
-        flash('Une erreur est survenue')
+        app.logger.error(f"Error in month_galleries: {str(e)}")
+        app.logger.exception("Full traceback:")
+        abort(500)
+
+@app.route('/upload_photos/<gallery_id>', methods=['POST'])
+def upload_photos(gallery_id):
+    if 'photos' not in request.files:
+        flash('Aucune photo sélectionnée')
+        return redirect(url_for('gallery', gallery_id=gallery_id))
+    
+    galleries = load_gallery_data()
+    if gallery_id not in galleries:
+        flash('Galerie non trouvée')
         return redirect(url_for('index'))
+    
+    gallery = galleries[gallery_id]
+    if 'photos' not in gallery:
+        gallery['photos'] = []
+    
+    files = request.files.getlist('photos')
+    
+    for file in files:
+        if file.filename:
+            try:
+                # Upload to Cloudinary
+                result = cloudinary.uploader.upload(file)
+                gallery['photos'].append({
+                    'url': result['secure_url'],
+                    'filename': file.filename
+                })
+            except Exception as e:
+                flash(f'Erreur lors du téléchargement de {file.filename}: {str(e)}')
+                continue
+    
+    save_gallery_data(galleries)
+    return redirect(url_for('gallery', gallery_id=gallery_id))
 
 @app.route('/create_gallery', methods=['POST'])
 def create_gallery():
-    name = request.form.get('name')
-    description = request.form.get('description')
-    cover_image = request.files.get('cover_image')
-    photo_date = request.form.get('photo_date')
+    name = request.form.get('name', '').strip()
+    date = request.form.get('date', '').strip()
+    description = request.form.get('description', '').strip()
     
-    if not name:
-        flash('Le nom de la galerie est requis')
+    if not name or not date:
+        flash('Le nom et la date sont requis')
         return redirect(url_for('index'))
     
-    # Si aucune date n'est fournie, utiliser la date actuelle
     try:
-        if photo_date:
-            photo_datetime = datetime.strptime(photo_date, '%Y-%m-%d')
-        else:
-            photo_datetime = datetime.now()
+        # Valider le format de la date
+        datetime.strptime(date, '%Y-%m-%d')
     except ValueError:
-        flash('Format de date invalide. Utilisez YYYY-MM-DD')
+        flash('Format de date invalide')
         return redirect(url_for('index'))
     
-    if cover_image and allowed_file(cover_image.filename):
-        # Upload to Cloudinary
-        result = cloudinary.uploader.upload(cover_image)
-        filename = result['secure_url']
-    else:
-        filename = None
+    # Créer un ID unique basé sur la date et l'heure
+    gallery_id = datetime.now().strftime('%Y%m%d_%H%M%S')
     
-    # Obtenir la date actuelle pour created_at
-    now = datetime.now()
-    current_time = now.strftime('%Y-%m-%d %H:%M:%S')
+    galleries = load_gallery_data()
     
-    conn = sqlite3.connect('galleries.db')
-    c = conn.cursor()
-    c.execute('''
-        INSERT INTO galleries 
-        (name, description, cover_image, year, month, created_at, photo_date) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (name, description, filename, photo_datetime.year, photo_datetime.month, current_time, photo_date))
-    gallery_id = c.lastrowid
-    conn.commit()
-    conn.close()
+    # Créer la nouvelle galerie
+    galleries[gallery_id] = {
+        'name': name,
+        'date': date,
+        'formatted_date': format_date(date),
+        'description': description,
+        'photos': []
+    }
     
-    return redirect(url_for('view_gallery', gallery_id=gallery_id))
-
-@app.route('/gallery/<int:gallery_id>')
-def view_gallery(gallery_id):
-    conn = sqlite3.connect('galleries.db')
-    c = conn.cursor()
-    c.execute('SELECT * FROM galleries WHERE id = ?', (gallery_id,))
-    gallery = c.fetchone()
+    # Gérer l'upload de l'image de couverture
+    if 'cover_image' in request.files:
+        cover_file = request.files['cover_image']
+        if cover_file.filename:
+            try:
+                # Upload to Cloudinary
+                result = cloudinary.uploader.upload(cover_file)
+                galleries[gallery_id]['cover_image'] = result['secure_url']
+            except Exception as e:
+                flash(f'Erreur lors du téléchargement de l\'image de couverture: {str(e)}')
     
-    if gallery is None:
-        flash('Galerie non trouvée')
-        return redirect(url_for('index'))
-        
-    c.execute('SELECT filename FROM photos WHERE gallery_id = ?', (gallery_id,))
-    photos = c.fetchall()
-    conn.close()
-    
-    return render_template('gallery.html', gallery=gallery, photos=photos, MOIS_FR=MOIS_FR)
-
-@app.route('/upload/<int:gallery_id>', methods=['POST'])
-def upload_files(gallery_id):
-    if 'files[]' not in request.files:
-        flash('Aucun fichier sélectionné')
-        return redirect(url_for('view_gallery', gallery_id=gallery_id))
-    
-    files = request.files.getlist('files[]')
-    conn = sqlite3.connect('galleries.db')
-    c = conn.cursor()
-    
-    for file in files:
-        if file and allowed_file(file.filename):
-            # Upload to Cloudinary
-            result = cloudinary.uploader.upload(file)
-            filename = result['secure_url']
-            c.execute('INSERT INTO photos (gallery_id, filename) VALUES (?, ?)',
-                     (gallery_id, filename))
-    
-    conn.commit()
-    conn.close()
-    return redirect(url_for('view_gallery', gallery_id=gallery_id))
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-@app.route('/edit_gallery_date/<int:gallery_id>', methods=['GET', 'POST'])
-def edit_gallery_date(gallery_id):
-    conn = sqlite3.connect('galleries.db')
-    c = conn.cursor()
-    
-    if request.method == 'POST':
-        photo_date = request.form.get('photo_date')
-        
-        try:
-            photo_datetime = datetime.strptime(photo_date, '%Y-%m-%d')
-            c.execute('''
-                UPDATE galleries 
-                SET year = ?, month = ?, photo_date = ?
-                WHERE id = ?
-            ''', (photo_datetime.year, photo_datetime.month, photo_date, gallery_id))
-            conn.commit()
-            flash('Date de la galerie mise à jour avec succès')
-        except ValueError:
-            flash('Format de date invalide. Utilisez YYYY-MM-DD')
-        except Exception as e:
-            flash(f'Erreur lors de la mise à jour: {str(e)}')
-        
-        conn.close()
-        return redirect(url_for('view_gallery', gallery_id=gallery_id))
-    
-    # GET request - afficher le formulaire
-    c.execute('SELECT name, year, month, photo_date FROM galleries WHERE id = ?', (gallery_id,))
-    gallery = c.fetchone()
-    conn.close()
-    
-    if gallery is None:
-        flash('Galerie non trouvée')
-        return redirect(url_for('index'))
-    
-    current_date = gallery[3] if gallery[3] else f"{gallery[1]:04d}-{gallery[2]:02d}-01"  # Format YYYY-MM-DD
-    return render_template('edit_gallery_date.html', gallery=gallery, current_date=current_date, gallery_id=gallery_id)
+    save_gallery_data(galleries)
+    return redirect(url_for('gallery', gallery_id=gallery_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

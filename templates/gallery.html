@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ gallery[1] }} - Galerie de Randonnées</title>
+    <title>{{ gallery.name }} - Galerie de Randonnées</title>
     <style>
         body, html {
             margin: 0;
@@ -99,90 +99,77 @@
             background: white;
             margin-top: 90vh;
             padding: 2rem;
-            border-radius: 30px 30px 0 0;
+            min-height: 50vh;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .upload-section {
-            max-width: 1400px;
-            margin: 0 auto 2rem;
-            text-align: center;
-        }
-
-        .file-input-wrapper {
-            display: inline-flex;
-            gap: 1rem;
-            align-items: center;
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 15px;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-input-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem 1.5rem;
-            background: #e9ecef;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .file-input-label:hover {
-            background: #dee2e6;
-        }
-
-        .upload-button {
-            padding: 0.8rem 1.5rem;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-button:hover {
-            background: #2980b9;
         }
 
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
-            padding: 1rem 0;
-            max-width: 1400px;
-            margin: 0 auto;
+            padding: 1.5rem;
         }
 
         .photo-item {
+            position: relative;
             aspect-ratio: 3/2;
             overflow: hidden;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
-            background: #f8f9fa;
         }
 
         .photo-item:hover {
             transform: translateY(-5px);
         }
 
-        .photo-thumbnail {
+        .photo-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            cursor: pointer;
             transition: transform 0.3s ease;
         }
 
-        .photo-item:hover .photo-thumbnail {
+        .photo-item:hover img {
             transform: scale(1.05);
+        }
+
+        .upload-section {
+            margin: 2rem auto;
+            max-width: 600px;
+            padding: 2rem;
+            background: #f9f9f9;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .upload-form input[type="file"] {
+            padding: 1rem;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .upload-form button {
+            padding: 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .upload-form button:hover {
+            background: #0056b3;
         }
 
         .lightbox {
@@ -190,19 +177,45 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
             z-index: 1000;
+            padding: 2rem;
         }
 
-        .lightbox-toolbar {
+        .lightbox.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
+            top: 2rem;
+            right: 2rem;
+            color: white;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .lightbox-nav {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             gap: 1rem;
-            z-index: 1002;
+            z-index: 1001;
         }
 
         .lightbox-button {
@@ -212,90 +225,11 @@
             padding: 0.8rem;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: background 0.3s ease;
         }
 
         .lightbox-button:hover {
             background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-
-        .lightbox-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .lightbox-content {
-            max-width: 90%;
-            max-height: 90vh;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-            cursor: zoom-in;
-        }
-
-        .lightbox-content.zoomed {
-            cursor: zoom-out;
-            max-width: none;
-            max-height: none;
-            transform: scale(1.5);
-        }
-
-        .lightbox-nav {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            padding: 1rem 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 5px;
-        }
-
-        .lightbox-prev {
-            left: 1rem;
-        }
-
-        .lightbox-next {
-            right: 1rem;
-        }
-
-        .lightbox-nav:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .lightbox-info {
-            position: fixed;
-            bottom: 1rem;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            color: white;
-            z-index: 1001;
-            padding: 1rem;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
-        }
-
-        .lightbox-counter {
-            font-size: 0.9rem;
-            opacity: 0.8;
         }
 
         @media (max-width: 768px) {
@@ -303,135 +237,119 @@
                 font-size: 2.5rem;
             }
 
-            .gallery-content {
-                padding: 1.5rem;
-                margin-top: 80vh;
-            }
-
             .photo-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 1rem;
-                padding: 0.5rem;
+                padding: 1rem;
             }
 
             .back-link {
                 top: 1rem;
                 left: 1rem;
             }
-
-            .lightbox-nav {
-                padding: 0.5rem;
-            }
-
-            .lightbox-info {
-                flex-direction: column;
-                gap: 1rem;
-            }
         }
     </style>
 </head>
 <body>
     <div class="gallery-page">
-        <div class="gallery-hero" {% if gallery[3] %}style="background-image: url('{{ url_for('uploaded_file', filename=gallery[3]) }}')"{% endif %}>
+        <div class="gallery-hero" {% if gallery.cover_image %}style="background-image: url('{{ gallery.cover_image }}')"{% endif %}>
             <div class="hero-overlay"></div>
             <div class="hero-content">
-                <h1>{{ gallery[1] }}</h1>
+                <h1>{{ gallery.name }}</h1>
                 <div class="gallery-meta">
-                    <span class="gallery-date">{{ gallery[7][:10] }}</span>
+                    {{ gallery.date }}
                 </div>
-                {% if gallery[2] %}
-                    <p class="gallery-description">{{ gallery[2] }}</p>
+                {% if gallery.description %}
+                <div class="gallery-description">
+                    {{ gallery.description }}
+                </div>
                 {% endif %}
             </div>
         </div>
 
-        <a href="{{ url_for('index') }}" class="back-link">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Retour aux galeries
+        <a href="/" class="back-link">
+            ← Retour
         </a>
 
         <div class="gallery-content">
-            {% if config.DEV_MODE %}
-            <div class="upload-section">
-                <form action="{{ url_for('upload_files', gallery_id=gallery[0]) }}" method="post" enctype="multipart/form-data" class="upload-form">
-                    <div class="file-input-wrapper">
-                        <input type="file" name="files[]" multiple accept="image/*" id="file-input" class="file-input">
-                        <label for="file-input" class="file-input-label">
-                            <svg class="upload-icon" viewBox="0 0 24 24" width="24" height="24">
-                                <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-                            </svg>
-                            <span class="file-input-text">Ajouter des photos</span>
-                        </label>
-                        <button type="submit" class="upload-button">Télécharger</button>
-                    </div>
+            <div class="gallery-header">
+                <h1>{{ gallery.name }}</h1>
+                <p class="gallery-date">{{ gallery.formatted_date }}</p>
+                {% if gallery.description %}
+                <p class="gallery-description">{{ gallery.description }}</p>
+                {% endif %}
+                
+                {% if dev_mode %}
+                <form action="{{ url_for('upload_photos', gallery_id=gallery.id) }}" method="post" enctype="multipart/form-data" class="upload-form">
+                    <label for="photos" class="upload-button">
+                        Ajouter des photos
+                        <input type="file" id="photos" name="photos" multiple accept="image/*" style="display: none;" onchange="this.form.submit()">
+                    </label>
                 </form>
+                {% endif %}
             </div>
-            {% endif %}
 
-            {% if photos %}
             <div class="photo-grid">
-                {% for photo in photos %}
-                <div class="photo-item">
-                    <img src="{{ url_for('uploaded_file', filename=photo[0]) }}" 
-                         alt="Photo de randonnée"
-                         loading="lazy"
-                         onclick="openLightbox('{{ url_for('uploaded_file', filename=photo[0]) }}')"
-                         class="photo-thumbnail">
+                {% for photo in gallery.photos %}
+                <div class="photo-item" onclick="openLightbox('{{ photo.url }}')">
+                    <img src="{{ photo.url }}" alt="{{ photo.filename }}">
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <div class="no-photos">
-                <p>Aucune photo dans cette galerie</p>
-                {% if config.DEV_MODE %}
-                <p>Commencez par ajouter quelques photos !</p>
-                {% endif %}
-            </div>
-            {% endif %}
         </div>
     </div>
 
-    <!-- Lightbox -->
-    <div id="lightbox" class="lightbox">
-        <div class="lightbox-toolbar">
-            <button class="lightbox-button" onclick="toggleZoom()" title="Zoom">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-                </svg>
-            </button>
-            <button class="lightbox-close" onclick="closeLightbox()" title="Fermer">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-        
-        <button class="lightbox-nav lightbox-prev" onclick="previousImage()" title="Photo précédente">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 18l-6-6 6-6"/>
-            </svg>
-        </button>
-        
-        <div class="lightbox-container">
-            <img id="lightbox-img" class="lightbox-content" src="" alt="Photo en plein écran">
-        </div>
-        
-        <button class="lightbox-nav lightbox-next" onclick="nextImage()" title="Photo suivante">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18l6-6-6-6"/>
-            </svg>
-        </button>
-
-        <div class="lightbox-info">
-            <span class="lightbox-counter">Photo <span id="current-index">1</span> sur <span id="total-photos">1</span></span>
-            <button class="lightbox-button" onclick="closeLightbox()" title="Retour à la galerie">
-                Retour à la galerie
-            </button>
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <img id="lightbox-image" src="" alt="">
+        <div class="lightbox-nav">
+            <button class="lightbox-button" onclick="previousImage()">←</button>
+            <button class="lightbox-button" onclick="nextImage()">→</button>
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        let currentImageIndex = 0;
+        const images = [{% for photo in gallery.photos %}'{{ photo.url }}',{% endfor %}];
+
+        function openLightbox(imageUrl) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightbox-image');
+            lightbox.classList.add('active');
+            lightboxImage.src = imageUrl;
+            currentImageIndex = images.indexOf(imageUrl);
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+        }
+
+        function previousImage() {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            document.getElementById('lightbox-image').src = images[currentImageIndex];
+        }
+
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            document.getElementById('lightbox-image').src = images[currentImageIndex];
+        }
+
+        // Close lightbox when clicking outside the image
+        document.getElementById('lightbox').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (!document.getElementById('lightbox').classList.contains('active')) return;
+            
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') previousImage();
+            if (e.key === 'ArrowRight') nextImage();
+        });
+    </script>
 </body>
 </html>
