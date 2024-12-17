@@ -88,160 +88,138 @@
 
         <div id="lightbox" class="lightbox">
             <div class="lightbox-content">
-                <div class="spinner"></div>
                 <img id="lightbox-image" src="" alt="Image en plein écran">
-                <button class="lightbox-prev" onclick="previousImage(event)">❮</button>
-                <button class="lightbox-next" onclick="nextImage(event)">❯</button>
-                <button class="lightbox-close" onclick="closeLightbox()">×</button>
+                <div class="spinner"></div>
+                <button class="lightbox-prev">❮</button>
+                <button class="lightbox-next">❯</button>
+                <button class="lightbox-close">×</button>
             </div>
         </div>
 
         <script>
-            let images = [];
-            let currentImageIndex = 0;
-            let isLoading = false;
-
-            function preloadImage(src) {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = reject;
-                    img.src = src;
-                });
-            }
-
-            async function openLightbox(imageUrl) {
-                if (isLoading) return;
-                isLoading = true;
-
-                const lightbox = document.getElementById('lightbox');
-                const lightboxImage = document.getElementById('lightbox-image');
-                
-                images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
-                currentImageIndex = images.indexOf(imageUrl);
-                
-                lightbox.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                lightboxImage.style.display = 'none';
-
-                try {
-                    await preloadImage(imageUrl);
-                    lightboxImage.src = imageUrl;
-                    lightboxImage.style.display = 'block';
-                } catch (error) {
-                    console.error('Erreur de chargement:', error);
-                } finally {
-                    isLoading = false;
-                }
-            }
-
-            function closeLightbox() {
-                const lightbox = document.getElementById('lightbox');
-                const lightboxImage = document.getElementById('lightbox-image');
-                lightbox.classList.remove('active');
-                document.body.style.overflow = '';
-                lightboxImage.style.display = 'none';
-                lightboxImage.src = '';
-                isLoading = false;
-            }
-
-            async function loadImage(src) {
-                if (isLoading) return;
-                isLoading = true;
-
-                const lightboxImage = document.getElementById('lightbox-image');
-                lightboxImage.style.display = 'none';
-
-                try {
-                    await preloadImage(src);
-                    lightboxImage.src = src;
-                    lightboxImage.style.display = 'block';
-                } catch (error) {
-                    console.error('Erreur de chargement:', error);
-                } finally {
-                    isLoading = false;
-                }
-            }
-
-            function previousImage(e) {
-                if (e) e.stopPropagation();
-                if (isLoading) return;
-                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-                loadImage(images[currentImageIndex]);
-            }
-
-            function nextImage(e) {
-                if (e) e.stopPropagation();
-                if (isLoading) return;
-                currentImageIndex = (currentImageIndex + 1) % images.length;
-                loadImage(images[currentImageIndex]);
-            }
-
-            // Event Listeners
             document.addEventListener('DOMContentLoaded', function() {
+                let currentIndex = 0;
+                const images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
                 const lightbox = document.getElementById('lightbox');
-                
+                const lightboxImage = document.getElementById('lightbox-image');
+                const spinner = document.querySelector('.spinner');
+
+                // Fonction pour charger une image
+                function loadImage(src) {
+                    spinner.style.display = 'block';
+                    lightboxImage.style.display = 'none';
+                    
+                    lightboxImage.src = src;
+                    lightboxImage.onload = function() {
+                        spinner.style.display = 'none';
+                        lightboxImage.style.display = 'block';
+                    };
+                    lightboxImage.onerror = function() {
+                        console.error('Erreur de chargement de l\'image');
+                        spinner.style.display = 'none';
+                    };
+                }
+
+                // Ouvrir la lightbox
+                document.querySelectorAll('.photo-item img').forEach((img, index) => {
+                    img.addEventListener('click', function() {
+                        currentIndex = index;
+                        lightbox.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                        loadImage(images[currentIndex]);
+                    });
+                });
+
+                // Fermer la lightbox
+                document.querySelector('.lightbox-close').addEventListener('click', function() {
+                    lightbox.style.display = 'none';
+                    document.body.style.overflow = '';
+                    lightboxImage.src = '';
+                });
+
+                // Image précédente
+                document.querySelector('.lightbox-prev').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    currentIndex = (currentIndex - 1 + images.length) % images.length;
+                    loadImage(images[currentIndex]);
+                });
+
+                // Image suivante
+                document.querySelector('.lightbox-next').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    currentIndex = (currentIndex + 1) % images.length;
+                    loadImage(images[currentIndex]);
+                });
+
+                // Fermer en cliquant en dehors
                 lightbox.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        closeLightbox();
+                    if (e.target === lightbox) {
+                        lightbox.style.display = 'none';
+                        document.body.style.overflow = '';
+                        lightboxImage.src = '';
                     }
                 });
 
+                // Navigation au clavier
                 document.addEventListener('keydown', function(e) {
-                    if (lightbox.classList.contains('active')) {
+                    if (lightbox.style.display === 'block') {
                         if (e.key === 'ArrowLeft') {
-                            previousImage(new Event('click'));
+                            currentIndex = (currentIndex - 1 + images.length) % images.length;
+                            loadImage(images[currentIndex]);
                         } else if (e.key === 'ArrowRight') {
-                            nextImage(new Event('click'));
+                            currentIndex = (currentIndex + 1) % images.length;
+                            loadImage(images[currentIndex]);
                         } else if (e.key === 'Escape') {
-                            closeLightbox();
+                            lightbox.style.display = 'none';
+                            document.body.style.overflow = '';
+                            lightboxImage.src = '';
                         }
                     }
                 });
 
+                // Gestion du swipe sur mobile
                 let touchStartX = 0;
-                let touchStartTime = 0;
-                
+                let touchEndX = 0;
+
                 lightbox.addEventListener('touchstart', function(e) {
                     touchStartX = e.touches[0].clientX;
-                    touchStartTime = Date.now();
                 }, { passive: true });
-                
-                lightbox.addEventListener('touchend', function(e) {
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const touchEndTime = Date.now();
+
+                lightbox.addEventListener('touchmove', function(e) {
+                    touchEndX = e.touches[0].clientX;
+                }, { passive: true });
+
+                lightbox.addEventListener('touchend', function() {
                     const swipeLength = touchEndX - touchStartX;
-                    const swipeTime = touchEndTime - touchStartTime;
-                    
-                    // Vérifier si c'est un swipe intentionnel
-                    if (Math.abs(swipeLength) > 50 && swipeTime < 300) {
+                    if (Math.abs(swipeLength) > 50) {
                         if (swipeLength > 0) {
-                            previousImage(new Event('click'));
+                            currentIndex = (currentIndex - 1 + images.length) % images.length;
                         } else {
-                            nextImage(new Event('click'));
+                            currentIndex = (currentIndex + 1) % images.length;
                         }
+                        loadImage(images[currentIndex]);
                     }
                 }, { passive: true });
             });
         </script>
-    </div>
 
-    <script>
-        function showEditModal() {
-            document.getElementById('editModal').style.display = 'block';
-        }
-
-        function hideEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-
-        // Fermer la modal en cliquant en dehors
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target == modal) {
-                hideEditModal();
+        <script>
+            function showEditModal() {
+                document.getElementById('editModal').style.display = 'block';
             }
-        }
-    </script>
+
+            function hideEditModal() {
+                document.getElementById('editModal').style.display = 'none';
+            }
+
+            // Fermer la modal en cliquant en dehors
+            window.onclick = function(event) {
+                const modal = document.getElementById('editModal');
+                if (event.target == modal) {
+                    hideEditModal();
+                }
+            }
+        </script>
+    </div>
 </body>
 </html>

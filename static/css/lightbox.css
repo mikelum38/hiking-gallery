@@ -1,13 +1,12 @@
 .lightbox {
     display: none;
     position: fixed;
+    z-index: 1000;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.9);
-    z-index: 1000;
-    touch-action: pan-y pinch-zoom;
 }
 
 .lightbox.active {
@@ -16,9 +15,8 @@
 
 .lightbox-content {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     display: flex;
@@ -27,8 +25,8 @@
 }
 
 #lightbox-image {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90%;
+    max-height: 90%;
     object-fit: contain;
     display: none;
 }
@@ -38,6 +36,7 @@
 }
 
 .spinner {
+    display: none;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -61,18 +60,17 @@
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.1);
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
     color: white;
-    padding: 1rem;
-    cursor: pointer;
     border: none;
-    width: 50px;
-    height: 50px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1001;
     font-size: 24px;
+    z-index: 1001;
 }
 
 .lightbox-prev {
@@ -92,49 +90,39 @@
     position: fixed;
     top: 10px;
     right: 10px;
-    color: white;
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    font-size: 30px;
-    cursor: pointer;
     width: 40px;
     height: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 24px;
     z-index: 1001;
     border-radius: 50%;
 }
 
 /* Styles pour mobile */
 @media (max-width: 768px) {
-    .lightbox-content {
-        padding: 0;
-    }
-
     #lightbox-image {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
     }
 
     .lightbox-prev,
     .lightbox-next {
-        width: 40px;
-        height: 40px;
-        padding: 0.5rem;
-    }
-
-    .lightbox-prev {
-        left: 10px;
-    }
-
-    .lightbox-next {
-        right: 10px;
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
     }
 
     .lightbox-close {
-        top: 10px;
-        right: 10px;
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
     }
 }
