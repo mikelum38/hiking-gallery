@@ -22,17 +22,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
 }
 
 #lightbox-image {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    width: auto;
-    height: auto;
-    display: none;
 }
 
 #lightbox-image.visible {
@@ -111,15 +106,18 @@
 /* Styles pour mobile */
 @media (max-width: 768px) {
     .lightbox-content {
-        padding: 10px;
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        margin: 0;
     }
 
     #lightbox-image {
-        max-width: 100%;
-        max-height: 100vh;
-        margin: 0;
         width: 100%;
-        height: auto;
+        height: 100%;
+        object-fit: contain;
+        margin: 0;
+        padding: 0;
     }
 
     .lightbox-prev,
