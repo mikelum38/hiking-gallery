@@ -14,19 +14,22 @@
 }
 
 .lightbox-content {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    right: 0;
+    bottom: 0;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 #lightbox-image {
-    max-width: 100%;
-    max-height: 100%;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    width: auto;
+    height: auto;
     object-fit: contain;
 }
 
@@ -61,7 +64,7 @@
     transform: translateY(-50%);
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
     border: none;
     cursor: pointer;
@@ -106,18 +109,16 @@
 /* Styles pour mobile */
 @media (max-width: 768px) {
     .lightbox-content {
-        width: 100vw;
-        height: 100vh;
         padding: 0;
-        margin: 0;
     }
 
     #lightbox-image {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        margin: 0;
-        padding: 0;
+        max-width: 95%;
+        max-height: 95%;
+        width: auto;
+        height: auto;
+        transform: scale(0.95);
+        -webkit-transform: scale(0.95);
     }
 
     .lightbox-prev,
