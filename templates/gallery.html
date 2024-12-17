@@ -88,7 +88,7 @@
 
         <div id="lightbox" class="lightbox">
             <div class="lightbox-content">
-                <div class="loading-spinner"></div>
+                <div class="spinner"></div>
                 <img id="lightbox-image" src="" alt="Image en plein écran">
                 <button class="lightbox-prev" onclick="previousImage(event)">❮</button>
                 <button class="lightbox-next" onclick="nextImage(event)">❯</button>
@@ -102,16 +102,12 @@
 
             function openLightbox(imageUrl) {
                 const lightbox = document.getElementById('lightbox');
-                const lightboxContent = lightbox.querySelector('.lightbox-content');
                 const lightboxImage = document.getElementById('lightbox-image');
                 
-                // Récupérer toutes les images de la galerie
                 images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
                 currentImageIndex = images.indexOf(imageUrl);
                 
-                // Afficher le spinner et masquer l'image
-                lightboxContent.classList.add('loading');
-                lightboxImage.classList.remove('loaded');
+                // Afficher la lightbox et le spinner
                 lightbox.classList.add('active');
                 document.body.style.overflow = 'hidden';
 
@@ -119,11 +115,7 @@
                 const img = new Image();
                 img.onload = function() {
                     lightboxImage.src = imageUrl;
-                    // Petit délai pour assurer la transition
-                    setTimeout(() => {
-                        lightboxContent.classList.remove('loading');
-                        lightboxImage.classList.add('loaded');
-                    }, 100);
+                    lightboxImage.classList.add('visible');
                 };
                 img.src = imageUrl;
             }
@@ -133,24 +125,18 @@
                 const lightboxImage = document.getElementById('lightbox-image');
                 lightbox.classList.remove('active');
                 document.body.style.overflow = '';
+                lightboxImage.classList.remove('visible');
                 lightboxImage.src = '';
-                lightboxImage.classList.remove('loaded');
             }
 
             function loadImage(src) {
-                const lightboxContent = document.querySelector('.lightbox-content');
                 const lightboxImage = document.getElementById('lightbox-image');
-                
-                lightboxContent.classList.add('loading');
-                lightboxImage.classList.remove('loaded');
+                lightboxImage.classList.remove('visible');
 
                 const img = new Image();
                 img.onload = function() {
                     lightboxImage.src = src;
-                    setTimeout(() => {
-                        lightboxContent.classList.remove('loading');
-                        lightboxImage.classList.add('loaded');
-                    }, 100);
+                    lightboxImage.classList.add('visible');
                 };
                 img.src = src;
             }
