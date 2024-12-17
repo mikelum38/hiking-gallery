@@ -88,6 +88,7 @@
 
         <div id="lightbox" class="lightbox">
             <div class="lightbox-content">
+                <div class="loading-spinner"></div>
                 <img id="lightbox-image" src="" alt="Image en plein écran">
                 <button class="lightbox-prev" onclick="previousImage(event)">❮</button>
                 <button class="lightbox-next" onclick="nextImage(event)">❯</button>
@@ -101,26 +102,57 @@
 
             function openLightbox(imageUrl) {
                 const lightbox = document.getElementById('lightbox');
+                const lightboxContent = lightbox.querySelector('.lightbox-content');
                 const lightboxImage = document.getElementById('lightbox-image');
                 
                 // Récupérer toutes les images de la galerie
                 images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
                 currentImageIndex = images.indexOf(imageUrl);
                 
-                // Précharger l'image avant de l'afficher
+                // Afficher le spinner et masquer l'image
+                lightboxContent.classList.add('loading');
+                lightboxImage.classList.remove('loaded');
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+                // Précharger l'image
                 const img = new Image();
                 img.onload = function() {
                     lightboxImage.src = imageUrl;
-                    lightbox.classList.add('active');
-                    document.body.style.overflow = 'hidden';
+                    // Petit délai pour assurer la transition
+                    setTimeout(() => {
+                        lightboxContent.classList.remove('loading');
+                        lightboxImage.classList.add('loaded');
+                    }, 100);
                 };
                 img.src = imageUrl;
             }
 
             function closeLightbox() {
                 const lightbox = document.getElementById('lightbox');
+                const lightboxImage = document.getElementById('lightbox-image');
                 lightbox.classList.remove('active');
                 document.body.style.overflow = '';
+                lightboxImage.src = '';
+                lightboxImage.classList.remove('loaded');
+            }
+
+            function loadImage(src) {
+                const lightboxContent = document.querySelector('.lightbox-content');
+                const lightboxImage = document.getElementById('lightbox-image');
+                
+                lightboxContent.classList.add('loading');
+                lightboxImage.classList.remove('loaded');
+
+                const img = new Image();
+                img.onload = function() {
+                    lightboxImage.src = src;
+                    setTimeout(() => {
+                        lightboxContent.classList.remove('loading');
+                        lightboxImage.classList.add('loaded');
+                    }, 100);
+                };
+                img.src = src;
             }
 
             function previousImage(e) {
@@ -133,16 +165,6 @@
                 if (e) e.stopPropagation();
                 currentImageIndex = (currentImageIndex + 1) % images.length;
                 loadImage(images[currentImageIndex]);
-            }
-
-            function loadImage(src) {
-                const img = new Image();
-                const lightboxImage = document.getElementById('lightbox-image');
-                
-                img.onload = function() {
-                    lightboxImage.src = src;
-                };
-                img.src = src;
             }
 
             // Event Listeners
@@ -167,43 +189,22 @@
                     }
                 });
 
-                // Gestion améliorée du tactile pour mobile
+                // Gestion du swipe
                 let touchStartX = 0;
-                let touchStartY = 0;
-                let isSwiping = false;
-
+                
                 lightbox.addEventListener('touchstart', function(e) {
                     touchStartX = e.touches[0].clientX;
-                    touchStartY = e.touches[0].clientY;
-                    isSwiping = false;
                 }, { passive: true });
-
-                lightbox.addEventListener('touchmove', function(e) {
-                    if (!isSwiping) {
-                        const touchMoveX = e.touches[0].clientX;
-                        const touchMoveY = e.touches[0].clientY;
-                        const deltaX = Math.abs(touchMoveX - touchStartX);
-                        const deltaY = Math.abs(touchMoveY - touchStartY);
-
-                        // Si le mouvement horizontal est plus important que le vertical
-                        if (deltaX > deltaY && deltaX > 10) {
-                            isSwiping = true;
-                            e.preventDefault();
-                        }
-                    }
-                }, { passive: false });
-
+                
                 lightbox.addEventListener('touchend', function(e) {
-                    if (isSwiping) {
-                        const touchEndX = e.changedTouches[0].clientX;
-                        const swipeLength = touchEndX - touchStartX;
-                        
-                        if (Math.abs(swipeLength) > 50) {
-                            if (swipeLength > 0) {
-                                previousImage(new Event('click'));
-                            } else {
-                                nextImage(new Event('click'));
-                            }
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const swipeLength = touchEndX - touchStartX;
+                    
+                    if (Math.abs(swipeLength) > 50) {
+                        if (swipeLength > 0) {
+                            previousImage(new Event('click'));
+                        } else {
+                            nextImage(new Event('click'));
                         }
                     }
                 }, { passive: true });

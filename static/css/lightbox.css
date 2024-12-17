@@ -7,7 +7,6 @@
     height: 100%;
     background: rgb(0, 0, 0);
     z-index: 1000;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .lightbox.active {
@@ -23,8 +22,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    -webkit-user-select: none;
-    user-select: none;
 }
 
 #lightbox-image {
@@ -33,8 +30,36 @@
     width: auto;
     height: auto;
     border: 1px solid black;
-    -webkit-user-drag: none;
-    user-drag: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#lightbox-image.loaded {
+    opacity: 1;
+}
+
+.loading-spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+}
+
+.loading .loading-spinner {
+    display: block;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
 }
 
 .lightbox-prev,
@@ -55,7 +80,6 @@
     justify-content: center;
     transition: background-color 0.3s;
     z-index: 1001;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .lightbox-prev {
@@ -82,20 +106,22 @@
     cursor: pointer;
     padding: 8px;
     z-index: 1001;
-    -webkit-tap-highlight-color: transparent;
 }
 
 /* Styles pour mobile */
 @media (max-width: 768px) {
     .lightbox-content {
-        max-width: 95%;
-        max-height: 95%;
-        touch-action: pan-y pinch-zoom;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        background: black;
     }
 
     #lightbox-image {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
+        max-width: 100vw;
+        max-height: 100vh;
+        object-fit: contain;
     }
 
     .lightbox-prev,
@@ -103,6 +129,14 @@
         width: 40px;
         height: 40px;
         padding: 0.5rem;
+    }
+
+    .lightbox-prev {
+        left: 10px;
+    }
+
+    .lightbox-next {
+        right: 10px;
     }
 
     .lightbox-close {
