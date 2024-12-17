@@ -88,71 +88,93 @@
 
         <div id="lightbox" class="lightbox">
             <div class="lightbox-content">
-                <img id="lightbox-image" class="lightbox-image" src="" alt="Image en plein écran">
+                <img id="lightbox-image" src="" alt="Image en plein écran">
                 <button class="lightbox-prev" onclick="previousImage(event)">❮</button>
                 <button class="lightbox-next" onclick="nextImage(event)">❯</button>
                 <button class="lightbox-close" onclick="closeLightbox()">×</button>
-            </div></div>
+            </div>
         </div>
+
+        <script>
+            let images = [];
+            let currentImageIndex = 0;
+
+            function openLightbox(imageUrl) {
+                const lightbox = document.getElementById('lightbox');
+                const lightboxImage = document.getElementById('lightbox-image');
+                
+                images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
+                currentImageIndex = images.indexOf(imageUrl);
+                
+                lightboxImage.src = imageUrl;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightbox() {
+                const lightbox = document.getElementById('lightbox');
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            function previousImage(e) {
+                e.stopPropagation();
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                document.getElementById('lightbox-image').src = images[currentImageIndex];
+            }
+
+            function nextImage(e) {
+                e.stopPropagation();
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                document.getElementById('lightbox-image').src = images[currentImageIndex];
+            }
+
+            // Event Listeners
+            document.addEventListener('DOMContentLoaded', function() {
+                const lightbox = document.getElementById('lightbox');
+                
+                lightbox.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeLightbox();
+                    }
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (lightbox.classList.contains('active')) {
+                        if (e.key === 'ArrowLeft') {
+                            previousImage(new Event('click'));
+                        } else if (e.key === 'ArrowRight') {
+                            nextImage(new Event('click'));
+                        } else if (e.key === 'Escape') {
+                            closeLightbox();
+                        }
+                    }
+                });
+
+                let touchStartX = 0;
+                
+                lightbox.addEventListener('touchstart', function(e) {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+                
+                lightbox.addEventListener('touchend', function(e) {
+                    const touchEndX = e.changedTouches[0].screenX;
+                    const swipeThreshold = 50;
+                    const swipeLength = touchEndX - touchStartX;
+                    
+                    if (Math.abs(swipeLength) > swipeThreshold) {
+                        if (swipeLength > 0) {
+                            previousImage(new Event('click'));
+                        } else {
+                            nextImage(new Event('click'));
+                        }
+                    }
+                }, { passive: true });
+            });
+        </script>
     </div>
 
     <script>
-        let images = [];
-        let currentImageIndex = 0;
-
-        function openLightbox(imageUrl) {
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImage = document.getElementById('lightbox-image');
-            
-            // Récupérer toutes les images de la galerie
-            images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
-            currentImageIndex = images.indexOf(imageUrl);
-            
-            lightboxImage.src = imageUrl;
-            lightbox.style.display = 'block';
-        }
-
-        function closeLightbox() {
-            const lightbox = document.getElementById('lightbox');
-            lightbox.style.display = 'none';
-        }
-
-        function previousImage(e) {
-            e.stopPropagation();
-            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-            updateLightboxImage();
-        }
-
-        function nextImage(e) {
-            e.stopPropagation();
-            currentImageIndex = (currentImageIndex + 1) % images.length;
-            updateLightboxImage();
-        }
-
-        function updateLightboxImage() {
-            const lightboxImage = document.getElementById('lightbox-image');
-            lightboxImage.src = images[currentImageIndex];
-        }
-
-        // Event Listeners
-        document.querySelector('.lightbox-content').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeLightbox();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (document.getElementById('lightbox').style.display === 'block') {
-                if (e.key === 'ArrowLeft') {
-                    previousImage(new Event('click'));
-                } else if (e.key === 'ArrowRight') {
-                    nextImage(new Event('click'));
-                } else if (e.key === 'Escape') {
-                    closeLightbox();
-                }
-            }
-        });
-
         function showEditModal() {
             document.getElementById('editModal').style.display = 'block';
         }
