@@ -52,22 +52,28 @@
             position: fixed;
             top: 2rem;
             left: 2rem;
+            z-index: 10;
             color: white;
             text-decoration: none;
-            padding: 0.8rem 1.5rem;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 30px;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-            z-index: 10;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
         }
 
         .back-link:hover {
-            background: rgba(0, 0, 0, 0.7);
-            transform: translateX(-5px);
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .back-link svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
         }
 
         .galleries-grid {
@@ -80,51 +86,80 @@
         }
 
         .gallery-card {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             color: inherit;
+            position: relative;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .gallery-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
         }
 
         .gallery-cover {
             width: 100%;
-            height: 200px;
+            height: 250px;
             background-size: cover;
             background-position: center;
             position: relative;
         }
 
+        .gallery-cover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.95), transparent);
+        }
+
         .gallery-info {
             padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            position: relative;
         }
 
         .gallery-info h2 {
             margin: 0;
             font-size: 1.5rem;
-            color: #333;
+            color: #2c3e50;
+            font-weight: 600;
+            line-height: 1.3;
         }
 
         .gallery-meta {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #666;
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+            color: #64748b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gallery-meta::before {
+            content: '📅';
+            font-size: 1rem;
         }
 
         .gallery-description {
             margin-top: 1rem;
             font-size: 0.95rem;
-            color: #555;
-            line-height: 1.5;
+            color: #475569;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         @media (max-width: 768px) {
@@ -138,6 +173,20 @@
 
             .galleries-grid {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+
+            .gallery-card {
+                border-radius: 15px;
+            }
+
+            .gallery-cover {
+                height: 200px;
+            }
+
+            .gallery-info {
+                padding: 1.25rem;
             }
 
             .back-link {
@@ -155,8 +204,11 @@
     <div class="background-image"></div>
     
     <div class="content-wrapper">
-        <a href="/" class="back-link">
-            ← Retour
+        <a href="{{ url_for('index') }}" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Retour
         </a>
 
         <div class="month-header">

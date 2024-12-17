@@ -4,10 +4,20 @@ from datetime import datetime
 import cloudinary
 import cloudinary.uploader
 import os
+from dotenv import load_dotenv
+import logging
+
+load_dotenv()  # Chargement des variables d'environnement depuis .env
 
 app = Flask(__name__)
-app.config['DEV_MODE'] = os.getenv('DEV_MODE', 'False').lower() == 'true'  # Par défaut False
-app.secret_key = 'votre_clé_secrète_ici'
+# Configuration du mode développement
+app.config['DEV_MODE'] = os.environ.get('DEV_MODE', 'false').lower() == 'true'
+app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'votre_clé_secrète_ici')
+app.logger.setLevel(logging.INFO)
+
+# Log du mode de l'application au démarrage
+app.logger.info(f"Application running in {'DEVELOPMENT' if app.config['DEV_MODE'] else 'PRODUCTION'} mode")
 
 # Configuration Cloudinary
 cloudinary.config(
@@ -57,14 +67,30 @@ def index():
                 'cover': None
             }
         
+        # Ajouter l'ID de la galerie à l'objet gallery pour le tri
+        gallery['id'] = gallery_id
         galleries_by_month[month_key]['galleries'].append(gallery)
         
         # Utiliser la première image de couverture trouvée comme cover du mois
         if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
             galleries_by_month[month_key]['cover'] = gallery['cover_image']
     
+    # Trier les mois par année et mois (ordre décroissant pour avoir les plus récents en premier)
+    sorted_months = sorted(
+        galleries_by_month.items(),
+        key=lambda x: (x[1]['year'], x[1]['month']),
+        reverse=True
+    )
+    
+    # Trier les galeries dans chaque mois par date croissante
+    for _, month_data in sorted_months:
+        month_data['galleries'].sort(key=lambda x: x['date'])
+    
+    # Convertir en dictionnaire pour le template
+    sorted_galleries = dict(sorted_months)
+    
     return render_template('index.html', 
-                         galleries_by_month=galleries_by_month,
+                         galleries_by_month=sorted_galleries,
                          dev_mode=app.config['DEV_MODE'])
 
 @app.route('/gallery/<gallery_id>')
@@ -73,68 +99,53 @@ def gallery(gallery_id):
     gallery = galleries.get(gallery_id)
     if not gallery:
         return "Gallery not found", 404
-    return render_template('gallery.html', gallery=gallery, dev_mode=app.config['DEV_MODE'])
+    # Ajouter l'ID à l'objet gallery
+    gallery['id'] = gallery_id
+    return render_template('gallery.html', 
+                         gallery=gallery, 
+                         dev_mode=app.config['DEV_MODE'],
+                         format_date=format_date)
 
 @app.route('/<int:year>/<int:month>')
 def month_galleries(year, month):
-    try:
-        app.logger.info(f"Accessing month_galleries for {month}/{year}")
-        
-        with open('galleries.json', 'r', encoding='utf-8') as f:
-            galleries = json.load(f)
-        
-        app.logger.info(f"Loaded galleries: {len(galleries)} found")
-        
-        # Filtrer les galeries pour ce mois
-        month_galleries = []
-        background_image = None
-        
-        for gallery_id, gallery in galleries.items():
-            app.logger.debug(f"Processing gallery {gallery_id}: {gallery.get('date')}")
-            gallery_date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if gallery_date.year == year and gallery_date.month == month:
-                gallery = gallery.copy()  # Create a copy to avoid modifying the original
-                gallery['id'] = gallery_id
-                month_galleries.append(gallery)
-                # Utiliser la première photo de la première galerie comme fond d'écran
-                if not background_image and gallery.get('photos'):
-                    background_image = gallery['photos'][0]['url']
-        
-        app.logger.info(f"Found {len(month_galleries)} galleries for {month}/{year}")
-        
-        if not month_galleries:
-            app.logger.warning(f"No galleries found for {month}/{year}")
-            abort(404)
-        
-        # Trier les galeries par date
-        month_galleries.sort(key=lambda x: x['date'], reverse=True)
-        
-        # S'assurer que month est un entier valide entre 1 et 12
-        if not (1 <= month <= 12):
-            app.logger.error(f"Invalid month value: {month}")
-            abort(404)
-            
-        month_name = f"{MOIS_FR[month-1]} {year}"
-        app.logger.info(f"Rendering template with month_name: {month_name}")
-        
-        return render_template('month.html', 
-                             month=month_name,
-                             galleries=month_galleries,
-                             background_image=background_image)
-                             
-    except Exception as e:
-        app.logger.error(f"Error in month_galleries: {str(e)}")
-        app.logger.exception("Full traceback:")
-        abort(500)
+    galleries = load_gallery_data()
+    month_galleries = []
+    background_image = None
+    
+    for gallery_id, gallery in galleries.items():
+        date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        if date.year == year and date.month == month:
+            gallery['id'] = gallery_id
+            gallery['formatted_date'] = format_date(gallery['date'])
+            month_galleries.append(gallery)
+            if not background_image and gallery.get('cover_image'):
+                background_image = gallery['cover_image']
+    
+    if not month_galleries:
+        return "Aucune galerie trouvée pour ce mois", 404
+    
+    # Trier les galeries par date croissante
+    month_galleries.sort(key=lambda x: x['date'])
+    
+    month_name = f"{MOIS_FR[month-1]} {year}"
+    return render_template('month.html', 
+                         galleries=month_galleries,
+                         month=month_name,
+                         background_image=background_image,
+                         dev_mode=app.config['DEV_MODE'])
 
 @app.route('/upload_photos/<gallery_id>', methods=['POST'])
 def upload_photos(gallery_id):
+    app.logger.info(f"Début de l'upload pour gallery_id: {gallery_id}")
+    
     if 'photos' not in request.files:
+        app.logger.warning("Pas de fichiers dans la requête")
         flash('Aucune photo sélectionnée')
         return redirect(url_for('gallery', gallery_id=gallery_id))
     
     galleries = load_gallery_data()
     if gallery_id not in galleries:
+        app.logger.error(f"Galerie {gallery_id} non trouvée")
         flash('Galerie non trouvée')
         return redirect(url_for('index'))
     
@@ -143,21 +154,40 @@ def upload_photos(gallery_id):
         gallery['photos'] = []
     
     files = request.files.getlist('photos')
+    app.logger.info(f"Nombre de fichiers reçus : {len(files)}")
     
     for file in files:
         if file.filename:
             try:
+                app.logger.info(f"Upload de {file.filename}")
+                # Vérifier la configuration Cloudinary
+                app.logger.info("Configuration Cloudinary:")
+                app.logger.info(f"Cloud name: {cloudinary.config().cloud_name}")
+                app.logger.info(f"API Key présente: {'Oui' if cloudinary.config().api_key else 'Non'}")
+                
                 # Upload to Cloudinary
                 result = cloudinary.uploader.upload(file)
+                app.logger.info(f"Upload réussi: {result['secure_url']}")
+                
                 gallery['photos'].append({
                     'url': result['secure_url'],
                     'filename': file.filename
                 })
             except Exception as e:
+                app.logger.error(f"Erreur lors de l'upload de {file.filename}: {str(e)}")
+                import traceback
+                app.logger.error(traceback.format_exc())
                 flash(f'Erreur lors du téléchargement de {file.filename}: {str(e)}')
                 continue
     
-    save_gallery_data(galleries)
+    try:
+        save_gallery_data(galleries)
+        app.logger.info("Données sauvegardées avec succès")
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
+        flash('Erreur lors de la sauvegarde des données')
+        return redirect(url_for('gallery', gallery_id=gallery_id))
+    
     return redirect(url_for('gallery', gallery_id=gallery_id))
 
 @app.route('/create_gallery', methods=['POST'])
@@ -170,40 +200,78 @@ def create_gallery():
         flash('Le nom et la date sont requis')
         return redirect(url_for('index'))
     
-    try:
-        # Valider le format de la date
-        datetime.strptime(date, '%Y-%m-%d')
-    except ValueError:
-        flash('Format de date invalide')
-        return redirect(url_for('index'))
-    
-    # Créer un ID unique basé sur la date et l'heure
-    gallery_id = datetime.now().strftime('%Y%m%d_%H%M%S')
-    
     galleries = load_gallery_data()
     
+    # Générer un ID unique pour la nouvelle galerie
+    gallery_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
     # Créer la nouvelle galerie
-    galleries[gallery_id] = {
+    new_gallery = {
         'name': name,
         'date': date,
-        'formatted_date': format_date(date),
         'description': description,
         'photos': []
     }
     
-    # Gérer l'upload de l'image de couverture
+    # Gérer l'image de couverture si fournie
     if 'cover_image' in request.files:
         cover_file = request.files['cover_image']
         if cover_file.filename:
             try:
-                # Upload to Cloudinary
                 result = cloudinary.uploader.upload(cover_file)
-                galleries[gallery_id]['cover_image'] = result['secure_url']
+                new_gallery['cover_image'] = result['secure_url']
             except Exception as e:
                 flash(f'Erreur lors du téléchargement de l\'image de couverture: {str(e)}')
     
+    galleries[gallery_id] = new_gallery
     save_gallery_data(galleries)
+    
     return redirect(url_for('gallery', gallery_id=gallery_id))
+
+@app.route('/edit_gallery/<gallery_id>', methods=['POST'])
+def edit_gallery(gallery_id):
+    app.logger.info(f"Modification de la galerie {gallery_id}")
+    app.logger.info(f"Données reçues: {request.form}")
+    
+    galleries = load_gallery_data()
+    if gallery_id not in galleries:
+        flash('Galerie non trouvée')
+        return redirect(url_for('index'))
+    
+    gallery = galleries[gallery_id]
+    gallery['name'] = request.form.get('name', gallery['name']).strip()
+    gallery['description'] = request.form.get('description', '').strip()
+    
+    # Mettre à jour la date
+    new_date = request.form.get('date')
+    if new_date:
+        gallery['date'] = new_date
+        gallery['formatted_date'] = format_date(new_date)
+    
+    try:
+        save_gallery_data(galleries)
+        flash('Galerie mise à jour avec succès')
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde: {str(e)}")
+        flash('Erreur lors de la sauvegarde des modifications')
+    
+    return redirect(url_for('gallery', gallery_id=gallery_id))
+
+@app.route('/gallery/<gallery_id>/delete', methods=['POST'])
+def delete_gallery(gallery_id):
+    if not app.config['DEV_MODE']:
+        abort(403)  # Forbidden in production mode
+        
+    galleries = load_gallery_data()
+    if gallery_id in galleries:
+        # Supprimer la galerie des données
+        del galleries[gallery_id]
+        save_gallery_data(galleries)
+        flash('Galerie supprimée avec succès', 'success')
+    else:
+        flash('Galerie non trouvée', 'error')
+    
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

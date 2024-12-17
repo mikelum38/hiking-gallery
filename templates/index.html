@@ -4,67 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Randonnées dans les Alpes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        .hero-section {
-            height: 100vh;
+        /* Styles spécifiques à la page d'accueil uniquement */
+        .home-hero {
+            height: 85vh;
             background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
                           url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2940&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             text-align: center;
             color: white;
-            padding: 2rem;
+            padding-top: 4rem;
         }
 
-        .hero-section h1 {
-            font-size: 4rem;
+        .home-hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.8rem;
+            font-weight: 500;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
         }
 
-        .hero-section p {
-            font-size: 1.5rem;
+        .home-hero p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 300;
             margin: 1rem 0 3rem;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
             max-width: 600px;
+            letter-spacing: 0.5px;
         }
 
-        .months-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
+        .add-hike-btn {
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            color: #2c3e50;
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-top: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .add-hike-btn i {
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        .add-hike-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: #f8f9fa;
+        }
+
+        /* Modification des vignettes */
+        .month-card {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+        }
+
+        .month-card .month-name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .month-card .gallery-count {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Styles originaux non modifiés */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .months-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            z-index: 2;
+        }
+
+        .months-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            gap: 1rem;
+            padding: 1rem 0;
+            scrollbar-width: none; /* Pour Firefox */
+            -ms-overflow-style: none; /* Pour IE et Edge */
+        }
+
+        .months-scroll::-webkit-scrollbar {
+            display: none; /* Pour Chrome et Safari */
         }
 
         .month-card {
+            flex: 0 0 200px;
+            scroll-snap-align: start;
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
             text-decoration: none;
             color: inherit;
-            height: 250px;
+            height: 150px;
             position: relative;
-        }
-
-        .month-card:hover {
-            transform: translateY(-5px);
         }
 
         .month-cover {
@@ -86,34 +156,47 @@
         }
 
         .month-name {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             margin: 0;
             font-weight: 600;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
 
-        .gallery-count {
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            opacity: 0.9;
-        }
-
-        .action-button {
-            margin-top: 2rem;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid white;
-            color: white;
-            border-radius: 30px;
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 10;
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
         }
 
-        .action-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+        .nav-button:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-button.prev {
+            left: 1rem;
+        }
+
+        .nav-button.next {
+            right: 1rem;
+        }
+
+        .nav-button svg {
+            width: 24px;
+            height: 24px;
+            fill: #333;
         }
 
         .modal {
@@ -191,82 +274,98 @@
             .hero-section p {
                 font-size: 1.2rem;
             }
-
-            .months-grid {
-                grid-template-columns: 1fr;
-                padding: 0 1rem;
-                gap: 1rem;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="hero-section">
+    <div class="home-hero">
         <h1>Randonnées dans les Alpes</h1>
         <p>De belles aventures en montagne</p>
+        {% if dev_mode %}
+        <button class="add-hike-btn" onclick="toggleCreateGallery()">
+            <i class="fas fa-plus"></i> Ajouter une randonnée
+        </button>
+        {% endif %}
+    </div>
 
-        <div class="months-grid">
-            {% for month, data in galleries_by_month.items() %}
+    <div class="months-container">
+        <button class="nav-button prev" onclick="scrollMonths('prev')">
+            <svg viewBox="0 0 24 24">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+        </button>
+        <button class="nav-button next" onclick="scrollMonths('next')">
+            <svg viewBox="0 0 24 24">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+            </svg>
+        </button>
+        <div class="months-scroll">
+            {% for month, data in galleries_by_month.items()|sort(attribute='1.year,1.month', reverse=true) %}
             <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
                 <div class="month-cover" {% if data.cover %}style="background-image: url('{{ data.cover }}')"{% endif %}>
                     <div class="month-overlay">
                         <h2 class="month-name">{{ month }}</h2>
-                        <p class="gallery-count">{{ data.galleries|length }} randonnée{% if data.galleries|length > 1 %}s{% endif %}</p>
+                        <div class="gallery-count">
+                            {{ data.galleries|length }} sortie{% if data.galleries|length > 1 %}s{% endif %}
+                        </div>
                     </div>
                 </div>
             </a>
             {% endfor %}
         </div>
-
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        {% if dev_mode %}
-        <button id="createGalleryBtn" class="action-button" onclick="toggleCreateGallery()">
-            Nouvelle randonnée
-        </button>
-
-        <div id="createGalleryForm" class="modal">
-            <div class="modal-content">
-                <form action="{{ url_for('create_gallery') }}" method="post" enctype="multipart/form-data">
-                    <h2>Nouvelle randonnée</h2>
-                    
-                    <div class="form-group">
-                        <label for="name">Nom de la randonnée:</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="date">Date:</label>
-                        <input type="date" id="date" name="date" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="description">Description:</label>
-                        <textarea id="description" name="description"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="cover_image">Image de couverture:</label>
-                        <input type="file" id="cover_image" name="cover_image" accept="image/*">
-                    </div>
-                    
-                    <div class="button-group">
-                        <button type="submit" class="submit-button">Créer</button>
-                        <button type="button" class="cancel-button" onclick="toggleCreateGallery()">Annuler</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% endif %}
     </div>
 
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if dev_mode %}
+    <div id="createGalleryForm" class="modal">
+        <div class="modal-content">
+            <form action="{{ url_for('create_gallery') }}" method="post" enctype="multipart/form-data">
+                <h2>Nouvelle randonnée</h2>
+                
+                <div class="form-group">
+                    <label for="name">Nom de la randonnée:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cover_image">Image de couverture:</label>
+                    <input type="file" id="cover_image" name="cover_image" accept="image/*">
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="submit-button">Créer</button>
+                    <button type="button" class="cancel-button" onclick="toggleCreateGallery()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
     <script>
+        function scrollMonths(direction) {
+            const container = document.querySelector('.months-scroll');
+            const cardWidth = document.querySelector('.month-card').offsetWidth + 24; // 24px pour le gap
+            const scrollAmount = direction === 'next' ? cardWidth : -cardWidth;
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+
         function toggleCreateGallery() {
             const form = document.getElementById('createGalleryForm');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
