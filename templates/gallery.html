@@ -103,12 +103,18 @@
                 const lightbox = document.getElementById('lightbox');
                 const lightboxImage = document.getElementById('lightbox-image');
                 
+                // Récupérer toutes les images de la galerie
                 images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
                 currentImageIndex = images.indexOf(imageUrl);
                 
-                lightboxImage.src = imageUrl;
-                lightbox.classList.add('active');
-                document.body.style.overflow = 'hidden';
+                // Précharger l'image avant de l'afficher
+                const img = new Image();
+                img.onload = function() {
+                    lightboxImage.src = imageUrl;
+                    lightbox.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                };
+                img.src = imageUrl;
             }
 
             function closeLightbox() {
@@ -118,15 +124,25 @@
             }
 
             function previousImage(e) {
-                e.stopPropagation();
+                if (e) e.stopPropagation();
                 currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-                document.getElementById('lightbox-image').src = images[currentImageIndex];
+                loadImage(images[currentImageIndex]);
             }
 
             function nextImage(e) {
-                e.stopPropagation();
+                if (e) e.stopPropagation();
                 currentImageIndex = (currentImageIndex + 1) % images.length;
-                document.getElementById('lightbox-image').src = images[currentImageIndex];
+                loadImage(images[currentImageIndex]);
+            }
+
+            function loadImage(src) {
+                const img = new Image();
+                const lightboxImage = document.getElementById('lightbox-image');
+                
+                img.onload = function() {
+                    lightboxImage.src = src;
+                };
+                img.src = src;
             }
 
             // Event Listeners
@@ -151,22 +167,43 @@
                     }
                 });
 
+                // Gestion améliorée du tactile pour mobile
                 let touchStartX = 0;
-                
+                let touchStartY = 0;
+                let isSwiping = false;
+
                 lightbox.addEventListener('touchstart', function(e) {
-                    touchStartX = e.changedTouches[0].screenX;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                    isSwiping = false;
                 }, { passive: true });
-                
+
+                lightbox.addEventListener('touchmove', function(e) {
+                    if (!isSwiping) {
+                        const touchMoveX = e.touches[0].clientX;
+                        const touchMoveY = e.touches[0].clientY;
+                        const deltaX = Math.abs(touchMoveX - touchStartX);
+                        const deltaY = Math.abs(touchMoveY - touchStartY);
+
+                        // Si le mouvement horizontal est plus important que le vertical
+                        if (deltaX > deltaY && deltaX > 10) {
+                            isSwiping = true;
+                            e.preventDefault();
+                        }
+                    }
+                }, { passive: false });
+
                 lightbox.addEventListener('touchend', function(e) {
-                    const touchEndX = e.changedTouches[0].screenX;
-                    const swipeThreshold = 50;
-                    const swipeLength = touchEndX - touchStartX;
-                    
-                    if (Math.abs(swipeLength) > swipeThreshold) {
-                        if (swipeLength > 0) {
-                            previousImage(new Event('click'));
-                        } else {
-                            nextImage(new Event('click'));
+                    if (isSwiping) {
+                        const touchEndX = e.changedTouches[0].clientX;
+                        const swipeLength = touchEndX - touchStartX;
+                        
+                        if (Math.abs(swipeLength) > 50) {
+                            if (swipeLength > 0) {
+                                previousImage(new Event('click'));
+                            } else {
+                                nextImage(new Event('click'));
+                            }
                         }
                     }
                 }, { passive: true });
