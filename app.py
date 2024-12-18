@@ -75,22 +75,8 @@ def index():
         if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
             galleries_by_month[month_key]['cover'] = gallery['cover_image']
     
-    # Trier les mois par année et mois (ordre décroissant pour avoir les plus récents en premier)
-    sorted_months = sorted(
-        galleries_by_month.items(),
-        key=lambda x: (x[1]['year'], x[1]['month']),
-        reverse=True
-    )
-    
-    # Trier les galeries dans chaque mois par date croissante
-    for _, month_data in sorted_months:
-        month_data['galleries'].sort(key=lambda x: x['date'])
-    
-    # Convertir en dictionnaire pour le template
-    sorted_galleries = dict(sorted_months)
-    
     return render_template('index.html', 
-                         galleries_by_month=sorted_galleries,
+                         galleries_by_month=galleries_by_month,
                          dev_mode=app.config['DEV_MODE'])
 
 @app.route('/gallery/<gallery_id>')
