@@ -99,7 +99,24 @@
             }
 
             .photo-item {
-                padding-bottom: 66.67%;
+                padding-bottom: 56.25%;
+                width: 100%;
+                height: auto;
+            }
+
+            .photo-item img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                transform: none;
+                object-fit: contain;
+                min-width: 0;
+            }
+
+            .photo-item:hover img {
+                transform: none;
             }
 
             .back-link {
