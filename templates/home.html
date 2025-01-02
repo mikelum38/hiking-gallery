@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rêves de Montagne - Accueil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Supprime la barre de défilement */
+        }
+
+        .carousel-item {
+            height: 100vh;
+            transition: transform .3s ease-in-out;
+        }
+        
+        .carousel-item img {
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .overlay-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            color: white;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        
+        .main-title {
+            font-size: 4rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .nav-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            z-index: 10;
+            color: white;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(-5px);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .navbar {
+            position: absolute;
+            width: 100%;
+            z-index: 20;
+        }
+        
+        .carousel-fade .carousel-item {
+            opacity: 0;
+            transition: opacity .3s ease-in-out;
+        }
+        
+        .carousel-fade .carousel-item.active {
+            opacity: 1;
+        }
+        
+        .audio-control {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.4);
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-control:hover {
+            background: rgba(0, 0, 0, 0.6);
+            transform: scale(1.1);
+        }
+
+        .audio-control i {
+            font-size: 1.2rem;
+        }
+
+        /* Style pour l'effet de zoom initial */
+        .carousel-item.active {
+            animation: zoomEffect 10s ease forwards;
+        }
+
+        @keyframes zoomEffect {
+            0% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialisation dès que possible
+        window.addEventListener('load', function() {
+            // Démarrer le carrousel
+            var carousel = new bootstrap.Carousel(document.getElementById('mountainCarousel'), {
+                interval: 5000,
+                ride: 'carousel'
+            });
+            
+            // Démarrer la musique
+            const audio = document.getElementById('bgMusic');
+            const audioIcon = document.getElementById('audioIcon');
+            
+            // Tentative de lecture automatique
+            audio.play().then(() => {
+                audioIcon.className = 'fas fa-volume-up';
+                isPlaying = true;
+            }).catch(() => {
+                audioIcon.className = 'fas fa-volume-mute';
+                isPlaying = false;
+            });
+        });
+
+        let isPlaying = false;
+        
+        function toggleAudio() {
+            const audio = document.getElementById('bgMusic');
+            const audioIcon = document.getElementById('audioIcon');
+            
+            if (isPlaying) {
+                audio.pause();
+                audioIcon.className = 'fas fa-volume-mute';
+            } else {
+                audio.play();
+                audioIcon.className = 'fas fa-volume-up';
+            }
+            isPlaying = !isPlaying;
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a class="nav-link" href="/years">
+                <i class="fas fa-home"></i>
+                Accueil
+            </a>
+        </div>
+    </nav>
+
+    <div class="overlay-title">
+        <h1 class="main-title">Rêves de Montagne</h1>
+    </div>
+
+    <div id="mountainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="/static/images/mountain1.jpg" class="d-block w-100" alt="Montagne 1" 
+                     loading="eager" fetchpriority="high">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain2.jpg" class="d-block w-100" alt="Montagne 2" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain3.jpg" class="d-block w-100" alt="Montagne 3" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain4.jpg" class="d-block w-100" alt="Montagne 4" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain5.jpg" class="d-block w-100" alt="Montagne 5" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain6.jpg" class="d-block w-100" alt="Montagne 6" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain7.jpg" class="d-block w-100" alt="Montagne 7" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain8.jpg" class="d-block w-100" alt="Montagne 8" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain9.jpg" class="d-block w-100" alt="Montagne 9" loading="lazy">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/images/mountain10.jpg" class="d-block w-100" alt="Montagne 10" loading="lazy">
+            </div>
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="{{ url_for('static', filename='audio/music.mp3') }}" type="audio/mp3">
+        Votre navigateur ne supporte pas l'élément audio.
+    </audio>
+
+    <button class="audio-control" onclick="toggleAudio()" title="Contrôle de la musique">
+        <i class="fas fa-volume-up" id="audioIcon"></i>
+    </button>
+</body>
+</html> 

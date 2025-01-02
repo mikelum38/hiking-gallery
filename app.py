@@ -48,6 +48,10 @@ def format_date(date_str):
     return f"{date.day} {MOIS_FR[date.month-1]} {date.year}"
 
 @app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/index')
 def index():
     galleries = load_gallery_data()
     
@@ -55,25 +59,24 @@ def index():
     
     for gallery_id, gallery in galleries.items():
         date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-        month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-        month_num = date.strftime('%m')
-        year = date.strftime('%Y')
-        
-        if month_key not in galleries_by_month:
-            galleries_by_month[month_key] = {
-                'galleries': [],
-                'month': int(month_num),
-                'year': int(year),
-                'cover': None
-            }
-        
-        # Ajouter l'ID de la galerie à l'objet gallery pour le tri
-        gallery['id'] = gallery_id
-        galleries_by_month[month_key]['galleries'].append(gallery)
-        
-        # Utiliser la première image de couverture trouvée comme cover du mois
-        if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-            galleries_by_month[month_key]['cover'] = gallery['cover_image']
+        if date.year == 2024:  # Filtrer uniquement les galeries de 2024
+            month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+            month_num = date.strftime('%m')
+            year = date.strftime('%Y')
+            
+            if month_key not in galleries_by_month:
+                galleries_by_month[month_key] = {
+                    'galleries': [],
+                    'month': int(month_num),
+                    'year': int(year),
+                    'cover': None
+                }
+            
+            gallery['id'] = gallery_id
+            galleries_by_month[month_key]['galleries'].append(gallery)
+            
+            if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                galleries_by_month[month_key]['cover'] = gallery['cover_image']
     
     return render_template('index.html', 
                          galleries_by_month=galleries_by_month,
@@ -85,12 +88,18 @@ def gallery(gallery_id):
     gallery = galleries.get(gallery_id)
     if not gallery:
         return "Gallery not found", 404
+    
+    # Déterminer la page de retour en fonction de l'année
+    date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+    return_page = 'future' if date.year == 2025 else 'index'
+    
     # Ajouter l'ID à l'objet gallery
     gallery['id'] = gallery_id
     return render_template('gallery.html', 
                          gallery=gallery, 
                          dev_mode=app.config['DEV_MODE'],
-                         format_date=format_date)
+                         format_date=format_date,
+                         return_page=return_page)
 
 @app.route('/<int:year>/<int:month>')
 def month_galleries(year, month):
@@ -114,11 +123,14 @@ def month_galleries(year, month):
     month_galleries.sort(key=lambda x: x['date'])
     
     month_name = f"{MOIS_FR[month-1]} {year}"
+    return_page = 'future' if year == 2025 else 'index'
+    
     return render_template('month.html', 
                          galleries=month_galleries,
                          month=month_name,
                          background_image=background_image,
-                         dev_mode=app.config['DEV_MODE'])
+                         dev_mode=app.config['DEV_MODE'],
+                         return_page=return_page)
 
 @app.route('/upload_photos/<gallery_id>', methods=['POST'])
 def upload_photos(gallery_id):
@@ -212,7 +224,12 @@ def create_gallery():
     galleries[gallery_id] = new_gallery
     save_gallery_data(galleries)
     
-    return redirect(url_for('gallery', gallery_id=gallery_id))
+    # Rediriger vers la bonne page en fonction de l'année
+    year = datetime.strptime(date, '%Y-%m-%d').year
+    if year == 2025:
+        return redirect(url_for('future'))
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/edit_gallery/<gallery_id>', methods=['POST'])
 def edit_gallery(gallery_id):
@@ -258,6 +275,94 @@ def delete_gallery(gallery_id):
         flash('Galerie non trouvée', 'error')
     
     return redirect(url_for('index'))
+
+@app.route('/years')
+def years():
+    return render_template('years.html')
+
+@app.route('/future')
+def future():
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    today = datetime.now()
+    
+    for gallery_id, gallery in galleries.items():
+        date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        if date.year == 2025:
+            month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+            month_num = date.strftime('%m')
+            year = date.strftime('%Y')
+            
+            if month_key not in galleries_by_month:
+                galleries_by_month[month_key] = {
+                    'galleries': [],
+                    'month': int(month_num),
+                    'year': int(year),
+                    'cover': None,
+                    'is_future': date > today  # Ajouter un indicateur pour les dates futures
+                }
+            
+            gallery['id'] = gallery_id
+            gallery['is_future'] = date > today  # Ajouter l'indicateur à chaque galerie
+            galleries_by_month[month_key]['galleries'].append(gallery)
+            
+            if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                galleries_by_month[month_key]['cover'] = gallery['cover_image']
+    
+    return render_template('future.html', 
+                         galleries_by_month=galleries_by_month,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/bestof')
+def bestof():
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    
+    for gallery_id, gallery in galleries.items():
+        date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        if date.year == 2023:  # Filtrer uniquement les galeries de 2023
+            month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+            month_num = date.strftime('%m')
+            year = date.strftime('%Y')
+            
+            if month_key not in galleries_by_month:
+                galleries_by_month[month_key] = {
+                    'galleries': [],
+                    'month': int(month_num),
+                    'year': int(year),
+                    'cover': None
+                }
+            
+            gallery['id'] = gallery_id
+            galleries_by_month[month_key]['galleries'].append(gallery)
+            
+            if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                galleries_by_month[month_key]['cover'] = gallery['cover_image']
+    
+    return render_template('bestof.html', 
+                         galleries_by_month=galleries_by_month,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/gallery/<gallery_id>/delete_photo/<int:photo_index>', methods=['POST'])
+def delete_photo(gallery_id, photo_index):
+    if not app.config['DEV_MODE']:
+        abort(403)  # Forbidden in production mode
+        
+    galleries = load_gallery_data()
+    if gallery_id not in galleries:
+        flash('Galerie non trouvée', 'error')
+        return redirect(url_for('index'))
+    
+    gallery = galleries[gallery_id]
+    if 'photos' in gallery and 0 <= photo_index < len(gallery['photos']):
+        # Supprimer la photo
+        deleted_photo = gallery['photos'].pop(photo_index)
+        save_gallery_data(galleries)
+        flash('Photo supprimée avec succès', 'success')
+    else:
+        flash('Photo non trouvée', 'error')
+    
+    return redirect(url_for('gallery', gallery_id=gallery_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

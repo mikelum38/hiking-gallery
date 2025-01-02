@@ -49,31 +49,35 @@
         }
 
         .back-link {
-            position: fixed;
+            position: absolute;
             top: 2rem;
             left: 2rem;
             z-index: 10;
             color: white;
             text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(-5px);
+            color: white;
+            text-decoration: none;
         }
 
-        .back-link svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
+        .back-link i {
+            font-size: 1.1rem;
         }
 
         .galleries-grid {
@@ -199,16 +203,16 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="background-image"></div>
     
     <div class="content-wrapper">
-        <a href="{{ url_for('index') }}" class="back-link">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-            </svg>
-            Retour
+        <a href="{{ url_for(return_page) }}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Retour aux galeries
         </a>
 
         <div class="month-header">

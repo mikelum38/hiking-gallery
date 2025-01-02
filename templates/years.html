@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Années - Rêves de Montagne</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('/static/images/background-mountain.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(0,0,0,0.3);
+        }
+
+        .nav-link {
+            color: white;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .year-blocks {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .year-block {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 300px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .year-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .year-block:hover {
+            transform: translateY(-15px) scale(1.03);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .year-block:hover::before {
+            left: 100%;
+        }
+
+        .year-block h2 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .year-block p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Animation des blocs plus dynamique */
+        .year-block:nth-child(1) {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .year-block:nth-child(2) {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.3s;
+        }
+
+        .year-block:nth-child(3) {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.6s;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            60% {
+                transform: translateY(-20px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">← Retour à l'accueil</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="year-blocks">
+        <div class="year-block" onclick="window.location.href='/bestof'">
+            <h2>2023</h2>
+            <p>Best of (en construction)</p>
+        </div>
+        <div class="year-block" onclick="window.location.href='/index'">
+            <h2>2024</h2>
+            <p>Galeries photos des randonnées de l'année écoulée</p>
+        </div>
+        <div class="year-block" onclick="window.location.href='/future'">
+            <h2>2025</h2>
+            <p>Futures randonnées et projets à venir</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

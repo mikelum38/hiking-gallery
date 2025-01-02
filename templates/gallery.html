@@ -9,14 +9,132 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            z-index: 10;
+            color: white;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-link:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(-5px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .back-link i {
+            font-size: 1.1rem;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            width: 95%;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 100%;
+            padding-bottom: 40%;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .photo-item img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: auto;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            min-width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .photo-item:hover img {
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        @media (min-width: 1920px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                max-width: 2000px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1rem;
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+
+        .photo-item {
+            position: relative;
+        }
+
+        .delete-photo-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(255, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .photo-item:hover .delete-photo-btn {
+            opacity: 1;
+        }
+
+        .delete-photo-btn:hover {
+            background: rgba(255, 0, 0, 0.9);
+        }
+    </style>
 </head>
 <body>
     <div class="gallery-page">
-        <a href="{{ url_for('index') }}" class="back-link">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-            </svg>
-            Retour
+        <a href="{{ url_for(return_page) }}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Retour aux galeries
         </a>
         
         <div class="gallery-hero" {% if gallery.cover_image %}style="background-image: url('{{ gallery.cover_image }}')"{% endif %}>
@@ -54,6 +172,19 @@
                     {% for photo in gallery.photos %}
                     <div class="photo-item" onclick="openLightbox('{{ photo.url }}')">
                         <img src="{{ photo.url }}" alt="{{ photo.filename }}" loading="lazy">
+                        {% if dev_mode %}
+                        <form action="{{ url_for('delete_photo', gallery_id=gallery.id, photo_index=loop.index0) }}" 
+                              method="post" 
+                              style="position: absolute; top: 0; right: 0;"
+                              onclick="event.stopPropagation();">
+                            <button type="submit" 
+                                    class="delete-photo-btn" 
+                                    onclick="return confirm('Voulez-vous vraiment supprimer cette photo ?');"
+                                    title="Supprimer cette photo">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
