@@ -13280,7 +13280,7 @@
     "20250102_135124": {
         "name": "Réveillon en Guillestrois",
         "date": "2024-12-31",
-        "description": "Entre Écrins et Queyras, sur la Route des Grandes Alpes, le Guillestrois recèle des trésors. Perchée sur un rocher abrupt entre Guil et Durance, la place forte Vauban de Mont-Dauphin est inscrite au Patrimoine mondial de l'UNESCO depuis 2008. Elle domine plusieurs sites remarquables comme la Fontaine pétrifiante à Réotier, une curiosité naturelle géologique ou la rotonde du plan de Phazy d’où jaillissent des eaux naturellement chaudes.\r\n \r\nVars et Risoul sont le poumon touristique du Guillestrois. \r\n\r\nEn position centrale entre Briançon et Gap, le Guillestrois-Queyras offre une qualité de vie exceptionnelle, dans un cadre naturel remarquable. \r\nC'est ici dans un refuge perché sur les hauteurs de st Clément sur Durance , que nous passons le réveillon à 1700m d'altitude .",
+        "description": "Entre Écrins et Queyras, sur la Route des Grandes Alpes, le Guillestrois recèle des trésors. Perchée sur un rocher abrupt entre Guil et Durance, la place forte Vauban de Mont-Dauphin est inscrite au Patrimoine mondial de l'UNESCO depuis 2008. Elle domine plusieurs sites remarquables comme la Fontaine pétrifiante à Réotier, une curiosité naturelle géologique.\r\n \r\nVars et Risoul sont le poumon touristique du Guillestrois. \r\nC'est ici dans un refuge perché sur les hauteurs de st Clément sur Durance , que nous passons le réveillon à 1700m d'altitude .",
         "photos": [
             {
                 "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735822347/jkxned33hi6dzwu0sujq.jpg",
@@ -13549,14 +13549,24 @@
         "name": "Corsica 2025",
         "date": "2025-08-22",
         "description": "Suite des aventures en Corse , avec explorations des sommets , des variantes alpines , et des deux étapes qu'on a du shunter en septembre dernier...",
-        "photos": [],
+        "photos": [
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735847685/zbkbwmu7nh3gjktunlgi.jpg",
+                "filename": "460628620_9014125511950757_5352688712696243242_n.jpg"
+            }
+        ],
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735837165/ocimng8owuaa84rbqkcs.jpg"
     },
     "20250102_180709": {
         "name": "Rocciamelone",
         "date": "2025-10-04",
         "description": "Rocciamelone (3538 m)\r\n    △ Alpes Grées, Val de Suse, Piémont -  Italie\r\n- voie normale par la face Sud, depuis la Riposa -",
-        "photos": [],
+        "photos": [
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735847854/mq019in5r8bgxznnty7l.jpg",
+                "filename": "IMG_20231012_121237.jpg"
+            }
+        ],
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735837635/zvsigbr2bvwneswqffkl.jpg"
     }
 }

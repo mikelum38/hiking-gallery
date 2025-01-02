@@ -112,6 +112,29 @@
                 transform: translateY(0) scale(1);
             }
         }
+
+        @media (max-width: 768px) {
+            .year-blocks {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .year-block {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 1.5rem;
+            }
+
+            .year-block h2 {
+                font-size: 2rem;
+            }
+
+            .year-block p {
+                font-size: 1rem;
+            }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>

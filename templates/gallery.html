@@ -91,10 +91,28 @@
 
         @media (max-width: 768px) {
             .photo-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 1rem;
-                padding: 1rem;
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+                padding: 0.8rem;
                 width: 100%;
+                margin: 0;
+            }
+
+            .photo-item {
+                padding-bottom: 66.67%;
+            }
+
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+                font-size: 1rem;
+                padding: 0.6rem 1rem;
+            }
+
+            .delete-photo-btn {
+                opacity: 1;
+                width: 24px;
+                height: 24px;
             }
         }
 
