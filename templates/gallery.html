@@ -90,13 +90,20 @@
         }
 
         @media (max-width: 768px) {
+            .gallery-content {
+                width: 100%;
+                padding: 0;
+                overflow: hidden;
+            }
+
             .photo-grid {
                 grid-template-columns: 1fr;
                 gap: 0.8rem;
-                padding: 0.8rem;
-                width: 100%;
-                margin: 0;
+                padding: 0.5rem;
+                width: calc(100% - 1rem);
+                margin: 0 auto;
                 max-width: 100%;
+                box-sizing: border-box;
             }
 
             .photo-item {
@@ -105,6 +112,7 @@
                 height: auto;
                 margin: 0;
                 border-radius: 8px;
+                box-sizing: border-box;
             }
 
             .photo-item img {
@@ -118,6 +126,7 @@
                 min-width: 0;
                 padding: 0;
                 margin: 0;
+                box-sizing: border-box;
             }
 
             .photo-item:hover img {
