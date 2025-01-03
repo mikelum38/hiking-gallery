@@ -105,6 +105,11 @@
             border-color: #ffd93d50;
         }
 
+        .year-block:nth-child(6) {
+            background: linear-gradient(135deg, #6c5ce720, #6c5ce740);
+            border-color: #6c5ce750;
+        }
+
         .year-block::before {
             content: '';
             position: absolute;
@@ -193,6 +198,10 @@
             animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.8s;
         }
 
+        .year-block:nth-child(6) {
+            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards 1s;
+        }
+
         @keyframes fadeInUp {
             0% {
                 opacity: 0;
@@ -238,6 +247,10 @@
     </a>
 
     <div class="year-blocks">
+        <div class="year-block" onclick="window.location.href='/2020'">
+            <h2>2020</h2>
+            <p>Best of (en construction)</p>
+        </div>
         <div class="year-block" onclick="window.location.href='/2021'">
             <h2>2021</h2>
             <p>Best of (en construction)</p>

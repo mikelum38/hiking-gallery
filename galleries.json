@@ -13568,5 +13568,40 @@
             }
         ],
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735837635/zvsigbr2bvwneswqffkl.jpg"
+    },
+    "656acc1d-0334-4d2a-a583-b4a97cdf4b22": {
+        "name": "Rocciamelone",
+        "date": "2023-10-11",
+        "description": "Ascension après nuitée en refuge , du sommet mythique italien.",
+        "photos": [],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735922179/mnmzaso8dvtugwtly5mz.jpg"
+    },
+    "5ac3b0ab-4155-43dd-9780-6c53f313ea26": {
+        "name": "Tête de la Fréma",
+        "date": "2022-09-11",
+        "description": "Tête de la Fréma (3151 m) en boucle par le Lac des Neuf Couleurs depuis Fouillouse (Saint-Paul-sur-Ubaye).",
+        "photos": [],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735928163/ydipzfbjm4bwxtuo6wbs.jpg"
+    },
+    "d0bf95d4-ec93-46b7-94ab-18a4cb786eaa": {
+        "name": "Rocher Blanc",
+        "date": "2021-08-06",
+        "description": "Rocher Blanc (2928m) par le lac et le col de l'Amiante (2809m)",
+        "photos": [],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735928522/orsgipxaaxwmmoerqhkf.jpg"
+    },
+    "9f0f0ffa-202b-43fc-94f5-91bb94a978ff": {
+        "name": "Aiguilles de Chabrière 2403m",
+        "date": "2020-09-29",
+        "description": "Une randonnée alpine variée à travers bois, alpages bovins et ovins, et rocaille, avec une belle vue sur le lac de Serre-Ponçon.",
+        "photos": [],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735934175/o4suqvb6uznkcjzwzu4g.jpg"
+    },
+    "3394efc5-de2f-4eec-8985-f014df0bbda9": {
+        "name": "Canigó 2785m",
+        "date": "2023-08-17",
+        "description": "Le Canigó domine les Pyrénées-Orientales telle une véritable vigie et accéder à son pic est une expérience inoubliable à vivre !",
+        "photos": [],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735938938/snbo8vzkmezlzpg3hvsj.jpg"
     }
 }
