@@ -364,5 +364,66 @@ def delete_photo(gallery_id, photo_index):
     
     return redirect(url_for('gallery', gallery_id=gallery_id))
 
+@app.route('/2021')
+def year_2021():
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    
+    for gallery_id, gallery in galleries.items():
+        date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        if date.year == 2021:
+            month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+            month_num = date.strftime('%m')
+            year = date.strftime('%Y')
+            
+            if month_key not in galleries_by_month:
+                galleries_by_month[month_key] = {
+                    'galleries': [],
+                    'month': int(month_num),
+                    'year': int(year),
+                    'cover': None
+                }
+            
+            gallery['id'] = gallery_id
+            galleries_by_month[month_key]['galleries'].append(gallery)
+            
+            if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                galleries_by_month[month_key]['cover'] = gallery['cover_image']
+    
+    return render_template('year2021.html', 
+                         galleries_by_month=galleries_by_month,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/2022')
+def year_2022():
+    # Même logique que pour 2021 mais avec year == 2022
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    
+    for gallery_id, gallery in galleries.items():
+        date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        if date.year == 2022:
+            month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+            month_num = date.strftime('%m')
+            year = date.strftime('%Y')
+            
+            if month_key not in galleries_by_month:
+                galleries_by_month[month_key] = {
+                    'galleries': [],
+                    'month': int(month_num),
+                    'year': int(year),
+                    'cover': None
+                }
+            
+            gallery['id'] = gallery_id
+            galleries_by_month[month_key]['galleries'].append(gallery)
+            
+            if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                galleries_by_month[month_key]['cover'] = gallery['cover_image']
+    
+    return render_template('year2022.html', 
+                         galleries_by_month=galleries_by_month,
+                         dev_mode=app.config['DEV_MODE'])
+
 if __name__ == '__main__':
     app.run(debug=True)

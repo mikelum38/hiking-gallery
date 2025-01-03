@@ -29,6 +29,7 @@
             text-align: center;
             color: white;
             padding-top: 4rem;
+            animation: fadeIn 1.5s ease-out forwards;
         }
 
         .home-hero h1 {
@@ -38,6 +39,9 @@
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 1s ease-out forwards 0.5s;
         }
 
         .home-hero p {
@@ -48,6 +52,9 @@
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
             max-width: 600px;
             letter-spacing: 0.5px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 1s ease-out forwards 0.8s;
         }
 
         .add-hike-btn {
@@ -66,6 +73,9 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 1s ease-out forwards 1.1s;
         }
 
         .add-hike-btn i {
@@ -92,6 +102,9 @@
             align-items: center;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             transition: transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 1s ease-out forwards 1.4s;
         }
 
         .back-link:hover {
@@ -111,6 +124,9 @@
             right: 0;
             padding: 0 2rem;
             z-index: 2;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 1s ease-out forwards 1.7s;
         }
 
         .months-scroll {
@@ -188,6 +204,43 @@
         }
 
         /* ... reste des styles du modal ... */
+
+        /* Animations d'apparition */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Optimisation des animations */
+        .home-hero, .home-hero h1, .home-hero p, .add-hike-btn, .back-link, .months-container {
+            will-change: transform, opacity;
+        }
     </style>
 </head>
 <body>
