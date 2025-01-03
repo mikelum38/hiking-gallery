@@ -22,6 +22,8 @@
             object-fit: cover;
             height: 100%;
             width: 100%;
+            transform: scale(1.2);
+            transition: none;
         }
         
         .overlay-title {
@@ -76,7 +78,7 @@
         
         .carousel-fade .carousel-item {
             opacity: 0;
-            transition: opacity .3s ease-in-out;
+            transition: opacity .8s ease-in-out; /* Augmenter légèrement la durée de transition */
         }
         
         .carousel-fade .carousel-item.active {
@@ -112,11 +114,6 @@
             font-size: 1.2rem;
         }
 
-        /* Style pour l'effet de zoom initial */
-        .carousel-item.active {
-            animation: zoomEffect 10s ease forwards;
-        }
-
         @keyframes zoomEffect {
             0% {
                 transform: scale(1.2);
@@ -130,11 +127,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Initialisation dès que possible
+        window.addEventListener('DOMContentLoaded', function() {
+            const firstItem = document.querySelector('.carousel-item.active img');
+            
+            // Forcer le zoom initial
+            firstItem.style.transform = 'scale(1.2)';
+            
+            // Déclencher l'animation après un court délai
+            setTimeout(() => {
+                firstItem.style.transition = 'transform 10s ease';
+                firstItem.style.transform = 'scale(1)';
+            }, 50);
+        });
+
         window.addEventListener('load', function() {
             // Démarrer le carrousel
             var carousel = new bootstrap.Carousel(document.getElementById('mountainCarousel'), {
                 interval: 5000,
                 ride: 'carousel'
+            });
+
+            // Gestionnaire pour les transitions suivantes
+            document.getElementById('mountainCarousel').addEventListener('slide.bs.carousel', function (e) {
+                const nextImage = e.relatedTarget.querySelector('img');
+                nextImage.style.transition = 'none';
+                nextImage.style.transform = 'scale(1.2)';
+                
+                requestAnimationFrame(() => {
+                    nextImage.style.transition = 'transform 10s ease';
+                    nextImage.style.transform = 'scale(1)';
+                });
             });
             
             // Démarrer la musique
