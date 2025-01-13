@@ -103,32 +103,11 @@
             height: 100%;
             opacity: 0;
             transition: opacity 2s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .slide.active {
             opacity: 1;
             z-index: 1;
-        }
-
-        .slide.zoom-in {
-            animation: zoomIn 8s ease-in-out forwards;
-        }
-
-        .slide.zoom-out {
-            animation: zoomOut 8s ease-in-out forwards;
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0.9); }
-            to { transform: scale(1); }
-        }
-
-        @keyframes zoomOut {
-            from { transform: scale(1); }
-            to { transform: scale(0.9); }
         }
 
         .slide img {
@@ -137,55 +116,101 @@
             object-fit: contain;
             max-width: 100%;
             max-height: 100%;
+            transition: transform 8s ease-in-out;
+        }
+
+        .slide.zoom-in img {
+            transform: scale(1.1);
+        }
+
+        .slide.zoom-out img {
+            transform: scale(0.9);
         }
 
         .slide-info {
-            position: absolute;
+            position: fixed;
+            padding: 1.5rem;
             bottom: 2rem;
-            left: 2rem;
-            right: 2rem;
-            background: rgba(0, 0, 0, 0.7);
+            left: 50%;
+            transform: translateX(-50%);
             color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            font-family: 'Playfair Display', serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            z-index: 2;
         }
 
         .slide-info h3 {
-            margin: 0 0 1rem 0;
-            font-size: 2rem;
+            font-size: 2.5rem;
+            margin: 0 0 0.5rem 0;
             color: #ffd700;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .slide-info p {
-            margin: 0;
-            font-size: 1.1rem;
+            margin: 0 auto;
+            font-size: 1.3rem;
             line-height: 1.6;
+            font-family: 'Poppins', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .slideshow-controls {
             position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 1rem;
+            top: 50%;
+            right: 2rem;
+            transform: translateY(-50%);
             z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .control-btn {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
             border: none;
             color: white;
-            padding: 1rem;
+            width: 3rem;
+            height: 3rem;
             border-radius: 50%;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            backdrop-filter: blur(5px);
             transition: all 0.3s ease;
         }
 
         .control-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 215, 0, 0.7);
+            transform: scale(1.1);
+        }
+
+        .music-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .music-btn:hover {
+            background: rgba(255, 215, 0, 0.7);
             transform: scale(1.1);
         }
 
@@ -253,33 +278,86 @@
             transform: translateY(-50%) scale(1.1);
         }
 
-        .music-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 1rem;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-
-        .music-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
         .modal {
             display: none;
             position: fixed;
-            top: 0;
+            z-index: 1000;
             left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #2c3e50;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            color: white;
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            color: #ffd700;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffd700;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        button[type="submit"] {
+            background: #ffd700;
+            color: #2c3e50;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background: #fff;
+            transform: translateY(-2px);
         }
 
         .image-modal {
@@ -314,65 +392,6 @@
             font-size: 30px;
             cursor: pointer;
             z-index: 1001;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .submit-btn,
-        .cancel-btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .submit-btn {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .cancel-btn {
-            background: #f44336;
-            color: white;
-        }
-
-        .submit-btn:hover {
-            background: #45a049;
-        }
-
-        .cancel-btn:hover {
-            background: #da190b;
         }
 
         .back-btn {
@@ -430,7 +449,7 @@
                 <div class="slide" data-year="{{ year }}" data-id="{{ memory.id }}" data-date="{{ memory.date }}">
                     <img src="{{ memory.url }}" alt="{{ memory.title }}" onclick="openImageModal('{{ memory.url }}')">
                     {% if dev_mode %}
-                    <button class="edit-btn" onclick="showEditPhotoForm('{{ memory.id }}', '{{ memory.title }}', '{{ memory.description }}', '{{ memory.year }}')">
+                    <button class="edit-btn" onclick="showEditPhotoForm('{{ memory.id }}', '{{ memory.title|replace("'", "\\'") }}', '{{ memory.description|replace("'", "\\'") }}', '{{ year }}')">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="delete-btn" onclick="deletePhoto('{{ memory.id }}')">
@@ -445,27 +464,21 @@
                 {% endfor %}
             {% endfor %}
         </div>
-    </div>
 
-    <a href="/years" class="back-link">
-        <i class="fas fa-arrow-left"></i> Retour aux années
-    </a>
+        <div class="slideshow-controls">
+            <button id="playPauseBtn" class="control-btn" title="Lecture/Pause" onclick="toggleSlideshow()">
+                <i class="fas fa-pause"></i>
+            </button>
+        </div>
 
-    <div class="slideshow-controls">
-        <button id="playPauseBtn" class="control-btn" title="Lecture/Pause" onclick="toggleSlideshow()">
-            <i class="fas fa-pause"></i>
+        <button class="music-btn" onclick="toggleMusic()" id="musicBtn">
+            <i class="fas fa-music"></i>
         </button>
+
+        <a href="/years" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour aux années
+        </a>
     </div>
-
-    <button class="music-btn" onclick="toggleMusic()" id="musicBtn">
-        <i class="fas fa-music"></i>
-    </button>
-
-    {% if dev_mode %}
-    <button class="add-photo-btn" onclick="showAddPhotoForm()">
-        <i class="fas fa-plus"></i> Ajouter une photo
-    </button>
-    {% endif %}
 
     {% if dev_mode %}
     <div id="addPhotoModal" class="modal">
@@ -500,12 +513,12 @@
             </form>
         </div>
     </div>
-    {% endif %}
 
-    {% if dev_mode %}
     <div id="editPhotoModal" class="modal">
         <div class="modal-content">
-            <form id="editForm" method="POST" action="/edit_memory">
+            <span class="close" onclick="hideEditPhotoForm()">&times;</span>
+            <h2 style="color: #ffd700; margin-top: 0;">Modifier la photo</h2>
+            <form id="editForm" method="POST" enctype="multipart/form-data">
                 <input type="hidden" id="edit_id" name="id">
                 <div class="form-group">
                     <label for="edit_title">Titre :</label>
@@ -513,20 +526,101 @@
                 </div>
                 <div class="form-group">
                     <label for="edit_description">Description :</label>
-                    <textarea id="edit_description" name="description" required></textarea>
+                    <textarea id="edit_description" name="description" required rows="4"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="edit_year">Année :</label>
-                    <input type="text" id="edit_year" name="year" required>
+                    <input type="number" id="edit_year" name="year" required min="1900" max="2025">
                 </div>
-                <button type="submit">Modifier</button>
-                <button type="button" onclick="hideEditPhotoForm()">Annuler</button>
+                <button type="submit">Enregistrer les modifications</button>
             </form>
         </div>
     </div>
     {% endif %}
 
     <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlideIndex = 0;
+        let isPlaying = true;
+        let slideInterval;
+        let isMusicPlaying = false;
+        let isZoomingIn = true;
+        let audio = new Audio('/static/audio/Vangelis.mp3');
+        audio.loop = true;
+
+        function showSlide(index) {
+            // Masquer toutes les slides sauf la courante
+            slides.forEach((slide, i) => {
+                if (i !== index) {
+                    slide.style.opacity = '0';
+                    slide.classList.remove('active', 'zoom-in', 'zoom-out');
+                }
+            });
+            
+            if (slides[index]) {
+                const currentSlide = slides[index];
+                currentSlide.style.opacity = '1';
+                currentSlide.classList.add('active');
+                
+                // Ajouter l'effet de zoom alterné
+                setTimeout(() => {
+                    currentSlide.classList.add(isZoomingIn ? 'zoom-in' : 'zoom-out');
+                }, 50);
+
+                // Préparer la prochaine slide
+                const nextIndex = (index + 1) % slides.length;
+                setTimeout(() => {
+                    if (slides[nextIndex]) {
+                        slides[nextIndex].style.opacity = '0';
+                        slides[nextIndex].classList.remove('zoom-in', 'zoom-out');
+                    }
+                }, 7000);
+                
+                isZoomingIn = !isZoomingIn;
+            }
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            showSlide(currentSlideIndex);
+        }
+
+        function previousSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+            showSlide(currentSlideIndex);
+        }
+
+        function startSlideshow() {
+            isPlaying = true;
+            document.querySelector('#playPauseBtn i').className = 'fas fa-pause';
+            slideInterval = setInterval(nextSlide, 8000);
+        }
+
+        function stopSlideshow() {
+            isPlaying = false;
+            document.querySelector('#playPauseBtn i').className = 'fas fa-play';
+            clearInterval(slideInterval);
+        }
+
+        function toggleSlideshow() {
+            if (isPlaying) {
+                stopSlideshow();
+            } else {
+                startSlideshow();
+            }
+        }
+
+        function toggleMusic() {
+            isMusicPlaying = !isMusicPlaying;
+            if (isMusicPlaying) {
+                audio.play();
+                document.querySelector('#musicBtn i').className = 'fas fa-volume-up';
+            } else {
+                audio.pause();
+                document.querySelector('#musicBtn i').className = 'fas fa-volume-mute';
+            }
+        }
+
         function openImageModal(url) {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
@@ -541,203 +635,45 @@
             startSlideshow();
         }
 
-        // Ajouter la gestion de la touche Echap pour fermer le modal
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeImageModal();
-            }
-        });
-
-        const slides = document.querySelectorAll('.slide');
-        const slidesContainer = document.querySelector('.slideshow-container');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const musicBtn = document.getElementById('musicBtn');
-        let currentSlide = 0;
-        let isPlaying = true;
-        let isMusicPlaying = false;
-        let slideInterval;
-        let isZoomingIn = true;
-        let currentYear = null;
-        let audio = new Audio('/static/audio/Vangelis.mp3');
-        audio.loop = true;
-
-        // Convertir NodeList en Array pour pouvoir manipuler plus facilement
-        let slidesArray = Array.from(slides);
-        let slidesByYear = {};
-        
-        // Grouper par année
-        slidesArray.forEach(slide => {
-            const year = slide.dataset.year;
-            if (!slidesByYear[year]) {
-                slidesByYear[year] = [];
-            }
-            slidesByYear[year].push(slide);
-        });
-
-        // Trier les années et réorganiser les slides
-        slidesArray = Object.keys(slidesByYear)
-            .sort()
-            .reduce((acc, year) => {
-                // Trier les slides de chaque année par date
-                slidesByYear[year].sort((a, b) => {
-                    const dateA = new Date(a.dataset.date);
-                    const dateB = new Date(b.dataset.date);
-                    return dateA - dateB;
-                });
-                return acc.concat(slidesByYear[year]);
-            }, []);
-
-        // Réorganiser dans le DOM
-        slidesArray.forEach(slide => {
-            slidesContainer.appendChild(slide);
-        });
-
-        function showSlide(index) {
-            slidesArray.forEach(slide => {
-                slide.classList.remove('active', 'zoom-in', 'zoom-out');
-                slide.style.zIndex = "0";
-            });
-
-            slidesArray[index].classList.add('active');
-            slidesArray[index].style.zIndex = "1";
-            
-            setTimeout(() => {
-                if (isZoomingIn) {
-                    slidesArray[index].classList.add('zoom-in');
-                } else {
-                    slidesArray[index].classList.add('zoom-out');
-                }
-            }, 50);
-
-            const year = slidesArray[index].dataset.year;
-            if (year !== currentYear) {
-                document.querySelectorAll('.year-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.textContent === year) {
-                        btn.classList.add('active');
-                    }
-                });
-                currentYear = year;
-            }
-        }
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slidesArray.length;
-            isZoomingIn = !isZoomingIn;
-            showSlide(currentSlide);
-        }
-
-        function previousSlide() {
-            currentSlide = (currentSlide - 1 + slidesArray.length) % slidesArray.length;
-            isZoomingIn = !isZoomingIn;
-            showSlide(currentSlide);
-        }
-
-        function shuffleSlides() {
-            // Arrêter le diaporama temporairement
-            const wasPlaying = isPlaying;
-            if (isPlaying) {
-                stopSlideshow();
-            }
-
-            // Créer une copie mélangée du tableau des slides
-            const shuffledSlides = [...slidesArray];
-            for (let i = shuffledSlides.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffledSlides[i], shuffledSlides[j]] = [shuffledSlides[j], shuffledSlides[i]];
-            }
-
-            // Vider le conteneur
-            while (slidesContainer.firstChild) {
-                slidesContainer.removeChild(slidesContainer.firstChild);
-            }
-
-            // Ajouter les slides dans le nouvel ordre
-            shuffledSlides.forEach(slide => {
-                slidesContainer.appendChild(slide);
-            });
-
-            // Mettre à jour le tableau des slides
-            slidesArray = shuffledSlides;
-
-            // Réinitialiser l'index et afficher la première slide
-            currentSlide = 0;
-            showSlide(0);
-
-            // Redémarrer le diaporama si nécessaire
-            if (wasPlaying) {
-                startSlideshow();
-            }
-        }
-
         function showYear(year) {
-            const yearSlideIndex = slidesArray.findIndex(slide => slide.dataset.year === year);
-            if (yearSlideIndex !== -1) {
-                currentSlide = yearSlideIndex;
-                showSlide(currentSlide);
-            }
-        }
-
-        function startSlideshow() {
-            if (!slideInterval) {
-                slideInterval = setInterval(nextSlide, 8000);
-            }
-        }
-
-        function stopSlideshow() {
-            if (slideInterval) {
-                clearInterval(slideInterval);
-                slideInterval = null;
-            }
-        }
-
-        function toggleSlideshow() {
-            isPlaying = !isPlaying;
-            playPauseBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
-            if (isPlaying) {
-                startSlideshow();
-            } else {
-                stopSlideshow();
-            }
-        }
-
-        function toggleMusic() {
-            isMusicPlaying = !isMusicPlaying;
-            if (isMusicPlaying) {
-                audio.play();
-                musicBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-            } else {
-                audio.pause();
-                musicBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            const yearSlide = Array.from(slides).find(slide => slide.dataset.year === year);
+            if (yearSlide) {
+                currentSlideIndex = Array.from(slides).indexOf(yearSlide);
+                showSlide(currentSlideIndex);
             }
         }
 
         function showAddPhotoForm() {
             document.getElementById('addPhotoModal').style.display = 'flex';
+            stopSlideshow();
         }
 
         function hideAddPhotoForm() {
             document.getElementById('addPhotoModal').style.display = 'none';
+            startSlideshow();
         }
 
         function showEditPhotoForm(id, title, description, year) {
-            stopSlideshow();  
+            stopSlideshow();
+            const modal = document.getElementById('editPhotoModal');
             const form = document.getElementById('editForm');
             form.action = `/edit-century-memory/${id}`;
+            document.getElementById('edit_id').value = id;
             document.getElementById('edit_title').value = title;
             document.getElementById('edit_description').value = description;
             document.getElementById('edit_year').value = year;
-            document.getElementById('editPhotoModal').style.display = 'flex';
+            modal.style.display = 'flex';
         }
 
         function hideEditPhotoForm() {
-            document.getElementById('editPhotoModal').style.display = 'none';
-            if (isPlaying) startSlideshow();  
+            const modal = document.getElementById('editPhotoModal');
+            modal.style.display = 'none';
+            startSlideshow();
         }
 
         function deletePhoto(id) {
             if (confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')) {
-                stopSlideshow();  
+                stopSlideshow();
                 fetch(`/delete-century-memory/${id}`, {
                     method: 'POST'
                 }).then(response => {
@@ -753,18 +689,37 @@
             }
         }
 
+        // Gestionnaires d'événements
         window.onclick = function(event) {
             const addModal = document.getElementById('addPhotoModal');
             const editModal = document.getElementById('editPhotoModal');
+            const imageModal = document.getElementById('imageModal');
+            
             if (event.target == addModal) {
                 hideAddPhotoForm();
-            }
-            if (event.target == editModal) {
+            } else if (event.target == editModal) {
                 hideEditPhotoForm();
+            } else if (event.target == imageModal) {
+                closeImageModal();
             }
         }
 
+        // Gestion des touches
         document.addEventListener('keydown', function(e) {
+            const editModal = document.getElementById('editPhotoModal');
+            const imageModal = document.getElementById('imageModal');
+            const addModal = document.getElementById('addPhotoModal');
+            
+            // Ne pas traiter les touches si un modal est ouvert
+            if (editModal.style.display === 'flex' || imageModal.style.display === 'flex' || addModal.style.display === 'flex') {
+                if (e.key === 'Escape') {
+                    hideEditPhotoForm();
+                    hideAddPhotoForm();
+                    closeImageModal();
+                }
+                return;
+            }
+
             switch(e.key) {
                 case 'ArrowLeft':
                     previousSlide();
@@ -782,10 +737,19 @@
             }
         });
 
+        // Empêcher la propagation des événements clavier dans les modaux
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('keydown', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // Initialisation
         if (slides.length > 0) {
-            showSlide(0);
+            showSlide(currentSlideIndex);
             startSlideshow();
-            
+
+            // Démarrer la musique au premier clic
             document.addEventListener('click', function startAudioOnFirstClick() {
                 audio.play().catch(e => console.log('Erreur lors du démarrage de la musique:', e));
                 document.removeEventListener('click', startAudioOnFirstClick);

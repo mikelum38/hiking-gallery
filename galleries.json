@@ -13593,5 +13593,101 @@
         "description": "Au royaume du Beaufortain ",
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736426826/nzbpaq91goygbfqdz917.jpg",
         "photos": []
+    },
+    "6ab42f39-5dd0-46c8-bc0c-4f2fd30ef421": {
+        "name": "Mont de Grésy",
+        "date": "2025-01-12",
+        "description": "Le Mont de Grésy avec sa petite cabane domine la vallée de l'Isère au-dessus de Grésy-sur-Isère.",
+        "photos": [
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775264/brj5o6vzt2cge0xb8yi3.jpg",
+                "filename": "IMG_20250112_110402.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775270/ngspzkhxkbaqdr12bvpr.jpg",
+                "filename": "IMG_20250112_114515.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775275/y1cctos27upimfqoibwq.jpg",
+                "filename": "IMG_20250112_115849.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775280/hpewvtclnwdg1zh8k2mj.jpg",
+                "filename": "IMG_20250112_115859.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775289/sph8mxitbhwacmcyylkj.jpg",
+                "filename": "IMG_20250112_124355.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775293/jpjujkkqe8kself7d76j.jpg",
+                "filename": "IMG_20250112_124412.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775310/teqleyavuourn2nmzisc.jpg",
+                "filename": "IMG_20250112_134206.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775319/zmut3vc4og5ad4ziq66j.jpg",
+                "filename": "IMG_20250112_135231.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775329/wbzg2obv23wrv1zpnza3.jpg",
+                "filename": "IMG_20250112_141333.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775335/lxrqta2mqcovuleola0b.jpg",
+                "filename": "IMG_20250112_141513.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775341/hpz5jnexzwi7kilohxuz.jpg",
+                "filename": "IMG_20250112_142247.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775352/doispt6mhw28vs3u2rvi.jpg",
+                "filename": "IMG_20250112_142345.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775361/zu4ukdksge8anqxv4rgs.jpg",
+                "filename": "IMG_20250112_142418.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775369/qhvt4w6aiqkexq14u13k.jpg",
+                "filename": "IMG_20250112_142456.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775373/jk1arphem7bj9bwuyiz4.jpg",
+                "filename": "IMG_20250112_142518.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775382/rw4sosowf8ynpoxzbt5n.jpg",
+                "filename": "IMG_20250112_142612.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775391/wqg91k9ynqq3bczotda5.jpg",
+                "filename": "IMG_20250112_142628.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775398/td8j29d2zudfl0jggvhe.jpg",
+                "filename": "IMG_20250112_142642.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775406/tu2bvrt30cu9oiv6qiwz.jpg",
+                "filename": "IMG_20250112_143252.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775422/egxnjsamcceqbimrl1cf.jpg",
+                "filename": "IMG_20250112_145159.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775432/nfhdgtqyvnywa2hj4uqd.jpg",
+                "filename": "IMG_20250112_145206.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775438/asws5awmrd5actsykxaj.jpg",
+                "filename": "IMG_20250112_152103.jpg"
+            }
+        ],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736775113/nlq1gooiruoh6mu0rne7.jpg"
     }
 }

@@ -100,62 +100,61 @@
             font-size: 1.2rem;
             display: flex;
             align-items: center;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
             opacity: 0;
             transform: translateX(-20px);
-            animation: slideIn 1s ease-out forwards 1.4s;
+            animation: slideIn 1s ease-out forwards 0.3s;
         }
 
         .back-link:hover {
+            background: rgba(0, 0, 0, 0.5);
             transform: translateX(-5px);
-            color: white;
         }
 
         .back-link i {
-            margin-right: 8px;
+            font-size: 1rem;
         }
 
         /* Styles pour la galerie */
         .months-container {
-            position: absolute;
-            bottom: 2rem;
+            position: fixed;
+            bottom: 0;
             left: 0;
             right: 0;
-            padding: 0 2rem;
-            z-index: 2;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: slideUp 1s ease-out forwards 1.7s;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+            padding: 2rem;
+            overflow-x: auto;
+            z-index: 5;
         }
 
         .months-scroll {
             display: flex;
+            gap: 1.5rem;
+            padding: 0.5rem;
             overflow-x: auto;
-            scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            gap: 1rem;
-            padding: 1rem 0;
-            scrollbar-width: none;
-        }
-
-        .months-scroll::-webkit-scrollbar {
-            display: none;
         }
 
         .month-card {
-            flex: 0 0 200px;
-            scroll-snap-align: start;
-            background: white;
-            border-radius: 8px;
+            flex: 0 0 auto;
+            width: 280px;
+            height: 180px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-            height: 150px;
             position: relative;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .month-card:hover {
+            transform: translateY(-5px);
         }
 
         .month-cover {
@@ -168,44 +167,31 @@
 
         .month-overlay {
             position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
             right: 0;
-            padding: 1rem;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
             color: white;
         }
 
         .month-name {
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             font-weight: 500;
-            margin-bottom: 0.2rem;
+            margin: 0;
+            margin-bottom: 0.3rem;
         }
 
         .gallery-count {
             font-size: 0.9rem;
-            opacity: 0.9;
+            opacity: 0.8;
         }
 
-        /* Styles pour le modal */
-        .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 500px;
-            z-index: 1000;
-            display: none;
-        }
-
-        /* ... reste des styles du modal ... */
-
-        /* Animations d'apparition */
+        /* Animations */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -240,6 +226,89 @@
         /* Optimisation des animations */
         .home-hero, .home-hero h1, .home-hero p, .add-hike-btn, .back-link, .months-container {
             will-change: transform, opacity;
+        }
+
+        /* Styles pour le modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #2c3e50;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            color: white;
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            color: #ffd700;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffd700;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .submit-btn {
+            background: #ffd700;
+            color: #2c3e50;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #fff;
+            transform: translateY(-2px);
         }
 
         /* Style commun pour les deux boutons */
@@ -297,7 +366,7 @@
             </a>
         </div>
         {% if dev_mode %}
-        <button class="add-hike-btn" onclick="toggleCreateGallery()">
+        <button class="add-hike-btn" onclick="showAddProjectForm()">
             <i class="fas fa-plus"></i> Ajouter un projet
         </button>
         {% endif %}
@@ -322,6 +391,32 @@
                 </div>
             </a>
             {% endfor %}
+        </div>
+    </div>
+
+    <div id="addProjectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideAddProjectForm()">&times;</span>
+            <h2 style="color: #ffd700; margin-top: 0;">Ajouter un projet</h2>
+            <form id="addProjectForm" method="POST" action="{{ url_for('create_gallery') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Titre :</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description :</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date prévue :</label>
+                    <input type="date" id="date" name="date" required min="2025-01-01" max="2025-12-31">
+                </div>
+                <div class="form-group">
+                    <label for="cover_image">Photo de couverture :</label>
+                    <input type="file" id="cover_image" name="cover_image" accept="image/*" required>
+                </div>
+                <button type="submit" class="submit-btn">Ajouter le projet</button>
+            </form>
         </div>
     </div>
 
@@ -372,6 +467,22 @@
             const form = document.getElementById('createGalleryForm');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
+
+        function showAddProjectForm() {
+            document.getElementById('addProjectModal').style.display = 'flex';
+        }
+
+        function hideAddProjectForm() {
+            document.getElementById('addProjectModal').style.display = 'none';
+        }
+
+        // Fermer le modal en cliquant en dehors
+        window.onclick = function(event) {
+            const modal = document.getElementById('addProjectModal');
+            if (event.target == modal) {
+                hideAddProjectForm();
+            }
+        }
     </script>
 </body>
-</html> 
+</html>
