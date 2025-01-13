@@ -13538,37 +13538,6 @@
         ],
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735833273/bypcmhtuleakmiz7gsgw.jpg"
     },
-    "20250102_173817": {
-        "name": "Tour du Ruan",
-        "date": "2025-07-14",
-        "description": "A cheval entre la Suisse et la France, le Tour du Ruan relie de nombreux sites sauvages aux panoramas époustouflants",
-        "photos": [],
-        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735835902/cqbxfxdzcgaos1wevdky.jpg"
-    },
-    "20250102_175919": {
-        "name": "Corsica 2025",
-        "date": "2025-08-22",
-        "description": "Suite des aventures en Corse , avec explorations des sommets , des variantes alpines , et des deux étapes qu'on a du shunter en septembre dernier...",
-        "photos": [
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735847685/zbkbwmu7nh3gjktunlgi.jpg",
-                "filename": "460628620_9014125511950757_5352688712696243242_n.jpg"
-            }
-        ],
-        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735837165/ocimng8owuaa84rbqkcs.jpg"
-    },
-    "20250102_180709": {
-        "name": "Rocciamelone",
-        "date": "2025-10-04",
-        "description": "Rocciamelone (3538 m)\r\n    △ Alpes Grées, Val de Suse, Piémont -  Italie\r\n- voie normale par la face Sud, depuis la Riposa -",
-        "photos": [
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735847854/mq019in5r8bgxznnty7l.jpg",
-                "filename": "IMG_20231012_121237.jpg"
-            }
-        ],
-        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735837635/zvsigbr2bvwneswqffkl.jpg"
-    },
     "656acc1d-0334-4d2a-a583-b4a97cdf4b22": {
         "name": "Rocciamelone",
         "date": "2023-10-11",
@@ -13603,5 +13572,26 @@
         "description": "Le Canigó domine les Pyrénées-Orientales telle une véritable vigie et accéder à son pic est une expérience inoubliable à vivre !",
         "photos": [],
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1735938938/snbo8vzkmezlzpg3hvsj.jpg"
+    },
+    "dc52edaf-c2b3-4bb9-9fe0-3690fec60560": {
+        "name": "Grand Perron des Encombres (2824m)",
+        "date": "2019-10-30",
+        "description": "Beau sommet bien visible depuis la vallée de la Maurienne. Il domine tout le secteur des Encombres et offre une vue splendide sur des grands sommets de Vanoise, sur les Ecrins, les Aiguilles d'Arves...",
+        "photos": [],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736424112/hxzergtbqmph0ustajb8.jpg"
+    },
+    "88c492e1-9ced-4aad-a0c0-a0fddd1b5843": {
+        "name": "Au royaume des Dieux",
+        "date": "2017-06-11",
+        "description": "Chalets des Pyramides - Bossons - Chamonix",
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736426501/fw5f2kr719u69nmjnnfc.jpg",
+        "photos": []
+    },
+    "9707e55a-6fa0-4d9b-b42f-7ccbfb777e6c": {
+        "name": "Pierra Menta , lac d'Amour , lac de Presset",
+        "date": "2018-08-12",
+        "description": "Au royaume du Beaufortain ",
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736426826/nzbpaq91goygbfqdz917.jpg",
+        "photos": []
     }
 }

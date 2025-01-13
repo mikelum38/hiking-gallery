@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Souvenirs en Pêle-mêle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: #ffd700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+        }
+
+        .add-photo-btn {
+            background: #ffd700;
+            border: none;
+            color: #1a1a1a;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-photo-btn:hover {
+            transform: scale(1.05);
+            background: #ffed4a;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .photo-card {
+            position: relative;
+            background: #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.02);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .photo-info {
+            padding: 1rem;
+        }
+
+        .photo-info h3 {
+            margin: 0;
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .photo-info p {
+            margin: 0.5rem 0 0;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffd700;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #444;
+            background: #1a1a1a;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .submit-btn,
+        .cancel-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn {
+            background: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .submit-btn:hover {
+            background: #ffed4a;
+        }
+
+        .cancel-btn {
+            background: #444;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="window.location.href='/memories-of-centuries'">
+                <i class="fas fa-arrow-left"></i> Retour au diaporama
+            </button>
+            {% if dev_mode %}
+            <button class="add-photo-btn" onclick="showAddPhotoForm()">
+                <i class="fas fa-plus"></i> Ajouter une photo
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="photos-grid">
+            {% for photo in photos %}
+            <div class="photo-card">
+                <img src="{{ photo.url }}" alt="{{ photo.title }}">
+                <div class="photo-info">
+                    <h3>{{ photo.title }}</h3>
+                    <p>{{ photo.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if dev_mode %}
+    <!-- Modal d'ajout de photo -->
+    <div id="addPhotoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideAddPhotoForm()">&times;</span>
+            <h2 style="color: #ffd700; margin-top: 0;">Ajouter une photo</h2>
+            <form id="addPhotoForm" method="POST" action="/add_memory" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Titre :</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description :</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="year">Année :</label>
+                    <input type="text" id="year" name="year" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date :</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="photo">Photo :</label>
+                    <input type="file" id="photo" name="photo" accept="image/*" required>
+                </div>
+                <button type="submit">Ajouter</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        function showAddPhotoForm() {
+            document.getElementById('addPhotoModal').style.display = 'flex';
+        }
+
+        function hideAddPhotoForm() {
+            document.getElementById('addPhotoModal').style.display = 'none';
+        }
+
+        // Fermer le modal en cliquant en dehors
+        window.onclick = function(event) {
+            const modal = document.getElementById('addPhotoModal');
+            if (event.target == modal) {
+                hideAddPhotoForm();
+            }
+        }
+    </script>
+</body>
+</html>

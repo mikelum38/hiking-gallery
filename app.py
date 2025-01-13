@@ -50,6 +50,17 @@ def load_gallery_data():
     except FileNotFoundError:
         return {}
 
+def load_projects():
+    try:
+        with open('projects.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+def save_projects(projects):
+    with open('projects.json', 'w', encoding='utf-8') as f:
+        json.dump(projects, f, ensure_ascii=False, indent=4)
+
 def format_date(date_str):
     date = datetime.strptime(date_str, '%Y-%m-%d')
     return f"{date.day} {MOIS_FR[date.month-1]} {date.year}"
@@ -571,6 +582,382 @@ def year_2020():
     return render_template('year2020.html', 
                          galleries_by_month=galleries_by_month,
                          background_image=background_image,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/2019')
+def year2019():
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    
+    for gallery_id, gallery in galleries.items():
+        try:
+            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+            if date.year == 2019:
+                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+                month_num = date.strftime('%m')
+                year = date.strftime('%Y')
+                
+                if month_key not in galleries_by_month:
+                    galleries_by_month[month_key] = {
+                        'galleries': [],
+                        'month': int(month_num),
+                        'year': int(year),
+                        'cover': None
+                    }
+                
+                gallery['id'] = gallery_id
+                galleries_by_month[month_key]['galleries'].append(gallery)
+                
+                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
+        except Exception as e:
+            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
+    
+    # Trouver la première image de couverture disponible
+    background_image = None
+    if galleries_by_month:
+        for month_data in galleries_by_month.values():
+            if month_data['galleries'] and month_data['galleries'][0].get('cover_image'):
+                background_image = month_data['galleries'][0]['cover_image']
+                break
+    
+    return render_template('year2019.html', 
+                         galleries_by_month=galleries_by_month,
+                         background_image=background_image,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/2018')
+def year2018():
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    
+    for gallery_id, gallery in galleries.items():
+        try:
+            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+            if date.year == 2018:
+                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+                month_num = date.strftime('%m')
+                year = date.strftime('%Y')
+                
+                if month_key not in galleries_by_month:
+                    galleries_by_month[month_key] = {
+                        'galleries': [],
+                        'month': int(month_num),
+                        'year': int(year),
+                        'cover': None
+                    }
+                
+                gallery['id'] = gallery_id
+                galleries_by_month[month_key]['galleries'].append(gallery)
+                
+                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
+        except Exception as e:
+            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
+    
+    background_image = None
+    if galleries_by_month:
+        for month_data in galleries_by_month.values():
+            if month_data['galleries'] and month_data['galleries'][0].get('cover_image'):
+                background_image = month_data['galleries'][0]['cover_image']
+                break
+    
+    return render_template('year2018.html', 
+                         galleries_by_month=galleries_by_month,
+                         background_image=background_image,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/2017')
+def year2017():
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    
+    for gallery_id, gallery in galleries.items():
+        try:
+            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+            if date.year == 2017:
+                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+                month_num = date.strftime('%m')
+                year = date.strftime('%Y')
+                
+                if month_key not in galleries_by_month:
+                    galleries_by_month[month_key] = {
+                        'galleries': [],
+                        'month': int(month_num),
+                        'year': int(year),
+                        'cover': None
+                    }
+                
+                gallery['id'] = gallery_id
+                galleries_by_month[month_key]['galleries'].append(gallery)
+                
+                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
+        except Exception as e:
+            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
+    
+    background_image = None
+    if galleries_by_month:
+        for month_data in galleries_by_month.values():
+            if month_data['galleries'] and month_data['galleries'][0].get('cover_image'):
+                background_image = month_data['galleries'][0]['cover_image']
+                break
+    
+    return render_template('year2017.html', 
+                         galleries_by_month=galleries_by_month,
+                         background_image=background_image,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/memories')
+def memories():
+    # Charger les projets
+    photos = load_projects()
+    app.logger.info(f"Nombre de projets chargés : {len(photos)}")
+    
+    # Trier les projets par date
+    photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'), reverse=True)
+    
+    return render_template('memories.html',
+                         photos=photos,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/dreams')
+def dreams():
+    # Charger les projets
+    photos = load_projects()
+    app.logger.info(f"Nombre de projets chargés : {len(photos)}")
+    
+    # Trier les projets par date
+    photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'), reverse=True)
+    
+    return render_template('dreams.html',
+                         photos=photos,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/add_project', methods=['POST'])
+def add_project():
+    if not app.config['DEV_MODE']:
+        return abort(403)
+    
+    try:
+        data = request.form
+        file = request.files['cover_image']
+        
+        if file:
+            upload_result = cloudinary.uploader.upload(file)
+            image_url = upload_result['secure_url']
+            
+            new_project = {
+                'id': str(uuid.uuid4()),
+                'url': image_url,
+                'gallery_name': data['title'],
+                'date': data['date'],
+                'formatted_date': format_date(data['date']),
+                'description': data['description']
+            }
+            
+            projects = load_projects()
+            projects.append(new_project)
+            save_projects(projects)
+            
+        return redirect(url_for('memories'))
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'ajout du projet: {str(e)}")
+        flash("Erreur lors de l'ajout du projet")
+        return redirect(url_for('memories'))
+
+@app.route('/edit_project/<project_id>', methods=['POST'])
+def edit_project(project_id):
+    if not app.config['DEV_MODE']:
+        return abort(403)
+    
+    try:
+        data = request.form
+        projects = load_projects()
+        
+        project = next((p for p in projects if p['id'] == project_id), None)
+        if not project:
+            return abort(404)
+        
+        project['gallery_name'] = data['title']
+        project['date'] = data['date']
+        project['formatted_date'] = format_date(data['date'])
+        project['description'] = data['description']
+        
+        if 'cover_image' in request.files and request.files['cover_image'].filename:
+            file = request.files['cover_image']
+            upload_result = cloudinary.uploader.upload(file)
+            project['url'] = upload_result['secure_url']
+        
+        save_projects(projects)
+        return redirect(url_for('memories'))
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la modification du projet: {str(e)}")
+        flash("Erreur lors de la modification du projet")
+        return redirect(url_for('memories'))
+
+@app.route('/delete_project/<project_id>', methods=['POST'])
+def delete_project(project_id):
+    if not app.config['DEV_MODE']:
+        return abort(403)
+    
+    try:
+        projects = load_projects()
+        projects = [p for p in projects if p['id'] != project_id]
+        save_projects(projects)
+        flash("Projet supprimé avec succès")
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la suppression du projet: {str(e)}")
+        flash("Erreur lors de la suppression du projet")
+    
+    return redirect(url_for('memories'))
+
+@app.route('/memories-of-centuries')
+def memories_of_centuries():
+    # Charger les photos depuis le fichier JSON dédié
+    try:
+        with open('century_memories.json', 'r', encoding='utf-8') as f:
+            memories = json.load(f)
+    except FileNotFoundError:
+        memories = {}
+    
+    return render_template('memories_shuffle.html', 
+                         memories=memories,
+                         current_year=datetime.now().year,
+                         dev_mode=app.config['DEV_MODE'])
+
+@app.route('/add-century-memory', methods=['POST'])
+def add_century_memory():
+    if 'photo' not in request.files:
+        flash('Aucune photo sélectionnée')
+        return redirect(url_for('memories_of_centuries'))
+    
+    photo = request.files['photo']
+    if photo.filename == '':
+        flash('Aucune photo sélectionnée')
+        return redirect(url_for('memories_of_centuries'))
+    
+    if not allowed_file(photo.filename):
+        flash('Type de fichier non autorisé')
+        return redirect(url_for('memories_of_centuries'))
+    
+    try:
+        # Upload de la photo sur Cloudinary
+        upload_result = cloudinary.uploader.upload(photo)
+        
+        # Récupérer les données existantes
+        try:
+            with open('century_memories.json', 'r', encoding='utf-8') as f:
+                memories = json.load(f)
+        except FileNotFoundError:
+            memories = {}
+        
+        # Créer une nouvelle entrée
+        memory_id = str(uuid.uuid4())
+        year = request.form.get('year', datetime.now().year)
+        
+        if str(year) not in memories:
+            memories[str(year)] = []
+            
+        new_memory = {
+            'id': memory_id,
+            'url': upload_result['secure_url'],
+            'title': request.form.get('title', ''),
+            'description': request.form.get('description', ''),
+            'year': str(year)
+        }
+        
+        memories[str(year)].append(new_memory)
+        
+        # Sauvegarder les données
+        with open('century_memories.json', 'w', encoding='utf-8') as f:
+            json.dump(memories, f, ensure_ascii=False, indent=4)
+            
+        flash('Photo ajoutée avec succès')
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'ajout de la photo : {str(e)}")
+        flash('Une erreur est survenue lors de l\'ajout de la photo')
+    
+    return redirect(url_for('memories_of_centuries'))
+
+@app.route('/edit-century-memory/<memory_id>', methods=['POST'])
+def edit_century_memory(memory_id):
+    if not app.config['DEV_MODE']:
+        return abort(403)
+    
+    try:
+        with open('century_memories.json', 'r', encoding='utf-8') as f:
+            memories = json.load(f)
+        
+        # Trouver et mettre à jour le souvenir
+        for year in memories.values():
+            for memory in year:
+                if memory['id'] == memory_id:
+                    memory['title'] = request.form['title']
+                    memory['year'] = request.form['year']
+                    memory['description'] = request.form['description']
+                    
+                    if 'photo' in request.files and request.files['photo'].filename:
+                        file = request.files['photo']
+                        upload_result = cloudinary.uploader.upload(file)
+                        memory['url'] = upload_result['secure_url']
+                    
+                    break
+        
+        with open('century_memories.json', 'w', encoding='utf-8') as f:
+            json.dump(memories, f, ensure_ascii=False, indent=4)
+            
+        return redirect(url_for('memories_of_centuries'))
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la modification du souvenir: {str(e)}")
+        flash("Erreur lors de la modification du souvenir")
+        return redirect(url_for('memories_of_centuries'))
+
+@app.route('/delete-century-memory/<memory_id>', methods=['POST'])
+def delete_century_memory(memory_id):
+    if not app.config['DEV_MODE']:
+        return abort(403)
+    
+    try:
+        with open('century_memories.json', 'r', encoding='utf-8') as f:
+            memories = json.load(f)
+        
+        # Supprimer le souvenir
+        for year in memories:
+            memories[year] = [m for m in memories[year] if m['id'] != memory_id]
+            
+        # Supprimer les années vides
+        memories = {k: v for k, v in memories.items() if v}
+        
+        with open('century_memories.json', 'w', encoding='utf-8') as f:
+            json.dump(memories, f, ensure_ascii=False, indent=4)
+            
+        return '', 204
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la suppression du souvenir: {str(e)}")
+        return 'Erreur lors de la suppression', 500
+
+@app.route('/memories-shuffle')
+def memories_shuffle():
+    try:
+        with open('century_memories.json', 'r', encoding='utf-8') as f:
+            memories = json.load(f)
+    except FileNotFoundError:
+        memories = {}
+    
+    # Aplatir toutes les photos en une seule liste
+    all_photos = []
+    for year_photos in memories.values():
+        all_photos.extend(year_photos)
+    
+    return render_template('memories_pile.html', 
+                         photos=all_photos,
                          dev_mode=app.config['DEV_MODE'])
 
 if __name__ == '__main__':

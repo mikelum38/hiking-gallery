@@ -4,275 +4,236 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Années - Rêves de Montagne</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            background-image: url('/static/images/background-mountain.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
-        }
-
-        .navbar {
-            background: rgba(0,0,0,0.3);
-        }
-
-        .nav-link {
-            color: white;
-            font-size: 1.2rem;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-
-        .back-link {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            z-index: 10;
-            color: white;
-            text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem 1.5rem;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .year-blocks {
+            background: url('/static/images/background-mountain.jpg') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 80vh;
-            gap: 2rem;
-            padding: 2rem;
-            flex-wrap: wrap;
-            max-width: 1600px;
-            margin: 0 auto;
+            perspective: 1000px;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Overlay pour assombrir légèrement le fond */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+
+        .wheel-container {
+            width: 700px;
+            height: 600px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: initialRotation 1s ease-out forwards;
+            z-index: 1;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease-out;
         }
 
         .year-block {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
-            padding: 2.5rem;
-            border-radius: 20px;
-            width: 280px;
-            height: 280px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            transform: translateY(50px) scale(0.95);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
+            position: absolute;
+            width: 220px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transform-style: preserve-3d;
+            padding: 1.5rem;
+            text-align: center;
+            transition: background-color 0.3s ease;
         }
 
-        /* Style spécifique pour chaque bloc */
-        .year-block:nth-child(1) {
-            background: linear-gradient(135deg, #ff6b6b20, #ff6b6b40);
-            border-color: #ff6b6b50;
-        }
+        /* Supprimer les effets de gradient et simplifier les styles des blocs */
+        .year-block:nth-child(1) { background-color: rgba(255, 107, 107, 0.2); }
+        .year-block:nth-child(2) { background-color: rgba(78, 205, 196, 0.2); }
+        .year-block:nth-child(3) { background-color: rgba(69, 183, 175, 0.2); }
+        .year-block:nth-child(4) { background-color: rgba(168, 230, 207, 0.2); }
+        .year-block:nth-child(5) { background-color: rgba(255, 217, 61, 0.2); }
+        .year-block:nth-child(6) { background-color: rgba(108, 92, 231, 0.2); }
 
-        .year-block:nth-child(2) {
-            background: linear-gradient(135deg, #4ecdc420, #4ecdc440);
-            border-color: #4ecdc450;
-        }
-
-        .year-block:nth-child(3) {
-            background: linear-gradient(135deg, #45b7af20, #45b7af40);
-            border-color: #45b7af50;
-        }
-
-        .year-block:nth-child(4) {
-            background: linear-gradient(135deg, #a8e6cf20, #a8e6cf40);
-            border-color: #a8e6cf50;
-        }
-
-        .year-block:nth-child(5) {
-            background: linear-gradient(135deg, #ffd93d20, #ffd93d40);
-            border-color: #ffd93d50;
-        }
-
-        .year-block:nth-child(6) {
-            background: linear-gradient(135deg, #6c5ce720, #6c5ce740);
-            border-color: #6c5ce750;
-        }
-
+        /* Supprimer l'effet de brillance */
         .year-block::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0.6),
-                transparent
-            );
-            transition: 0.8s;
+            display: none;
         }
 
         .year-block:hover {
-            transform: translateY(-20px) scale(1.05);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            border-width: 2px;
-        }
-
-        .year-block:nth-child(1):hover {
-            border-color: #ff6b6b;
-            background: linear-gradient(135deg, #ff6b6b10, #ff6b6b30);
-        }
-
-        .year-block:nth-child(2):hover {
-            border-color: #4ecdc4;
-            background: linear-gradient(135deg, #4ecdc410, #4ecdc430);
-        }
-
-        .year-block:nth-child(3):hover {
-            border-color: #45b7af;
-            background: linear-gradient(135deg, #45b7af10, #45b7af30);
-        }
-
-        .year-block:nth-child(4):hover {
-            border-color: #a8e6cf;
-            background: linear-gradient(135deg, #a8e6cf10, #a8e6cf30);
-        }
-
-        .year-block:nth-child(5):hover {
-            border-color: #ffd93d;
-            background: linear-gradient(135deg, #ffd93d10, #ffd93d30);
+            background-color: rgba(255, 255, 255, 0.3);
         }
 
         .year-block h2 {
-            font-size: 3.2rem;
-            margin-bottom: 1.5rem;
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            background: linear-gradient(45deg, #2c3e50, #3498db);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 2rem;
+            margin: 0 0 0.5rem 0;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .year-block p {
-            color: #666;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            max-width: 220px;
-            margin: 0 auto;
+            font-size: 0.9rem;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        /* Animation améliorée des blocs */
-        .year-block:nth-child(1) {
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1.5rem;
+            z-index: 10;
         }
 
-        .year-block:nth-child(2) {
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s;
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
         }
 
-        .year-block:nth-child(3) {
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.4s;
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
-        .year-block:nth-child(4) {
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.6s;
+        .back-link {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            z-index: 10;
         }
 
-        .year-block:nth-child(5) {
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.8s;
-        }
-
-        .year-block:nth-child(6) {
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards 1s;
-        }
-
-        @keyframes fadeInUp {
-            0% {
-                opacity: 0;
-                transform: translateY(100px) scale(0.95);
+        @keyframes initialRotation {
+            from {
+                transform: rotateX(-20deg) rotateY(0deg);
             }
-            60% {
-                transform: translateY(-25px) scale(1.05);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .year-blocks {
-                flex-direction: column;
-                padding: 1rem;
-                gap: 1rem;
-            }
-
-            .year-block {
-                width: 100%;
-                max-width: none;
-                margin: 0;
-                padding: 1.5rem;
-            }
-
-            .year-block h2 {
-                font-size: 2rem;
-            }
-
-            .year-block p {
-                font-size: 1rem;
+            to {
+                transform: rotateX(-20deg) rotateY(360deg);
             }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
     <a href="/" class="back-link">
         <i class="fas fa-home"></i> Accueil
     </a>
 
-    <div class="year-blocks">
-        <div class="year-block" onclick="window.location.href='/2020'">
-            <h2>2020</h2>
-            <p>Best of (en construction)</p>
-        </div>
-        <div class="year-block" onclick="window.location.href='/2021'">
-            <h2>2021</h2>
-            <p>Best of (en construction)</p>
-        </div>
-        <div class="year-block" onclick="window.location.href='/2022'">
-            <h2>2022</h2>
-            <p>Best of (en construction)</p>
-        </div>
-        <div class="year-block" onclick="window.location.href='/bestof'">
-            <h2>2023</h2>
-            <p>Best of (en construction)</p>
-        </div>
-        <div class="year-block" onclick="window.location.href='/index'">
-            <h2>2024</h2>
-            <p>Galeries photos des randonnées de l'année écoulée</p>
-        </div>
-        <div class="year-block" onclick="window.location.href='/future'">
-            <h2>2025</h2>
-            <p>Futures randonnées et projets à venir</p>
+    <div class="wheel-container">
+        <div class="wheel" id="wheel">
+            <!-- Les blocs seront générés en JavaScript -->
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="controls">
+        <button class="control-btn" onclick="rotateWheel('prev')">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="control-btn" onclick="rotateWheel('next')">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <script>
+        const years = [
+            { year: 2017, route: '/2017', desc: 'Best of (en construction)' },
+            { year: 2018, route: '/2018', desc: 'Best of (en construction)' },
+            { year: 2019, route: '/2019', desc: 'Best of (en construction)' },
+            { year: 2020, route: '/2020', desc: 'Best of (en construction)' },
+            { year: 2021, route: '/2021', desc: 'Best of (en construction)' },
+            { year: 2022, route: '/2022', desc: 'Best of (en construction)' },
+            { year: 2023, route: '/bestof', desc: 'Best of (en construction)' },
+            { year: 2024, route: '/index', desc: 'Galeries photos de l\'année' },
+            { year: 2025, route: '/future', desc: 'The show must go on' }
+        ];
+
+        const wheel = document.getElementById('wheel');
+        let currentRotation = 0;
+        const anglePerItem = 360 / years.length;
+
+        // Créer les blocs d'années
+        years.forEach((yearData, index) => {
+            const block = document.createElement('div');
+            block.className = 'year-block';
+            block.innerHTML = `
+                <h2>${yearData.year}</h2>
+                <p>${yearData.desc}</p>
+            `;
+            
+            // Positionner chaque bloc en 3D
+            const angle = anglePerItem * index;
+            const radius = 350;
+            block.style.transform = `
+                rotateY(${angle}deg) 
+                translateZ(${radius}px)
+            `;
+            
+            block.addEventListener('click', () => {
+                window.location.href = yearData.route;
+            });
+            
+            wheel.appendChild(block);
+        });
+
+        function rotateWheel(direction) {
+            currentRotation += direction === 'next' ? -anglePerItem : anglePerItem;
+            wheel.style.transform = `rotateY(${currentRotation}deg)`;
+        }
+
+        // Améliorer la gestion des événements
+        let isRotating = false;
+        document.addEventListener('wheel', (e) => {
+            if (!isRotating) {
+                e.preventDefault();
+                isRotating = true;
+                rotateWheel(e.deltaY > 0 ? 'next' : 'prev');
+                setTimeout(() => { isRotating = false; }, 500);
+            }
+        }, { passive: false });
+
+        document.addEventListener('keydown', (e) => {
+            if (!isRotating) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    isRotating = true;
+                    rotateWheel(e.key === 'ArrowLeft' ? 'prev' : 'next');
+                    setTimeout(() => { isRotating = false; }, 500);
+                }
+            }
+        });
+    </script>
 </body>
 </html> 
