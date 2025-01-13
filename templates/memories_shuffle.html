@@ -444,24 +444,26 @@
         </div>
 
         <div class="slideshow-container">
-            {% for year, memories_list in memories.items() if year != "1900" %}
-                {% for memory in memories_list %}
-                <div class="slide" data-year="{{ year }}" data-id="{{ memory.id }}" data-date="{{ memory.date }}">
-                    <img src="{{ memory.url }}" alt="{{ memory.title }}" onclick="openImageModal('{{ memory.url }}')">
-                    {% if dev_mode %}
-                    <button class="edit-btn" onclick="showEditPhotoForm('{{ memory.id }}', '{{ memory.title|replace("'", "\\'") }}', '{{ memory.description|replace("'", "\\'") }}', '{{ year }}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="delete-btn" onclick="deletePhoto('{{ memory.id }}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    {% endif %}
-                    <div class="slide-info">
-                        <h3>{{ memory.title }}</h3>
-                        <p>{{ memory.description }}</p>
+            {% for year in memories.keys()|sort %}
+                {% if year != "1900" %}
+                    {% for memory in memories[year]|sort(attribute='date') %}
+                    <div class="slide" data-year="{{ year }}">
+                        <img src="{{ memory.url }}" alt="{{ memory.title }}" onclick="openImageModal('{{ memory.url }}')">
+                        {% if dev_mode %}
+                        <button class="edit-btn" onclick="showEditPhotoForm('{{ memory.id }}', '{{ memory.title|replace("'", "\\'") }}', '{{ memory.description|replace("'", "\\'") }}', '{{ year }}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-btn" onclick="deletePhoto('{{ memory.id }}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% endif %}
+                        <div class="slide-info">
+                            <h3>{{ memory.title }}</h3>
+                            <p>{{ memory.description }}</p>
+                        </div>
                     </div>
-                </div>
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
             {% endfor %}
         </div>
 
@@ -540,6 +542,7 @@
 
     <script>
         const slides = document.querySelectorAll('.slide');
+        const yearLinks = document.querySelectorAll('.year-btn');  
         let currentSlideIndex = 0;
         let isPlaying = true;
         let slideInterval;
@@ -549,7 +552,6 @@
         audio.loop = true;
 
         function showSlide(index) {
-            // Masquer toutes les slides sauf la courante
             slides.forEach((slide, i) => {
                 if (i !== index) {
                     slide.style.opacity = '0';
@@ -562,12 +564,19 @@
                 currentSlide.style.opacity = '1';
                 currentSlide.classList.add('active');
                 
-                // Ajouter l'effet de zoom alterné
+                // Mise à jour de l'année active
+                const currentYear = currentSlide.getAttribute('data-year');
+                yearLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.textContent.trim() === currentYear) {  
+                        link.classList.add('active');
+                    }
+                });
+
                 setTimeout(() => {
                     currentSlide.classList.add(isZoomingIn ? 'zoom-in' : 'zoom-out');
                 }, 50);
 
-                // Préparer la prochaine slide
                 const nextIndex = (index + 1) % slides.length;
                 setTimeout(() => {
                     if (slides[nextIndex]) {
