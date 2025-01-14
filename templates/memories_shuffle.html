@@ -754,15 +754,31 @@
         });
 
         // Initialisation
-        if (slides.length > 0) {
-            showSlide(currentSlideIndex);
-            startSlideshow();
+        document.addEventListener('DOMContentLoaded', function() {
+            const years = Object.keys(memories).filter(year => year !== "1900");
+            if (years.length > 0) {
+                showYear(years[0]);
+                
+                // Marquer le premier bouton comme actif
+                const firstYearBtn = document.querySelector(`.year-btn[data-year="${years[0]}"]`);
+                if (firstYearBtn) {
+                    firstYearBtn.classList.add('active');
+                }
+            }
+            
+            // Ajouter les gestionnaires d'événements pour les boutons d'année
+            document.querySelectorAll('.year-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    showYear(this.getAttribute('data-year'));
+                });
+            });
+        });
 
-            // Démarrer la musique au premier clic
-            document.addEventListener('click', function startAudioOnFirstClick() {
-                audio.play().catch(e => console.log('Erreur lors du démarrage de la musique:', e));
-                document.removeEventListener('click', startAudioOnFirstClick);
-            }, { once: true });
+        if (slides.length > 0) {
+            showSlide(0);
+            startSlideshow();
         }
     </script>
 </body>

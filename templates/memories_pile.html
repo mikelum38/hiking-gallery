@@ -102,6 +102,15 @@
             color: #ccc;
         }
 
+        .date {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .description {
+            margin-top: 0.5rem;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -177,6 +186,15 @@
         .cancel-btn:hover {
             background: #666;
         }
+
+        .page-title {
+            text-align: center;
+            margin: 2rem 0;
+            color: #ffd700;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -192,15 +210,24 @@
             {% endif %}
         </div>
 
+        <h1 class="page-title">Fragments d'une vie (jusqu'à 2016)</h1>
+
         <div class="photos-grid">
-            {% for photo in photos %}
-            <div class="photo-card">
-                <img src="{{ photo.url }}" alt="{{ photo.title }}">
-                <div class="photo-info">
-                    <h3>{{ photo.title }}</h3>
-                    <p>{{ photo.description }}</p>
-                </div>
-            </div>
+            {% for year in range(2005, 2017) %}
+                {% for photo in photos %}
+                    {% if photo.year|string == year|string %}
+                    <div class="photo-card">
+                        <img src="{{ photo.url }}" alt="{{ photo.title }}">
+                        <div class="photo-info">
+                            <h3>{{ photo.title }}</h3>
+                            <p class="date">{{ photo.year }}</p>
+                            {% if photo.description %}
+                            <p class="description">{{ photo.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
         </div>
     </div>

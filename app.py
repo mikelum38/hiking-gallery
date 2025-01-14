@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 import logging
 import uuid
+import re
 
 load_dotenv()  # Chargement des variables d'environnement depuis .env
 
@@ -64,6 +65,17 @@ def save_projects(projects):
 def format_date(date_str):
     date = datetime.strptime(date_str, '%Y-%m-%d')
     return f"{date.day} {MOIS_FR[date.month-1]} {date.year}"
+
+def sort_galleries_by_date(galleries):
+    # Convert galleries dict to list and add date object for sorting
+    gallery_list = []
+    for gallery_id, gallery in galleries.items():
+        gallery['id'] = gallery_id
+        gallery['date_obj'] = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        gallery_list.append(gallery)
+    
+    # Sort galleries by date
+    return sorted(gallery_list, key=lambda x: x['date_obj'])
 
 @app.route('/')
 def home():
@@ -959,6 +971,27 @@ def memories_shuffle():
     return render_template('memories_pile.html', 
                          photos=all_photos,
                          dev_mode=app.config['DEV_MODE'])
+
+@app.route('/memories-pile')
+def memories_pile():
+    try:
+        with open('century_memories.json', 'r', encoding='utf-8') as f:
+            memories = json.load(f)
+        
+        # Créer une liste de toutes les photos
+        all_memories = []
+        for year, year_memories in memories.items():
+            if year != "1900":  # Exclure l'année 1900
+                for memory in year_memories:
+                    if int(year) <= 2016:  # Filtrer jusqu'à 2016
+                        all_memories.append(memory)
+        
+        return render_template('memories_pile.html', 
+                             photos=all_memories,
+                             dev_mode=app.config['DEV_MODE'])
+    except Exception as e:
+        app.logger.error(f"Erreur: {str(e)}")
+        return render_template('memories_pile.html', photos=[], dev_mode=app.config['DEV_MODE'])
 
 if __name__ == '__main__':
     app.run(debug=True)
