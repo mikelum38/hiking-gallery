@@ -993,5 +993,9 @@ def memories_pile():
         app.logger.error(f"Erreur: {str(e)}")
         return render_template('memories_pile.html', photos=[], dev_mode=app.config['DEV_MODE'])
 
+@app.route('/bouquetin')
+def bouquetin():
+    return render_template('bouquetin.html')
+
 if __name__ == '__main__':
     app.run(debug=True)

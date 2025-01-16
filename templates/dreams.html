@@ -57,6 +57,32 @@
             transform: translateX(-5px);
         }
 
+        .next-link {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            color: white;
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .next-link:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(5px);
+        }
+
         h1 {
             font-size: 4rem;
             margin: 0;
@@ -137,6 +163,13 @@
                 padding: 0.6rem 1.2rem;
             }
 
+            .next-link {
+                top: 1rem;
+                right: 1rem;
+                font-size: 1rem;
+                padding: 0.6rem 1.2rem;
+            }
+
             .century-btn {
                 padding: 1rem 2rem;
                 font-size: 1.1rem;
@@ -173,6 +206,9 @@
 <body>
     <a href="/future" class="back-link">
         <i class="fas fa-arrow-left"></i> Retour
+    </a>
+    <a href="/bouquetin" class="next-link">
+        Fin <i class="fas fa-arrow-right"></i>
     </a>
 
     <div class="home-hero">
