@@ -347,6 +347,65 @@
             justify-content: center;
             margin-top: 2rem;
         }
+
+        /* Styles pour la version mobile */
+        @media screen and (max-width: 768px) {
+            .home-hero h1 {
+                font-size: 2.5rem;
+                padding: 0 1rem;
+            }
+
+            .home-hero p {
+                font-size: 1.1rem;
+                padding: 0 1.5rem;
+                margin: 1rem 0 2rem;
+            }
+
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+                font-size: 1rem;
+                padding: 0.6rem 1.2rem;
+            }
+
+            .months-container {
+                padding: 1rem;
+            }
+
+            .month-card {
+                width: 240px;
+                height: 160px;
+            }
+
+            .month-name {
+                font-size: 1.2rem;
+            }
+
+            .gallery-count {
+                font-size: 0.8rem;
+            }
+
+            .add-hike-btn {
+                padding: 0.7rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Styles pour les très petits écrans */
+        @media screen and (max-width: 480px) {
+            .home-hero h1 {
+                font-size: 2rem;
+            }
+
+            .home-hero p {
+                font-size: 1rem;
+            }
+
+            .month-card {
+                width: 200px;
+                height: 140px;
+            }
+        }
     </style>
 </head>
 <body>
