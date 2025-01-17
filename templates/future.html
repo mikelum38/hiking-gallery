@@ -25,10 +25,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-align: center;
             color: white;
-            padding: 0 1rem;
+            padding-top: 25vh; /* Déplace le contenu vers le haut */
         }
 
         .home-hero h1 {
@@ -120,13 +119,27 @@
                 padding: 0.4rem 0.8rem;
             }
 
+            .home-hero {
+                padding-top: 20vh; /* Ajusté pour mobile */
+            }
+
             .home-hero h1 {
-                font-size: 2.5rem;
+                font-size: 2.8rem;
             }
 
             .home-hero p {
                 font-size: 1.2rem;
                 margin: 0.5rem 0 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .home-hero {
+                padding-top: 15vh; /* Encore plus haut sur petit mobile */
+            }
+
+            .home-hero h1 {
+                font-size: 2.5rem;
             }
         }
 
