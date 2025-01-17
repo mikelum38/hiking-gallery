@@ -92,11 +92,9 @@
         .nav-buttons {
             position: fixed;
             top: 20px;
-            left: 0;
-            right: 0;
+            right: 20px;
             display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
+            gap: 15px;
             z-index: 1000;
         }
 
@@ -106,9 +104,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 16px;
+            font-size: 14px;
             background: rgba(44, 62, 80, 0.7);
-            padding: 12px 24px;
+            padding: 8px 16px;
             border-radius: 25px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -560,6 +558,25 @@
 
             .year-card h2 {
                 font-size: 22px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-buttons {
+                top: 10px;
+                right: 10px;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .back-link, .mountain-flowers-btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            .year-card.dreams-card,
+            .year-card.projects-card {
+                background: rgba(255, 255, 255, 0.95);
             }
         }
 

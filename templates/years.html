@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Années - Rêves de Montagne</title>
+    <title>Les années</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -37,9 +37,14 @@
             width: 700px;
             height: 600px;
             position: relative;
+            margin: 50px auto;
             transform-style: preserve-3d;
             animation: initialRotation 1s ease-out forwards;
             z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
         }
 
         .wheel {
@@ -48,6 +53,7 @@
             position: absolute;
             transform-style: preserve-3d;
             transition: transform 0.5s ease-out;
+            animation: initialRotation 1s ease-out forwards;
         }
 
         .year-block {
@@ -68,18 +74,13 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Supprimer les effets de gradient et simplifier les styles des blocs */
+        /* Couleurs des blocs */
         .year-block:nth-child(1) { background-color: rgba(255, 107, 107, 0.2); }
         .year-block:nth-child(2) { background-color: rgba(78, 205, 196, 0.2); }
         .year-block:nth-child(3) { background-color: rgba(69, 183, 175, 0.2); }
         .year-block:nth-child(4) { background-color: rgba(168, 230, 207, 0.2); }
         .year-block:nth-child(5) { background-color: rgba(255, 217, 61, 0.2); }
         .year-block:nth-child(6) { background-color: rgba(108, 92, 231, 0.2); }
-
-        /* Supprimer l'effet de brillance */
-        .year-block::before {
-            display: none;
-        }
 
         .year-block:hover {
             background-color: rgba(255, 255, 255, 0.3);
@@ -147,27 +148,7 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .wheel-container {
-                transform: scale(0.8);
-            }
-
-            .controls {
-                bottom: 20px;
-            }
-
-            .control-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 16px;
-            }
-        }
-
         @media (max-width: 480px) {
-            .wheel-container {
-                transform: scale(0.6);
-            }
-
             .controls {
                 bottom: 40px;
             }

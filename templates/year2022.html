@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Best of 2022 - Rêves de Montagne</title>
+    <title>2022</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -51,28 +51,25 @@
         }
 
         .back-link {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            z-index: 10;
+            position: fixed;
+            top: 20px;
+            right: 20px;
             color: white;
             text-decoration: none;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem 1.5rem;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
+            gap: 8px;
+            font-size: 14px;
+            background: rgba(44, 62, 80, 0.7);
+            padding: 8px 16px;
+            border-radius: 25px;
             transition: all 0.3s ease;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
 
         .back-link:hover {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(44, 62, 80, 0.9);
             transform: translateX(-5px);
             color: white;
             text-decoration: none;
@@ -262,7 +259,7 @@
     </a>
 
     <div class="home-hero">
-        <h1>Best of 2022</h1>
+        <h1>2022</h1>
         <p>Les plus belles randonnées de l'année</p>
         {% if dev_mode %}
         <button class="add-hike-btn" onclick="toggleCreateGallery()">
