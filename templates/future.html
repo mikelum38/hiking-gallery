@@ -117,57 +117,57 @@
             transform: scale(1.05);
         }
 
-        .action-buttons {
+        .buttons-container {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin-top: 2rem;
-            flex-wrap: wrap;
         }
 
-        .action-btn {
+        .memories-btn, .dream-btn {
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
             padding: 0.8rem 1.5rem;
             border-radius: 30px;
-            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
-            font-size: 1rem;
-            text-decoration: none;
-            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .action-btn:hover {
+        .memories-btn:hover, .dream-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
-            .action-buttons {
+            .buttons-container {
                 gap: 15px;
                 padding: 0 20px;
             }
 
-            .action-btn {
+            .memories-btn, .dream-btn {
                 padding: 0.7rem 1.2rem;
                 font-size: 0.9rem;
             }
         }
 
         @media (max-width: 480px) {
-            .action-buttons {
-                gap: 10px;
+            .buttons-container {
                 flex-direction: column;
-                align-items: stretch;
-                padding: 0 30px;
+                align-items: center;
+                gap: 10px;
             }
 
-            .action-btn {
+            .memories-btn, .dream-btn {
                 padding: 0.6rem 1rem;
                 font-size: 0.85rem;
-                text-align: center;
+                width: 80%;
+                justify-content: center;
             }
         }
 
@@ -366,7 +366,6 @@
             padding: 1.2rem 2.5rem;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50px;
             color: white;
             font-family: 'Poppins', sans-serif;
             font-size: 1.2rem;
@@ -391,63 +390,57 @@
             font-size: 1.2rem;
         }
 
-        .buttons-container {
+        .action-buttons {
             display: flex;
-            gap: 1.5rem;
             justify-content: center;
+            gap: 20px;
             margin-top: 2rem;
+            flex-wrap: wrap;
         }
 
-        /* Styles pour la version mobile */
-        @media screen and (max-width: 768px) {
-            .home-hero h1 {
-                font-size: 2.8rem;
-                padding: 0 20px;
-            }
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 1rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
 
-            .home-hero p {
-                font-size: 1.2rem;
-                padding: 0 20px;
-            }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
 
+        @media (max-width: 768px) {
             .action-buttons {
-                bottom: 4rem;
-                gap: 1rem;
-                width: 95%;
+                gap: 15px;
+                padding: 0 20px;
             }
 
             .action-btn {
-                padding: 0.8rem 1.6rem;
+                padding: 0.7rem 1.2rem;
                 font-size: 0.9rem;
-                min-width: 140px;
             }
         }
 
         @media (max-width: 480px) {
-            body {
-                overflow-x: hidden;
-            }
-
-            .home-hero h1 {
-                font-size: 2.2rem;
-                margin-bottom: 1rem;
-            }
-
-            .home-hero p {
-                font-size: 1rem;
-            }
-
             .action-buttons {
-                bottom: 2rem;
-                gap: 0.8rem;
-                width: 92%;
+                gap: 10px;
+                flex-direction: column;
+                align-items: stretch;
+                padding: 0 30px;
             }
 
             .action-btn {
                 padding: 0.6rem 1rem;
-                font-size: 0.8rem;
-                min-width: 120px;
-                flex: 0 1 auto;
+                font-size: 0.85rem;
+                text-align: center;
             }
         }
 
@@ -496,13 +489,23 @@
     </div>
 
     <div class="home-hero">
-        <h1>The Show Must Go On</h1>
-        <p>Les projets continuent...</p>
+        <h1>Escapades en altitude</h1>
+        <p>Année 2025</p>
         
-        <div class="action-buttons">
-            <a href="/dreams" class="action-btn">Rêves d'altitude</a>
-            <a href="/projects" class="action-btn">Projets en vrac</a>
+        <div class="buttons-container">
+            <a href="/memories" class="memories-btn">
+                <i class="fas fa-images"></i> Projets en vrac
+            </a>
+            <a href="/dreams" class="dream-btn">
+                <i class="fas fa-mountain"></i> Rêves d'Altitude
+            </a>
         </div>
+
+        {% if dev_mode %}
+        <button class="add-hike-btn" onclick="showAddProjectForm()">
+            <i class="fas fa-plus"></i> Ajouter un projet
+        </button>
+        {% endif %}
     </div>
 
     <div class="months-container">
