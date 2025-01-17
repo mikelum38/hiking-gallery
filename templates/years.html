@@ -37,14 +37,9 @@
             width: 700px;
             height: 600px;
             position: relative;
-            margin: 50px auto;
             transform-style: preserve-3d;
             animation: initialRotation 1s ease-out forwards;
             z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1000px;
         }
 
         .wheel {
@@ -53,7 +48,6 @@
             position: absolute;
             transform-style: preserve-3d;
             transition: transform 0.5s ease-out;
-            animation: initialRotation 1s ease-out forwards;
         }
 
         .year-block {
@@ -139,24 +133,47 @@
             z-index: 10;
         }
 
-        @keyframes initialRotation {
-            from {
-                transform: rotateX(-20deg) rotateY(0deg);
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
             }
-            to {
-                transform: rotateX(-20deg) rotateY(360deg);
+
+            .wheel-container {
+                transform: scale(0.7);
+                transform-origin: center center;
             }
         }
 
         @media (max-width: 480px) {
+            .wheel-container {
+                transform: scale(0.45);
+                transform-origin: center center;
+            }
+
             .controls {
-                bottom: 40px;
+                bottom: 20px;
             }
 
             .control-btn {
                 width: 30px;
                 height: 30px;
                 font-size: 14px;
+            }
+
+            .back-link {
+                font-size: 12px;
+                padding: 6px 12px;
+                top: 10px;
+                left: 10px;
+            }
+        }
+
+        @keyframes initialRotation {
+            from {
+                transform: rotateX(-20deg) rotateY(0deg);
+            }
+            to {
+                transform: rotateX(-20deg) rotateY(360deg);
             }
         }
     </style>
