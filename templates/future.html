@@ -89,10 +89,45 @@
             background-color: #f8f9fa;
         }
 
-        .back-link {
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .back-link, .mountain-flowers-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            background: rgba(44, 62, 80, 0.7);
+            padding: 12px 24px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-link i, .mountain-flowers-btn i {
+            font-size: 16px;
+        }
+
+        .back-link:hover, .mountain-flowers-btn:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .flowers-link {
             position: absolute;
             top: 2rem;
-            left: 2rem;
+            right: 2rem;
             z-index: 10;
             color: white;
             text-decoration: none;
@@ -107,16 +142,16 @@
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
             opacity: 0;
-            transform: translateX(-20px);
+            transform: translateX(20px);
             animation: slideIn 1s ease-out forwards 0.3s;
         }
 
-        .back-link:hover {
+        .flowers-link:hover {
             background: rgba(0, 0, 0, 0.5);
-            transform: translateX(-5px);
+            transform: translateX(5px);
         }
 
-        .back-link i {
+        .flowers-link i {
             font-size: 1rem;
         }
 
@@ -409,9 +444,14 @@
     </style>
 </head>
 <body>
-    <a href="/years" class="back-link">
-        <i class="fas fa-arrow-left"></i> Retour aux années
-    </a>
+    <div class="nav-buttons">
+        <a href="/years" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour aux années
+        </a>
+        <a href="/mountain_flowers" class="mountain-flowers-btn">
+            <i class="fas fa-seedling"></i> Fleurs de nos montagnes
+        </a>
+    </div>
 
     <div class="home-hero">
         <h1>Escapades en altitude</h1>

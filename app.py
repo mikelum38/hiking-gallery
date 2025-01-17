@@ -77,6 +77,17 @@ def sort_galleries_by_date(galleries):
     # Sort galleries by date
     return sorted(gallery_list, key=lambda x: x['date_obj'])
 
+def load_flowers_data():
+    try:
+        with open('mountain_flowers.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+def save_flowers_data(data):
+    with open('mountain_flowers.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -996,6 +1007,120 @@ def memories_pile():
 @app.route('/bouquetin')
 def bouquetin():
     return render_template('bouquetin.html')
+
+@app.route('/mountain_flowers')
+def mountain_flowers():
+    flowers = load_flowers_data()
+    return render_template('mountain_flowers.html', flowers=flowers, dev_mode=app.config['DEV_MODE'])
+
+@app.route('/add_flower', methods=['POST'])
+def add_flower():
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Not allowed in production mode'}), 403
+
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'File type not allowed'}), 400
+
+    try:
+        # Upload de l'image à Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        
+        new_flower = {
+            'id': str(uuid.uuid4()),
+            'name': request.form.get('name'),
+            'description': request.form.get('description'),
+            'image_url': upload_result['secure_url'],
+            'thumbnail_url': cloudinary.utils.cloudinary_url(upload_result['public_id'], 
+                                                           width=300, 
+                                                           height=200, 
+                                                           crop='fill')[0],
+            'date_added': datetime.now().isoformat()
+        }
+        
+        flowers = load_flowers_data()
+        flowers.append(new_flower)
+        save_flowers_data(flowers)
+        
+        return jsonify(new_flower), 201
+        
+    except Exception as e:
+        app.logger.error(f"Error adding flower: {str(e)}")
+        return jsonify({'error': 'Failed to add flower'}), 500
+
+@app.route('/get_flower/<flower_id>')
+def get_flower(flower_id):
+    flowers = load_flowers_data()
+    flower = next((f for f in flowers if f['id'] == flower_id), None)
+    if flower:
+        return jsonify(flower)
+    return jsonify({'error': 'Flower not found'}), 404
+
+@app.route('/edit_flower', methods=['POST'])
+def edit_flower():
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Not allowed in production mode'}), 403
+
+    flowers = load_flowers_data()
+    flower_id = request.form.get('id')
+    flower_index = next((i for i, f in enumerate(flowers) if f['id'] == flower_id), None)
+
+    if flower_index is None:
+        return jsonify({'error': 'Flower not found'}), 404
+
+    try:
+        flower = flowers[flower_index]
+        flower['name'] = request.form.get('name')
+        flower['description'] = request.form.get('description')
+
+        if 'image' in request.files and request.files['image'].filename:
+            file = request.files['image']
+            if not allowed_file(file.filename):
+                return jsonify({'error': 'File type not allowed'}), 400
+
+            # Upload de la nouvelle image à Cloudinary
+            upload_result = cloudinary.uploader.upload(file)
+            flower['image_url'] = upload_result['secure_url']
+            flower['thumbnail_url'] = cloudinary.utils.cloudinary_url(upload_result['public_id'], 
+                                                                    width=300, 
+                                                                    height=200, 
+                                                                    crop='fill')[0]
+
+        save_flowers_data(flowers)
+        flower['position'] = flower_index + 1
+        return jsonify(flower), 200
+
+    except Exception as e:
+        app.logger.error(f"Error editing flower: {str(e)}")
+        return jsonify({'error': 'Failed to edit flower'}), 500
+
+@app.route('/delete_flower/<flower_id>', methods=['POST'])
+def delete_flower(flower_id):
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Not allowed in production mode'}), 403
+
+    flowers = load_flowers_data()
+    flower_index = next((i for i, f in enumerate(flowers) if f['id'] == flower_id), None)
+
+    if flower_index is None:
+        return jsonify({'error': 'Flower not found'}), 404
+
+    try:
+        # Supprimer la fleur de la liste
+        flowers.pop(flower_index)
+        save_flowers_data(flowers)
+        
+        return jsonify({'success': True, 'position': flower_index + 1}), 200
+
+    except Exception as e:
+        app.logger.error(f"Error deleting flower: {str(e)}")
+        return jsonify({'error': 'Failed to delete flower'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

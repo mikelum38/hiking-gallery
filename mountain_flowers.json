@@ -1,0 +1,50 @@
+[
+    {
+        "id": "3f581023-f2a8-44ef-9df1-7c9f311ae0fc",
+        "name": "Joubarbe des montagnes",
+        "description": "C'est une plante grasse de montagne poussant entre 900 m et plus de 2 500 m dans les massifs du sud de l'Europe.",
+        "image_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737132805/pujxsqn2vyrlpdpsf9qn.jpg",
+        "thumbnail_url": "http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/pujxsqn2vyrlpdpsf9qn",
+        "date_added": "2025-01-17T17:53:24.580766"
+    },
+    {
+        "id": "00da8303-f821-4cdc-bad8-1858dbe90596",
+        "name": "Lilium bulbiferum",
+        "description": "Le lis orangé est une espèce que l'on peut rencontrer en France dans le Jura, les Alpes et en Provence.",
+        "image_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737132981/t7fzwntbyb9ibykxfril.jpg",
+        "thumbnail_url": "http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/t7fzwntbyb9ibykxfril",
+        "date_added": "2025-01-17T17:56:20.656593"
+    },
+    {
+        "id": "e38ecb2b-4866-4286-ba1a-9017e42290a3",
+        "name": "L'ancolie des Alpes ",
+        "description": "L'ancolie des Alpes est une espèce de plante herbacée vivace de la famille des Renonculacées.",
+        "image_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737133088/dln7wrp38br3biay8z2l.jpg",
+        "thumbnail_url": "http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/dln7wrp38br3biay8z2l",
+        "date_added": "2025-01-17T17:58:07.188392"
+    },
+    {
+        "id": "2b5b2920-5db4-4610-913e-9bd9c6610a15",
+        "name": "Sabot de Vénus",
+        "description": "Le sabot de Vénus, ou sabot de Vénus d'Europe, est une espèce de plantes à fleurs de la famille des Orchidacées, qui se rencontre sur des sols alcalins. Il est parfois appelé sabot de la Vierge ou soulier de Notre-Dame.",
+        "image_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737133836/ucmzhj2zteyqo43rdbnc.jpg",
+        "thumbnail_url": "http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/ucmzhj2zteyqo43rdbnc",
+        "date_added": "2025-01-17T18:10:36.075829"
+    },
+    {
+        "id": "862ee5af-a352-42c7-98db-57a3b6a723e6",
+        "name": "Edelweiss",
+        "description": "C'est une fleur de montagne appartenant à la famille des marguerites ou tournesols des Asteraceae. La plante préfère les endroits rocheux et calcaires situés entre 1 800 et 3 400 mètres d’altitude. ",
+        "image_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737133933/r4bhos0cjc5cr9hxvolf.jpg",
+        "thumbnail_url": "http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/r4bhos0cjc5cr9hxvolf",
+        "date_added": "2025-01-17T18:12:12.006280"
+    },
+    {
+        "id": "06cbf79b-fe07-4c51-aa49-2371cffdc5cb",
+        "name": "Androsace velue",
+        "description": "Cette petite primevère pousse sur les sols rocailleux calcaires. Ses fleurs sont blanches ou rose pâle, à gorge jaune ou rouge.",
+        "image_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737134011/nn152gg64tymg1wrjwtz.jpg",
+        "thumbnail_url": "http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/nn152gg64tymg1wrjwtz",
+        "date_added": "2025-01-17T18:13:30.275521"
+    }
+]

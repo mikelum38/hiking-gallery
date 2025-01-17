@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleurs de nos montagnes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e8f3e8 0%, #d5e6d5 100%);
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            background: rgba(231, 241, 231, 0.9);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(231, 241, 231, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+            scroll-behavior: smooth;
+        }
+
+        /* Masquer la barre de défilement tout en gardant la fonctionnalité */
+        .sidebar::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(to bottom right, rgba(231, 241, 231, 0.95), rgba(231, 241, 231, 0.8));
+        }
+
+        /* Masquer la barre de défilement tout en gardant la fonctionnalité */
+        .main-content::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .flower-thumbnail {
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            border-radius: 12px;
+            padding: 0;
+            position: relative;
+        }
+
+        .flower-thumbnail img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .flower-thumbnail.active {
+            transform: translateX(5px);
+        }
+
+        .flower-thumbnail.active img {
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.7);
+        }
+
+        .flower-thumbnail:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .flower-thumbnail:hover {
+            transform: translateY(-5px);
+        }
+
+        #flower-display {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation-arrows {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 200px);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(44, 62, 80, 0.7);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
+            z-index: 1000;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(44, 62, 80, 0.9);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-arrow.left {
+            left: -60px;
+        }
+
+        .nav-arrow.right {
+            right: -60px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-arrow {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            .nav-arrow.left {
+                left: -45px;
+            }
+            .nav-arrow.right {
+                right: -45px;
+            }
+        }
+
+        .main-image {
+            max-width: 95%;
+            max-height: 75vh;
+            object-fit: contain;
+            margin: 0 auto 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: block;
+        }
+
+        .flower-description {
+            width: 90%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .flower-description h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .flower-description p {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #34495e;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            background: rgba(44, 62, 80, 0.7);
+            padding: 12px 24px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-link i {
+            font-size: 16px;
+        }
+
+        .back-link:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: translateX(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .flower-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .add-flower-btn {
+            display: none;  /* Caché par défaut */
+        }
+
+        /* Ne montrer le bouton ajouter qu'en mode dev */
+        body[data-dev-mode="true"] .add-flower-btn {
+            display: flex;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .add-flower-btn:hover {
+            background-color: #219a52;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .welcome-message {
+            display: none;
+        }
+
+        .welcome-message h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .welcome-message p {
+            color: #34495e;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Style du modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(231, 241, 231, 0.98);
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body data-dev-mode="{{ dev_mode|tojson }}">
+    <a href="/future" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Retour
+    </a>
+    <div class="container">
+        <div class="sidebar">
+            <!-- Les miniatures des fleurs seront ajoutées ici dynamiquement -->
+        </div>
+        <div class="main-content">
+            <div id="flower-display" style="display: none;">
+                <div class="navigation-arrows">
+                    <button class="nav-arrow left" onclick="showPreviousFlower()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-arrow right" onclick="showNextFlower()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <img id="main-image" class="main-image" src="" alt="">
+                <div id="flower-info" class="flower-description"></div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="add-flower-btn" onclick="showAddFlowerForm()">
+        <i class="fas fa-plus"></i> Ajouter une fleur
+    </a>
+
+    <div id="addFlowerModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px;">Ajouter une nouvelle fleur</h2>
+            <form id="addFlowerForm" onsubmit="submitFlower(event)" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="flowerName">Nom de la fleur</label>
+                    <input type="text" id="flowerName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="flowerImage">Image</label>
+                    <input type="file" id="flowerImage" name="image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="flowerDescription">Description</label>
+                    <textarea id="flowerDescription" name="description" required></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" onclick="hideAddFlowerForm()" style="padding: 8px 16px; border-radius: 4px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer;">Annuler</button>
+                    <button type="submit" style="padding: 8px 16px; border-radius: 4px; border: none; background: #4CAF50; color: white; cursor: pointer;">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editFlowerModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px;">Modifier la fleur</h2>
+            <form id="editFlowerForm" onsubmit="submitEditFlower(event)" enctype="multipart/form-data">
+                <input type="hidden" id="editFlowerId">
+                <div class="form-group">
+                    <label for="editFlowerName">Nom de la fleur</label>
+                    <input type="text" id="editFlowerName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editFlowerImage">Nouvelle image (optionnel)</label>
+                    <input type="file" id="editFlowerImage" name="image" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="editFlowerDescription">Description</label>
+                    <textarea id="editFlowerDescription" name="description" required></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" onclick="hideEditFlowerForm()" style="padding: 8px 16px; border-radius: 4px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer;">Annuler</button>
+                    <button type="submit" style="padding: 8px 16px; border-radius: 4px; border: none; background: #2196F3; color: white; cursor: pointer;">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const devMode = {{ dev_mode|tojson }};
+        
+        let currentFlowerIndex = -1;
+        let flowersList = [];
+
+        function highlightThumbnail(flowerId) {
+            // Retirer la classe active de tous les thumbnails
+            document.querySelectorAll('.flower-thumbnail').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+
+            // Ajouter la classe active au thumbnail actuel
+            const currentThumb = document.querySelector(`.flower-thumbnail[data-flower-id="${flowerId}"]`);
+            if (currentThumb) {
+                currentThumb.classList.add('active');
+                // Faire défiler le bandeau jusqu'à la miniature active
+                currentThumb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function showFlower(flower) {
+            currentFlowerIndex = flowersList.findIndex(f => f.id === flower.id);
+            document.getElementById('flower-display').style.display = 'block';
+            document.getElementById('main-image').src = flower.image_url;
+            document.getElementById('flower-info').innerHTML = `
+                <h2>${flower.name}</h2>
+                <p>${flower.description}</p>
+            `;
+            updateNavigationButtons();
+            highlightThumbnail(flower.id);
+        }
+
+        function updateNavigationButtons() {
+            const leftArrow = document.querySelector('.nav-arrow.left');
+            const rightArrow = document.querySelector('.nav-arrow.right');
+            
+            leftArrow.disabled = currentFlowerIndex <= 0;
+            rightArrow.disabled = currentFlowerIndex >= flowersList.length - 1;
+        }
+
+        function showNextFlower() {
+            if (currentFlowerIndex < flowersList.length - 1) {
+                showFlower(flowersList[currentFlowerIndex + 1]);
+            }
+        }
+
+        function showPreviousFlower() {
+            if (currentFlowerIndex > 0) {
+                showFlower(flowersList[currentFlowerIndex - 1]);
+            }
+        }
+
+        function showAddFlowerForm() {
+            document.getElementById('addFlowerModal').style.display = 'flex';
+        }
+
+        function hideAddFlowerForm() {
+            document.getElementById('addFlowerModal').style.display = 'none';
+        }
+
+        function showEditFlowerForm(flowerId) {
+            event.stopPropagation(); // Empêcher le clic de propager à la miniature
+            fetch(`/get_flower/${flowerId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('editFlowerId').value = flowerId;
+                document.getElementById('editFlowerName').value = data.name;
+                document.getElementById('editFlowerDescription').value = data.description;
+                document.getElementById('editFlowerModal').style.display = 'flex';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue lors de la récupération des données de la fleur.');
+            });
+        }
+
+        function hideEditFlowerForm() {
+            document.getElementById('editFlowerModal').style.display = 'none';
+        }
+
+        function deleteFlower(flowerId, event) {
+            event.stopPropagation(); // Empêcher le clic de propager à la miniature
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette fleur ?')) {
+                fetch(`/delete_flower/${flowerId}`, {
+                    method: 'POST'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const thumbnailDiv = document.querySelector(`[data-flower-id="${flowerId}"]`);
+                    if (thumbnailDiv) {
+                        thumbnailDiv.remove();
+                        // Réinitialiser l'affichage principal si nécessaire
+                        const sidebar = document.querySelector('.sidebar');
+                        if (sidebar.children.length === 0) {
+                            const mainContent = document.querySelector('.main-content');
+                            mainContent.innerHTML = `
+                                <div class="welcome-message" style="text-align: center; margin-top: 50px;">
+                                    <h2>Bienvenue dans la galerie des fleurs de montagne</h2>
+                                    <p>Utilisez le bouton + en bas à droite pour ajouter vos premières fleurs.</p>
+                                </div>
+                            `;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Une erreur est survenue lors de la suppression de la fleur.');
+                });
+            }
+        }
+
+        function createFlowerThumbnail(flower) {
+            flowersList.push(flower);
+            const thumbnail = document.createElement('div');
+            thumbnail.className = 'flower-thumbnail';
+            thumbnail.setAttribute('data-flower-id', flower.id);
+            thumbnail.innerHTML = `<img src="${flower.image_url}" alt="${flower.name}">`;
+            thumbnail.addEventListener('click', () => showFlower(flower));
+            return thumbnail;
+        }
+
+        // Charger les fleurs existantes
+        const flowers = {{ flowers|tojson|safe }};
+        if (flowers && flowers.length > 0) {
+            const sidebar = document.querySelector('.sidebar');
+            flowers.forEach(flower => {
+                const thumbnail = createFlowerThumbnail(flower);
+                sidebar.appendChild(thumbnail);
+            });
+
+            // Afficher la première fleur par défaut
+            showFlower(flowers[0]);
+        }
+
+        // Gestion du formulaire d'ajout
+        document.getElementById('addFlowerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/add_flower', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(flower => {
+                const sidebar = document.querySelector('.sidebar');
+                const thumbnail = createFlowerThumbnail(flower);
+                sidebar.appendChild(thumbnail);
+                
+                // Réinitialiser le formulaire et fermer le modal
+                this.reset();
+                hideAddFlowerForm();
+                
+                // Afficher la nouvelle fleur
+                showFlower(flower);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue lors de l\'ajout de la fleur.');
+            });
+        });
+
+        // Gestion du formulaire de modification
+        document.getElementById('editFlowerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const flowerId = document.getElementById('editFlowerId').value;
+
+            fetch('/edit_flower', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(flower => {
+                const thumbnailDiv = document.querySelector(`[data-flower-id="${flowerId}"]`);
+                if (thumbnailDiv) {
+                    const newThumbnail = createFlowerThumbnail(flower);
+                    thumbnailDiv.replaceWith(newThumbnail);
+                }
+                
+                // Mettre à jour l'affichage principal
+                showFlower(flower);
+                
+                // Réinitialiser le formulaire et fermer le modal
+                this.reset();
+                hideEditFlowerForm();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue lors de la modification de la fleur.');
+            });
+        });
+
+        // Fermer les modals en cliquant en dehors
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addFlowerModal');
+            const editModal = document.getElementById('editFlowerModal');
+            if (event.target === addModal) {
+                hideAddFlowerForm();
+            }
+            if (event.target === editModal) {
+                hideEditFlowerForm();
+            }
+        }
+
+        // Ajouter la navigation au clavier
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') {
+                showNextFlower();
+            } else if (e.key === 'ArrowLeft') {
+                showPreviousFlower();
+            }
+        });
+    </script>
+</body>
+</html>
