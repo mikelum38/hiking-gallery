@@ -146,6 +146,38 @@
                 transform: rotateX(-20deg) rotateY(360deg);
             }
         }
+
+        @media (max-width: 768px) {
+            .wheel-container {
+                transform: scale(0.8);
+            }
+
+            .controls {
+                bottom: 20px;
+            }
+
+            .control-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                transform: scale(0.6);
+            }
+
+            .controls {
+                bottom: 40px;
+            }
+
+            .control-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -236,4 +268,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

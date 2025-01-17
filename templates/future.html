@@ -399,8 +399,8 @@
             .back-link {
                 top: 1rem;
                 left: 1rem;
-                font-size: 1rem;
-                padding: 0.6rem 1.2rem;
+                font-size: 14px;
+                padding: 8px 16px;
             }
 
             .months-container {
@@ -424,9 +424,26 @@
                 padding: 0.7rem 1.5rem;
                 font-size: 0.9rem;
             }
+
+            .back-link, .mountain-flowers-btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            .year-card {
+                height: 160px;
+            }
+
+            .year-card h2 {
+                font-size: 24px;
+            }
+
+            .year-card.dreams-card,
+            .year-card.projects-card {
+                background: rgba(255, 255, 255, 0.9);
+            }
         }
 
-        /* Styles pour les très petits écrans */
         @media screen and (max-width: 480px) {
             .home-hero h1 {
                 font-size: 2rem;
@@ -439,6 +456,31 @@
             .month-card {
                 width: 200px;
                 height: 140px;
+            }
+
+            .back-link, .mountain-flowers-btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                padding: 10px;
+            }
+
+            .year-card {
+                height: 140px;
+            }
+
+            .year-card h2 {
+                font-size: 22px;
+            }
+
+            .year-card.dreams-card,
+            .year-card.projects-card {
+                background: rgba(255, 255, 255, 0.95);
             }
         }
 
