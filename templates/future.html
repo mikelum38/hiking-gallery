@@ -384,222 +384,90 @@
         /* Styles pour la version mobile */
         @media screen and (max-width: 768px) {
             .home-hero h1 {
-                font-size: 2.5rem;
-                padding: 0 1rem;
+                font-size: 2.8rem;
+                padding: 0 20px;
             }
 
             .home-hero p {
-                font-size: 1.1rem;
-                padding: 0 1.5rem;
-                margin: 1rem 0 2rem;
-            }
-
-            .back-link {
-                top: 1rem;
-                left: 1rem;
-                font-size: 14px;
-                padding: 8px 16px;
-            }
-
-            .months-container {
-                padding: 1rem;
-            }
-
-            .month-card {
-                width: 240px;
-                height: 160px;
-            }
-
-            .month-name {
                 font-size: 1.2rem;
+                padding: 0 20px;
             }
 
-            .gallery-count {
-                font-size: 0.8rem;
+            .action-buttons {
+                bottom: 4rem;
+                gap: 1rem;
             }
 
-            .add-hike-btn {
-                padding: 0.7rem 1.5rem;
+            .action-btn {
+                padding: 0.8rem 1.6rem;
                 font-size: 0.9rem;
             }
 
-            .back-link, .mountain-flowers-btn {
-                font-size: 14px;
+            .back-link {
+                font-size: 0.9rem;
                 padding: 8px 16px;
-            }
-
-            .year-card {
-                height: 160px;
-            }
-
-            .year-card h2 {
-                font-size: 24px;
-            }
-
-            .year-card.dreams-card,
-            .year-card.projects-card {
-                background: rgba(255, 255, 255, 0.9);
+                top: 15px;
+                left: 15px;
             }
         }
 
-        @media screen and (max-width: 480px) {
+        @media (max-width: 480px) {
+            body {
+                overflow-x: hidden;
+            }
+
             .home-hero h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
+                margin-bottom: 1rem;
             }
 
             .home-hero p {
                 font-size: 1rem;
             }
 
-            .month-card {
-                width: 200px;
-                height: 140px;
+            .action-buttons {
+                bottom: 3rem;
+                gap: 0.8rem;
             }
 
-            .back-link, .mountain-flowers-btn {
-                font-size: 12px;
+            .action-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.8rem;
+            }
+
+            .back-link {
+                font-size: 0.8rem;
                 padding: 6px 12px;
-            }
-
-            .nav-buttons {
-                flex-direction: column;
-                gap: 10px;
-                align-items: stretch;
-                padding: 10px;
-            }
-
-            .year-card {
-                height: 140px;
-            }
-
-            .year-card h2 {
-                font-size: 22px;
-            }
-
-            .year-card.dreams-card,
-            .year-card.projects-card {
-                background: rgba(255, 255, 255, 0.95);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-buttons {
-                padding: 10px;
-            }
-
-            .back-link, .mountain-flowers-btn {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
-
-            .home-hero {
-                padding: 20px;
-                margin-top: 60px;
-            }
-
-            .home-hero h1 {
-                font-size: 28px;
-                margin-bottom: 15px;
-            }
-
-            .home-hero p {
-                font-size: 16px;
-                max-width: 100%;
-            }
-
-            .year-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-                padding: 15px;
-            }
-
-            .year-card {
-                height: 160px;
-            }
-
-            .year-card h2 {
-                font-size: 24px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-buttons {
-                flex-direction: column;
-                gap: 10px;
-                align-items: stretch;
-            }
-
-            .back-link, .mountain-flowers-btn {
-                text-align: center;
-                justify-content: center;
-            }
-
-            .year-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-                padding: 10px;
-            }
-
-            .home-hero {
-                margin-top: 100px;
-            }
-
-            .home-hero h1 {
-                font-size: 24px;
-            }
-
-            .home-hero p {
-                font-size: 14px;
-            }
-
-            .year-card {
-                height: 140px;
-            }
-
-            .year-card h2 {
-                font-size: 22px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-buttons {
                 top: 10px;
-                right: 10px;
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .back-link, .mountain-flowers-btn {
-                font-size: 12px;
-                padding: 6px 12px;
-            }
-
-            .year-card.dreams-card,
-            .year-card.projects-card {
-                background: rgba(255, 255, 255, 0.95);
+                left: 10px;
             }
         }
 
-        /* Ajout des styles pour l'orientation paysage sur mobile */
-        @media (max-height: 480px) and (orientation: landscape) {
-            .nav-buttons {
-                padding: 5px 15px;
-            }
+        .action-buttons {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1.5rem;
+            z-index: 10;
+        }
 
-            .home-hero {
-                margin-top: 50px;
-                padding: 15px;
-            }
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 1rem;
+        }
 
-            .year-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .year-card {
-                height: 120px;
-            }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
     </style>
 </head>
