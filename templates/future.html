@@ -441,6 +441,107 @@
                 height: 140px;
             }
         }
+
+        @media (max-width: 768px) {
+            .nav-buttons {
+                padding: 10px;
+            }
+
+            .back-link, .mountain-flowers-btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            .home-hero {
+                padding: 20px;
+                margin-top: 60px;
+            }
+
+            .home-hero h1 {
+                font-size: 28px;
+                margin-bottom: 15px;
+            }
+
+            .home-hero p {
+                font-size: 16px;
+                max-width: 100%;
+            }
+
+            .year-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .year-card {
+                height: 160px;
+            }
+
+            .year-card h2 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+
+            .back-link, .mountain-flowers-btn {
+                text-align: center;
+                justify-content: center;
+            }
+
+            .year-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 10px;
+            }
+
+            .home-hero {
+                margin-top: 100px;
+            }
+
+            .home-hero h1 {
+                font-size: 24px;
+            }
+
+            .home-hero p {
+                font-size: 14px;
+            }
+
+            .year-card {
+                height: 140px;
+            }
+
+            .year-card h2 {
+                font-size: 22px;
+            }
+        }
+
+        /* Ajout des styles pour l'orientation paysage sur mobile */
+        @media (max-height: 480px) and (orientation: landscape) {
+            .nav-buttons {
+                padding: 5px 15px;
+            }
+
+            .home-hero {
+                margin-top: 50px;
+                padding: 15px;
+            }
+
+            .year-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .year-card {
+                height: 120px;
+            }
+        }
     </style>
 </head>
 <body>
