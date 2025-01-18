@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animaux de nos montagnes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            overflow: hidden;
+            color: #ecf0f1;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            background: rgba(44, 62, 80, 0.9);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(44, 62, 80, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+            scroll-behavior: smooth;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(to bottom right, rgba(44, 62, 80, 0.95), rgba(52, 152, 219, 0.8));
+        }
+
+        .main-content::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .animal-thumbnail {
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            border-radius: 12px;
+            padding: 0;
+            position: relative;
+        }
+
+        .animal-thumbnail img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .animal-thumbnail.active {
+            transform: translateX(5px);
+        }
+
+        .animal-thumbnail.active img {
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.7);
+        }
+
+        .animal-thumbnail:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .animal-thumbnail:hover {
+            transform: translateY(-5px);
+        }
+
+        #animal-display {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation-arrows {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 200px);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(44, 62, 80, 0.8);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ecf0f1;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
+            z-index: 1000;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(52, 152, 219, 0.8);
+        }
+
+        .nav-arrow.left {
+            left: -60px;
+        }
+
+        .nav-arrow.right {
+            right: -60px;
+        }
+
+        .main-image {
+            max-width: 95%;
+            max-height: 75vh;
+            object-fit: contain;
+            margin: 0 auto 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: block;
+        }
+
+        .animal-description {
+            width: 90%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .animal-description h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #ecf0f1;
+        }
+
+        .animal-description p {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #ecf0f1;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(44, 62, 80, 0.8);
+            color: #ecf0f1;
+            text-decoration: none;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-link:hover {
+            background: rgba(52, 152, 219, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            background: rgba(236, 240, 241, 0.1);
+            color: #ecf0f1;
+            border: 1px solid rgba(236, 240, 241, 0.2);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            background: rgba(236, 240, 241, 0.15);
+            border-color: #3498db;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button.primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .button.secondary {
+            background: #2c3e50;
+            color: white;
+            border: 1px solid #3498db;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .button.primary:hover {
+            background: #2980b9;
+        }
+
+        .button.secondary:hover {
+            background: #34495e;
+        }
+
+        .add-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .add-button:hover {
+            background: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 30vh;
+            }
+
+            .main-content {
+                height: 70vh;
+            }
+
+            .nav-arrow {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+
+            .nav-arrow.left {
+                left: -45px;
+            }
+
+            .nav-arrow.right {
+                right: -45px;
+            }
+        }
+    </style>
+</head>
+<body data-dev-mode="{{ dev_mode|tojson }}">
+    <a href="/future" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Retour
+    </a>
+
+    <div class="container">
+        <div class="sidebar" id="thumbnails-container">
+            <!-- Les miniatures des animaux seront ajoutées ici dynamiquement -->
+        </div>
+
+        <div class="main-content">
+            <div id="animal-display">
+                <div class="navigation-arrows">
+                    <button class="nav-arrow left" onclick="showPreviousAnimal()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-arrow right" onclick="showNextAnimal()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if dev_mode %}
+    <button class="add-button" onclick="showAddAnimalForm()">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Modal pour ajouter un animal -->
+    <div id="add-animal-modal" class="modal">
+        <div class="modal-content">
+            <h2>Ajouter un animal</h2>
+            <form id="add-animal-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="add-name">Nom</label>
+                    <input type="text" id="add-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="add-image">Photo</label>
+                    <input type="file" id="add-image" name="image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="add-description">Description</label>
+                    <textarea id="add-description" name="description" rows="4" required></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="button secondary" onclick="hideAddAnimalForm()">Annuler</button>
+                    <button type="submit" class="button primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% endif %}
+
+    {% if dev_mode %}
+    <!-- Modal pour éditer un animal -->
+    <div id="edit-animal-modal" class="modal">
+        <div class="modal-content">
+            <h2>Modifier l'animal</h2>
+            <form id="edit-animal-form" enctype="multipart/form-data">
+                <input type="hidden" id="edit-id" name="id">
+                <div class="form-group">
+                    <label for="edit-name">Nom</label>
+                    <input type="text" id="edit-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-image">Photo</label>
+                    <input type="file" id="edit-image" name="image" accept="image/*">
+                    <small>Laissez vide pour garder l'image actuelle</small>
+                </div>
+                <div class="form-group">
+                    <label for="edit-description">Description</label>
+                    <textarea id="edit-description" name="description" rows="4" required></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="button secondary" onclick="hideEditAnimalForm()">Annuler</button>
+                    <button type="submit" class="button primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        let currentAnimalId = null;
+
+        function highlightThumbnail(animalId) {
+            const thumbnails = document.querySelectorAll('.animal-thumbnail');
+            thumbnails.forEach(thumb => thumb.classList.remove('active'));
+            const activeThumbnail = document.querySelector(`.animal-thumbnail[data-id="${animalId}"]`);
+            if (activeThumbnail) {
+                activeThumbnail.classList.add('active');
+                activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function showAnimal(animal) {
+            const display = document.getElementById('animal-display');
+            currentAnimalId = animal.id;
+
+            const content = `
+                <img src="${animal.image_url}" alt="${animal.name}" class="main-image">
+                <div class="animal-description">
+                    <h2>${animal.name}</h2>
+                    <p>${animal.description}</p>
+                    {% if dev_mode %}
+                    <div class="button-group">
+                        <button class="button secondary" onclick="showEditAnimalForm('${animal.id}')">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="button secondary" onclick="deleteAnimal('${animal.id}', event)">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            `;
+
+            const navigationArrows = display.querySelector('.navigation-arrows');
+            display.innerHTML = content;
+            display.appendChild(navigationArrows);
+
+            highlightThumbnail(animal.id);
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            const animals = {{ animals|tojson|safe }};
+            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+            
+            const leftArrow = document.querySelector('.nav-arrow.left');
+            const rightArrow = document.querySelector('.nav-arrow.right');
+            
+            if (leftArrow) leftArrow.style.display = currentIndex > 0 ? 'flex' : 'none';
+            if (rightArrow) rightArrow.style.display = currentIndex < animals.length - 1 ? 'flex' : 'none';
+        }
+
+        function showNextAnimal() {
+            const animals = {{ animals|tojson|safe }};
+            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+            if (currentIndex < animals.length - 1) {
+                showAnimal(animals[currentIndex + 1]);
+            }
+        }
+
+        function showPreviousAnimal() {
+            const animals = {{ animals|tojson|safe }};
+            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+            if (currentIndex > 0) {
+                showAnimal(animals[currentIndex - 1]);
+            }
+        }
+
+        function showAddAnimalForm() {
+            document.getElementById('add-animal-modal').style.display = 'flex';
+        }
+
+        function hideAddAnimalForm() {
+            document.getElementById('add-animal-modal').style.display = 'none';
+        }
+
+        function showEditAnimalForm(animalId) {
+            const animals = {{ animals|tojson|safe }};
+            const animal = animals.find(a => a.id === animalId);
+            if (animal) {
+                document.getElementById('edit-id').value = animal.id;
+                document.getElementById('edit-name').value = animal.name;
+                document.getElementById('edit-image').value = animal.image_url;
+                document.getElementById('edit-description').value = animal.description;
+                document.getElementById('edit-animal-modal').style.display = 'flex';
+            }
+        }
+
+        function hideEditAnimalForm() {
+            document.getElementById('edit-animal-modal').style.display = 'none';
+        }
+
+        function deleteAnimal(animalId, event) {
+            event.stopPropagation();
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet animal ?')) {
+                fetch(`/api/animals/${animalId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erreur lors de la suppression de l\'animal');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression de l\'animal');
+                });
+            }
+        }
+
+        function createAnimalThumbnail(animal) {
+            return `
+                <div class="animal-thumbnail" data-id="${animal.id}" onclick="showAnimal(${JSON.stringify(animal).replace(/"/g, '&quot;')})">
+                    <img src="${animal.thumbnail_url || animal.image_url}" alt="${animal.name}">
+                </div>
+            `;
+        }
+
+        // Charger les animaux existants
+        const animals = {{ animals|tojson|safe }};
+        if (animals && animals.length > 0) {
+            const sidebar = document.querySelector('.sidebar');
+            animals.forEach(animal => {
+                sidebar.insertAdjacentHTML('beforeend', createAnimalThumbnail(animal));
+            });
+            showAnimal(animals[0]);
+        }
+
+        // Gérer le formulaire d'ajout
+        document.getElementById('add-animal-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/add_animal', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'ajout de l\'animal');
+            });
+        });
+
+        // Gérer le formulaire d'édition
+        document.getElementById('edit-animal-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const animalId = document.getElementById('edit-id').value;
+
+            fetch(`/edit_animal/${animalId}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la modification de l\'animal');
+            });
+        });
+
+        // Fermer les modals en cliquant en dehors
+        window.onclick = function(event) {
+            const addModal = document.getElementById('add-animal-modal');
+            const editModal = document.getElementById('edit-animal-modal');
+            if (event.target === addModal) {
+                hideAddAnimalForm();
+            }
+            if (event.target === editModal) {
+                hideEditAnimalForm();
+            }
+        };
+
+        // Ajouter la navigation au clavier
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') {
+                showNextAnimal();
+            } else if (e.key === 'ArrowLeft') {
+                showPreviousAnimal();
+            }
+        });
+    </script>
+</body>
+</html>

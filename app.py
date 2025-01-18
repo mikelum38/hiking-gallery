@@ -11,6 +11,16 @@ import re
 
 load_dotenv()  # Chargement des variables d'environnement depuis .env
 
+# Configuration du logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log', encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+
 app = Flask(__name__)
 # Configuration du mode développement
 app.config['DEV_MODE'] = os.environ.get('DEV_MODE', 'false').lower() == 'true'
@@ -87,6 +97,18 @@ def load_flowers_data():
 def save_flowers_data(data):
     with open('mountain_flowers.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+
+def load_animals_data():
+    try:
+        with open('mountain_animals.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('animals', [])
+    except FileNotFoundError:
+        return []
+
+def save_animals_data(animals):
+    with open('mountain_animals.json', 'w', encoding='utf-8') as f:
+        json.dump({'animals': animals}, f, ensure_ascii=False, indent=4)
 
 @app.route('/')
 def home():
@@ -1121,6 +1143,119 @@ def delete_flower(flower_id):
     except Exception as e:
         app.logger.error(f"Error deleting flower: {str(e)}")
         return jsonify({'error': 'Failed to delete flower'}), 500
+
+@app.route('/mountain_animals')
+def mountain_animals():
+    animals = load_animals_data()
+    return render_template('mountain_animals.html', animals=animals, dev_mode=app.config['DEV_MODE'])
+
+@app.route('/add_animal', methods=['POST'])
+def add_animal():
+    app.logger.info("Début de l'ajout d'un animal")
+    
+    if not app.config['DEV_MODE']:
+        app.logger.warning("Tentative d'ajout en mode production")
+        return jsonify({'error': 'Not allowed in production mode'}), 403
+
+    if 'image' not in request.files:
+        app.logger.error("Pas de fichier image dans la requête")
+        return jsonify({'error': 'No image file'}), 400
+    
+    file = request.files['image']
+    app.logger.info(f"Fichier reçu: {file.filename}")
+    
+    if file.filename == '':
+        app.logger.error("Nom de fichier vide")
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if not allowed_file(file.filename):
+        app.logger.error(f"Type de fichier non autorisé: {file.filename}")
+        return jsonify({'error': 'File type not allowed'}), 400
+
+    try:
+        app.logger.info("Tentative d'upload vers Cloudinary")
+        # Upload de l'image à Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        app.logger.info(f"Upload Cloudinary réussi: {upload_result['secure_url']}")
+        
+        new_animal = {
+            'id': str(uuid.uuid4()),
+            'name': request.form.get('name'),
+            'description': request.form.get('description'),
+            'image_url': upload_result['secure_url'],
+            'thumbnail_url': cloudinary.utils.cloudinary_url(upload_result['public_id'], 
+                                                     width=300, 
+                                                     height=200, 
+                                                     crop='fill')[0],
+            'date_added': datetime.now().isoformat()
+        }
+        
+        app.logger.info(f"Nouvel animal créé: {new_animal}")
+        
+        animals = load_animals_data()
+        app.logger.info(f"Nombre d'animaux avant ajout: {len(animals)}")
+        animals.append(new_animal)
+        save_animals_data(animals)
+        app.logger.info(f"Nombre d'animaux après ajout: {len(animals)}")
+        
+        return jsonify(new_animal)
+        
+    except Exception as e:
+        app.logger.error(f"Error adding animal: {str(e)}")
+        return jsonify({'error': f'Failed to add animal: {str(e)}'}), 500
+
+@app.route('/edit_animal/<animal_id>', methods=['POST'])
+def edit_animal(animal_id):
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Not allowed in production mode'}), 403
+
+    animals = load_animals_data()
+    animal_index = next((i for i, a in enumerate(animals) if a['id'] == animal_id), None)
+
+    if animal_index is None:
+        return jsonify({'error': 'Animal not found'}), 404
+
+    try:
+        animal = animals[animal_index]
+        animal['name'] = request.form.get('name')
+        animal['description'] = request.form.get('description')
+
+        if 'image' in request.files and request.files['image'].filename:
+            file = request.files['image']
+            if not allowed_file(file.filename):
+                return jsonify({'error': 'File type not allowed'}), 400
+
+            # Upload de la nouvelle image à Cloudinary
+            upload_result = cloudinary.uploader.upload(file)
+            animal['image_url'] = upload_result['secure_url']
+            animal['thumbnail_url'] = cloudinary.utils.cloudinary_url(upload_result['public_id'], 
+                                                              width=300, 
+                                                              height=200, 
+                                                              crop='fill')[0]
+
+        save_animals_data(animals)
+        return jsonify(animal)
+        
+    except Exception as e:
+        app.logger.error(f"Error editing animal: {str(e)}")
+        return jsonify({'error': 'Failed to edit animal'}), 500
+
+@app.route('/api/animals/<animal_id>', methods=['DELETE'])
+def delete_animal(animal_id):
+    try:
+        animals = load_animals_data()
+        animal_index = next((i for i, a in enumerate(animals) if a['id'] == animal_id), None)
+
+        if animal_index is None:
+            return jsonify({'error': 'Animal not found'}), 404
+
+        del animals[animal_index]
+        save_animals_data(animals)
+
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"Error deleting animal: {str(e)}")
+        return jsonify({'error': 'Failed to delete animal'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

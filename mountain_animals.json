@@ -1,0 +1,12 @@
+{
+    "animals": [
+        {
+            "id": "18fde71c-c8e2-42c4-b69c-3048b6dfd5f4",
+            "name": "Bouquetin",
+            "description": "Pas de l'Oeille , Vercors",
+            "image_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737207809/fryekj69jgcupr5qu1n6.jpg",
+            "thumbnail_url": "http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/fryekj69jgcupr5qu1n6",
+            "date_added": "2025-01-18T14:43:26.454577"
+        }
+    ]
+}

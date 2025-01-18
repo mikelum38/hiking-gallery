@@ -1,0 +1,47 @@
+2025-01-18 14:39:20,651 - app - INFO - Application running in DEVELOPMENT mode
+2025-01-18 14:39:20,731 - werkzeug - WARNING -  * Debugger is active!
+2025-01-18 14:39:20,755 - werkzeug - INFO -  * Debugger PIN: 101-042-474
+2025-01-18 14:42:26,423 - app - INFO - Application running in DEVELOPMENT mode
+2025-01-18 14:42:26,558 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-18 14:42:26,560 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-01-18 14:42:26,565 - werkzeug - INFO -  * Restarting with stat
+2025-01-18 14:42:27,683 - app - INFO - Application running in DEVELOPMENT mode
+2025-01-18 14:42:27,755 - werkzeug - WARNING -  * Debugger is active!
+2025-01-18 14:42:27,770 - werkzeug - INFO -  * Debugger PIN: 101-042-474
+2025-01-18 14:42:33,794 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:42:33] "GET /future HTTP/1.1" 200 -
+2025-01-18 14:42:35,256 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:42:35] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-18 14:42:37,090 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:42:37] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:43:18,738 - app - INFO - Début de l'ajout d'un animal
+2025-01-18 14:43:18,747 - app - INFO - Fichier reçu: IMG_20241117_131216.jpg
+2025-01-18 14:43:18,748 - app - INFO - Tentative d'upload vers Cloudinary
+2025-01-18 14:43:26,451 - app - INFO - Upload Cloudinary réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737207809/fryekj69jgcupr5qu1n6.jpg
+2025-01-18 14:43:26,454 - app - INFO - Nouvel animal créé: {'id': '18fde71c-c8e2-42c4-b69c-3048b6dfd5f4', 'name': 'Bouquetin', 'description': "Pas de l'Oeille , Vercors", 'image_url': 'https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737207809/fryekj69jgcupr5qu1n6.jpg', 'thumbnail_url': 'http://res.cloudinary.com/dfuzvu8c5/image/upload/c_fill,h_200,w_300/fryekj69jgcupr5qu1n6', 'date_added': '2025-01-18T14:43:26.454577'}
+2025-01-18 14:43:26,457 - app - INFO - Nombre d'animaux avant ajout: 0
+2025-01-18 14:43:26,457 - app - INFO - Nombre d'animaux après ajout: 1
+2025-01-18 14:43:26,457 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:43:26] "POST /add_animal HTTP/1.1" 200 -
+2025-01-18 14:43:26,826 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:43:26] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:46:40,666 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:46:40] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:46:53,513 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:46:53] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:50:55,661 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:50:55] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:51:24,521 - app - INFO - Application running in PRODUCTION mode
+2025-01-18 14:51:24,627 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-18 14:51:24,628 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-01-18 14:51:24,632 - werkzeug - INFO -  * Restarting with stat
+2025-01-18 14:51:25,793 - app - INFO - Application running in PRODUCTION mode
+2025-01-18 14:51:25,884 - werkzeug - WARNING -  * Debugger is active!
+2025-01-18 14:51:25,898 - werkzeug - INFO -  * Debugger PIN: 101-042-474
+2025-01-18 14:51:31,224 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:51:31] "GET /future HTTP/1.1" 200 -
+2025-01-18 14:51:31,921 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:51:31] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-18 14:51:34,160 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:51:34] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:54:32,722 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:32] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:54:39,302 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:39] "GET /future HTTP/1.1" 200 -
+2025-01-18 14:54:39,404 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:39] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-18 14:54:42,481 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:42] "GET /years HTTP/1.1" 200 -
+2025-01-18 14:54:42,729 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:42] "[36mGET /static/images/background-mountain.jpg HTTP/1.1[0m" 304 -
+2025-01-18 14:54:48,079 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:48] "GET /future HTTP/1.1" 200 -
+2025-01-18 14:54:48,378 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:48] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-18 14:54:52,119 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:52] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-18 14:54:57,352 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:57] "GET /future HTTP/1.1" 200 -
+2025-01-18 14:54:57,466 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:57] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
