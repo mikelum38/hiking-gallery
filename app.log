@@ -45,3 +45,273 @@
 2025-01-18 14:54:52,119 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:52] "GET /mountain_animals HTTP/1.1" 200 -
 2025-01-18 14:54:57,352 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:57] "GET /future HTTP/1.1" 200 -
 2025-01-18 14:54:57,466 - werkzeug - INFO - 127.0.0.1 - - [18/Jan/2025 14:54:57] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:26:48,666 - app - INFO - Application running in DEVELOPMENT mode
+2025-01-20 13:26:48,901 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-20 13:26:48,916 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-01-20 13:26:48,916 - werkzeug - INFO -  * Restarting with stat
+2025-01-20 13:26:49,869 - app - INFO - Application running in DEVELOPMENT mode
+2025-01-20 13:26:49,932 - werkzeug - WARNING -  * Debugger is active!
+2025-01-20 13:26:49,947 - werkzeug - INFO -  * Debugger PIN: 101-042-474
+2025-01-20 13:26:56,175 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:26:56] "GET / HTTP/1.1" 200 -
+2025-01-20 13:26:57,481 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:26:57] "[36mGET /static/images/mountain1.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:26:57,497 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:26:57] "[35m[1mGET /static/audio/music.mp3 HTTP/1.1[0m" 206 -
+2025-01-20 13:26:59,072 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:26:59] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-01-20 13:26:59,727 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:26:59] "GET /years HTTP/1.1" 200 -
+2025-01-20 13:27:00,495 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:27:00] "[36mGET /static/images/background-mountain.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:27:03,142 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:27:03] "GET /future HTTP/1.1" 200 -
+2025-01-20 13:27:03,512 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:27:03] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:27:07,457 - app - INFO - Nombre de projets chargés : 5
+2025-01-20 13:27:07,488 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:27:07] "GET /memories HTTP/1.1" 200 -
+2025-01-20 13:32:41,603 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:32:41] "[32mPOST /add_project HTTP/1.1[0m" 302 -
+2025-01-20 13:32:41,620 - app - INFO - Nombre de projets chargés : 6
+2025-01-20 13:32:41,624 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:32:41] "GET /memories HTTP/1.1" 200 -
+2025-01-20 13:32:55,117 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:32:55] "GET /future HTTP/1.1" 200 -
+2025-01-20 13:32:55,476 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:32:55] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:36:13,607 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:13] "[32mPOST /create_gallery HTTP/1.1[0m" 302 -
+2025-01-20 13:36:13,639 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:13] "GET /future HTTP/1.1" 200 -
+2025-01-20 13:36:13,754 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:13] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:36:17,586 - app - INFO - Recherche des galeries pour Janvier 2025
+2025-01-20 13:36:17,586 - app - INFO - Galerie trouvée: Jour de l'an au soleil du guillestrois
+2025-01-20 13:36:17,586 - app - INFO - Galerie trouvée: Mont de Grésy
+2025-01-20 13:36:17,586 - app - INFO - Galerie trouvée: Plateau du Revard
+2025-01-20 13:36:17,586 - app - INFO - Galerie trouvée: Tête Chevalière (1951m) 
+2025-01-20 13:36:17,621 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:17] "GET /month/2025/1 HTTP/1.1" 200 -
+2025-01-20 13:36:31,097 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:31] "GET /gallery/43a70ab0-f78b-4005-955e-e1f64171eeab HTTP/1.1" 200 -
+2025-01-20 13:36:31,170 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:31] "GET /static/css/gallery.css HTTP/1.1" 200 -
+2025-01-20 13:36:31,593 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:31] "GET /static/css/lightbox.css HTTP/1.1" 200 -
+2025-01-20 13:36:34,873 - app - INFO - Début de l'upload pour gallery_id: 43a70ab0-f78b-4005-955e-e1f64171eeab
+2025-01-20 13:36:34,887 - app - INFO - Nombre de fichiers reçus : 1
+2025-01-20 13:36:34,947 - app - INFO - Données sauvegardées avec succès
+2025-01-20 13:36:34,950 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:34] "[32mPOST /upload_photos/43a70ab0-f78b-4005-955e-e1f64171eeab HTTP/1.1[0m" 302 -
+2025-01-20 13:36:34,971 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:34] "GET /gallery/43a70ab0-f78b-4005-955e-e1f64171eeab HTTP/1.1" 200 -
+2025-01-20 13:36:35,141 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:35] "[36mGET /static/css/gallery.css HTTP/1.1[0m" 304 -
+2025-01-20 13:36:35,357 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:36:35] "[36mGET /static/css/lightbox.css HTTP/1.1[0m" 304 -
+2025-01-20 13:38:58,600 - app - INFO - Début de l'upload pour gallery_id: 43a70ab0-f78b-4005-955e-e1f64171eeab
+2025-01-20 13:39:00,267 - app - INFO - Nombre de fichiers reçus : 42
+2025-01-20 13:39:00,267 - app - INFO - Upload de IMG_20250119_104247.jpg
+2025-01-20 13:39:00,267 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:00,267 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:00,267 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:10,970 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376750/jtihsktfvw4o6ve5conu.jpg
+2025-01-20 13:39:11,000 - app - INFO - Upload de IMG_20250119_104251.jpg
+2025-01-20 13:39:11,040 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:11,042 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:11,044 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:21,163 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376760/pukxmd3fssgchbq7zpll.jpg
+2025-01-20 13:39:21,163 - app - INFO - Upload de IMG_20250119_105806.jpg
+2025-01-20 13:39:21,168 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:21,170 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:21,170 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:23,851 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376763/oo5x3uyjeyufucwqujsn.jpg
+2025-01-20 13:39:23,851 - app - INFO - Upload de IMG_20250119_105809.jpg
+2025-01-20 13:39:23,866 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:23,866 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:23,866 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:30,762 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376770/rbxhh2to56dryn29karn.jpg
+2025-01-20 13:39:30,762 - app - INFO - Upload de IMG_20250119_112021.jpg
+2025-01-20 13:39:30,770 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:30,772 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:30,773 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:36,305 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376775/k6svibaycenzwj9lykaw.jpg
+2025-01-20 13:39:36,306 - app - INFO - Upload de IMG_20250119_112705.jpg
+2025-01-20 13:39:36,308 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:36,310 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:36,311 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:44,520 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376784/bd0u04a7yj27hoenr4tm.jpg
+2025-01-20 13:39:44,520 - app - INFO - Upload de IMG_20250119_113326.jpg
+2025-01-20 13:39:44,520 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:44,520 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:44,520 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:49,616 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376789/g7xcmctybjmp1p98n9ol.jpg
+2025-01-20 13:39:49,616 - app - INFO - Upload de IMG_20250119_113330.jpg
+2025-01-20 13:39:49,616 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:49,636 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:49,637 - app - INFO - API Key présente: Oui
+2025-01-20 13:39:55,512 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376795/aci4xlakauvur8ib3gys.jpg
+2025-01-20 13:39:55,515 - app - INFO - Upload de IMG_20250119_113343.jpg
+2025-01-20 13:39:55,518 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:39:55,519 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:39:55,521 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:05,537 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376805/khsdjhvoay5vpagx9h9e.jpg
+2025-01-20 13:40:05,540 - app - INFO - Upload de IMG_20250119_113852.jpg
+2025-01-20 13:40:05,542 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:05,543 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:05,545 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:11,918 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376811/e523yn4ayqdt5tvbdduz.jpg
+2025-01-20 13:40:11,919 - app - INFO - Upload de IMG_20250119_113858.jpg
+2025-01-20 13:40:11,919 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:11,919 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:11,919 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:17,385 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376817/axmsmsmaaql4ckrq0otj.jpg
+2025-01-20 13:40:17,388 - app - INFO - Upload de IMG_20250119_113903.jpg
+2025-01-20 13:40:17,388 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:17,388 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:17,388 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:22,756 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376822/nbtfngtry6xg6qc8jqnj.jpg
+2025-01-20 13:40:22,761 - app - INFO - Upload de IMG_20250119_114313.jpg
+2025-01-20 13:40:22,762 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:22,763 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:22,765 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:32,236 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376831/awsqbnps2v5jae2cf52g.jpg
+2025-01-20 13:40:32,236 - app - INFO - Upload de IMG_20250119_114321.jpg
+2025-01-20 13:40:32,241 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:32,242 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:32,245 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:39,522 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376839/tjzwqxv7ewetdjetthau.jpg
+2025-01-20 13:40:39,524 - app - INFO - Upload de IMG_20250119_114438.jpg
+2025-01-20 13:40:39,526 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:39,528 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:39,529 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:50,679 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376850/vvdsy1nf4abnuodilsrg.jpg
+2025-01-20 13:40:50,682 - app - INFO - Upload de IMG_20250119_115625.jpg
+2025-01-20 13:40:50,682 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:50,684 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:50,684 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:53,621 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376853/eccmygqfsi7twd29xbq0.jpg
+2025-01-20 13:40:53,621 - app - INFO - Upload de IMG_20250119_120103.jpg
+2025-01-20 13:40:53,621 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:53,636 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:53,637 - app - INFO - API Key présente: Oui
+2025-01-20 13:40:59,688 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376859/icholmyxnbcwyz2zcjqx.jpg
+2025-01-20 13:40:59,688 - app - INFO - Upload de IMG_20250119_121423.jpg
+2025-01-20 13:40:59,707 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:40:59,709 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:40:59,711 - app - INFO - API Key présente: Oui
+2025-01-20 13:41:06,945 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376866/iyqglfovy1kiqsv2xr8b.jpg
+2025-01-20 13:41:06,946 - app - INFO - Upload de IMG_20250119_121428.jpg
+2025-01-20 13:41:06,951 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:41:06,951 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:41:06,951 - app - INFO - API Key présente: Oui
+2025-01-20 13:41:22,169 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376881/jkxcdezt64gwg9qa5olc.jpg
+2025-01-20 13:41:22,172 - app - INFO - Upload de IMG_20250119_121517.jpg
+2025-01-20 13:41:22,174 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:41:22,175 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:41:22,177 - app - INFO - API Key présente: Oui
+2025-01-20 13:41:52,278 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376911/lzd9fz8waivbqmjrusdk.jpg
+2025-01-20 13:41:52,279 - app - INFO - Upload de IMG_20250119_121524.jpg
+2025-01-20 13:41:52,283 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:41:52,285 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:41:52,285 - app - INFO - API Key présente: Oui
+2025-01-20 13:42:04,171 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376923/yjtqfyyrmaqfdju6im4u.jpg
+2025-01-20 13:42:04,405 - app - INFO - Upload de IMG_20250119_121626.jpg
+2025-01-20 13:42:04,406 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:42:04,480 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:42:04,495 - app - INFO - API Key présente: Oui
+2025-01-20 13:42:17,794 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376937/ec8d1l7uictvrmfseoy9.jpg
+2025-01-20 13:42:18,073 - app - INFO - Upload de IMG_20250119_121632.jpg
+2025-01-20 13:42:18,073 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:42:18,073 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:42:18,073 - app - INFO - API Key présente: Oui
+2025-01-20 13:42:30,304 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376949/fq0eg09v3pf6un0rse3v.jpg
+2025-01-20 13:42:30,482 - app - INFO - Upload de IMG_20250119_123114.jpg
+2025-01-20 13:42:30,490 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:42:30,492 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:42:30,493 - app - INFO - API Key présente: Oui
+2025-01-20 13:42:39,547 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376959/u9cxqpniuuqkgkvjyl7j.jpg
+2025-01-20 13:42:39,561 - app - INFO - Upload de IMG_20250119_124244.jpg
+2025-01-20 13:42:39,563 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:42:39,564 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:42:39,565 - app - INFO - API Key présente: Oui
+2025-01-20 13:42:49,009 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376968/g3cjzwwf3i9nql5299qk.jpg
+2025-01-20 13:42:49,009 - app - INFO - Upload de IMG_20250119_124249.jpg
+2025-01-20 13:42:49,009 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:42:49,025 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:42:49,027 - app - INFO - API Key présente: Oui
+2025-01-20 13:42:57,813 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376977/bq1tepiokvcbw9j1rmqo.jpg
+2025-01-20 13:42:57,814 - app - INFO - Upload de IMG_20250119_124254.jpg
+2025-01-20 13:42:57,816 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:42:57,820 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:42:57,820 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:06,021 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376985/biyzu3mzio53dmysng1d.jpg
+2025-01-20 13:43:06,021 - app - INFO - Upload de IMG_20250119_124427.jpg
+2025-01-20 13:43:06,021 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:06,021 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:06,021 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:10,987 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376990/qqawlikoby9az8hvaetn.jpg
+2025-01-20 13:43:11,004 - app - INFO - Upload de IMG_20250119_132229.jpg
+2025-01-20 13:43:11,004 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:11,004 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:11,004 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:17,009 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737376996/hzm79w4zl0iso0gjlzir.jpg
+2025-01-20 13:43:17,012 - app - INFO - Upload de IMG_20250119_132237.jpg
+2025-01-20 13:43:17,014 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:17,015 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:17,023 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:20,775 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377000/ftt1b1zr2tu8fubyqti5.jpg
+2025-01-20 13:43:20,778 - app - INFO - Upload de IMG_20250119_132240.jpg
+2025-01-20 13:43:20,779 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:20,780 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:20,782 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:24,570 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377004/dfdkijdyhychuqrzyyjf.jpg
+2025-01-20 13:43:24,570 - app - INFO - Upload de IMG_20250119_132639.jpg
+2025-01-20 13:43:24,570 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:24,570 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:24,570 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:31,443 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377011/qwolsbrj4t5eag60qfop.jpg
+2025-01-20 13:43:31,447 - app - INFO - Upload de IMG_20250119_132726.jpg
+2025-01-20 13:43:31,448 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:31,454 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:31,454 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:40,686 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377020/ko9cxuoonmtd38j6rywp.jpg
+2025-01-20 13:43:40,686 - app - INFO - Upload de IMG_20250119_132728.jpg
+2025-01-20 13:43:40,686 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:40,704 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:40,704 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:48,853 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377028/y1sj5shvkrv0trpg09as.jpg
+2025-01-20 13:43:48,853 - app - INFO - Upload de IMG_20250119_133233.jpg
+2025-01-20 13:43:48,853 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:48,853 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:48,853 - app - INFO - API Key présente: Oui
+2025-01-20 13:43:55,806 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377035/uwxh5idjb4i05hiymskt.jpg
+2025-01-20 13:43:55,806 - app - INFO - Upload de IMG_20250119_133245.jpg
+2025-01-20 13:43:55,806 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:43:55,806 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:43:55,821 - app - INFO - API Key présente: Oui
+2025-01-20 13:44:02,541 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377042/xxlbrisbrvaiisvksdnt.jpg
+2025-01-20 13:44:02,544 - app - INFO - Upload de IMG_20250119_135552.jpg
+2025-01-20 13:44:02,546 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:44:02,549 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:44:02,555 - app - INFO - API Key présente: Oui
+2025-01-20 13:44:09,863 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377049/rbaoe4cpy2irzdk2k07n.jpg
+2025-01-20 13:44:09,954 - app - INFO - Upload de IMG_20250119_153411.jpg
+2025-01-20 13:44:09,970 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:44:09,970 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:44:09,970 - app - INFO - API Key présente: Oui
+2025-01-20 13:44:19,009 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377058/vknunkinbkye7cfbrlhh.jpg
+2025-01-20 13:44:19,454 - app - INFO - Upload de IMG_20250119_153415.jpg
+2025-01-20 13:44:19,456 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:44:19,458 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:44:19,459 - app - INFO - API Key présente: Oui
+2025-01-20 13:44:27,341 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377066/acread1ija3xhiwuwdpa.jpg
+2025-01-20 13:44:27,342 - app - INFO - Upload de IMG_20250119_153941.jpg
+2025-01-20 13:44:27,344 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:44:27,346 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:44:27,346 - app - INFO - API Key présente: Oui
+2025-01-20 13:44:35,198 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377074/lbx5naptekghjhlk4cqn.jpg
+2025-01-20 13:44:35,206 - app - INFO - Upload de IMG_20250119_154151.jpg
+2025-01-20 13:44:35,208 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:44:35,209 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:44:35,212 - app - INFO - API Key présente: Oui
+2025-01-20 13:44:42,275 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377081/rla3rcvehcupgoowh8gu.jpg
+2025-01-20 13:44:42,281 - app - INFO - Upload de IMG_20250119_154159.jpg
+2025-01-20 13:44:42,291 - app - INFO - Configuration Cloudinary:
+2025-01-20 13:44:42,291 - app - INFO - Cloud name: dfuzvu8c5
+2025-01-20 13:44:42,293 - app - INFO - API Key présente: Oui
+2025-01-20 13:44:50,696 - app - INFO - Upload réussi: https://res.cloudinary.com/dfuzvu8c5/image/upload/v1737377089/iqbizivgwr5u2sccqibm.jpg
+2025-01-20 13:44:50,765 - app - INFO - Données sauvegardées avec succès
+2025-01-20 13:44:50,789 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:44:50] "[32mPOST /upload_photos/43a70ab0-f78b-4005-955e-e1f64171eeab HTTP/1.1[0m" 302 -
+2025-01-20 13:44:51,131 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:44:51] "GET /gallery/43a70ab0-f78b-4005-955e-e1f64171eeab HTTP/1.1" 200 -
+2025-01-20 13:44:51,374 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:44:51] "[36mGET /static/css/gallery.css HTTP/1.1[0m" 304 -
+2025-01-20 13:44:51,549 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:44:51] "[36mGET /static/css/lightbox.css HTTP/1.1[0m" 304 -
+2025-01-20 13:48:36,531 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:48:36] "[32mPOST /gallery/43a70ab0-f78b-4005-955e-e1f64171eeab/delete_photo/2 HTTP/1.1[0m" 302 -
+2025-01-20 13:48:36,569 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:48:36] "GET /gallery/43a70ab0-f78b-4005-955e-e1f64171eeab HTTP/1.1" 200 -
+2025-01-20 13:48:36,747 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:48:36] "[36mGET /static/css/gallery.css HTTP/1.1[0m" 304 -
+2025-01-20 13:48:36,990 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:48:36] "[36mGET /static/css/lightbox.css HTTP/1.1[0m" 304 -
+2025-01-20 13:48:51,618 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:48:51] "GET /future HTTP/1.1" 200 -
+2025-01-20 13:48:52,063 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:48:52] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:48:59,370 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:48:59] "GET /mountain_animals HTTP/1.1" 200 -
+2025-01-20 13:49:04,867 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:49:04] "GET /future HTTP/1.1" 200 -
+2025-01-20 13:49:05,319 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:49:05] "[36mGET /static/images/tourpercee.jpg HTTP/1.1[0m" 304 -
+2025-01-20 13:49:08,286 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:49:08] "GET /years HTTP/1.1" 200 -
+2025-01-20 13:49:08,438 - werkzeug - INFO - 127.0.0.1 - - [20/Jan/2025 13:49:08] "[36mGET /static/images/background-mountain.jpg HTTP/1.1[0m" 304 -
