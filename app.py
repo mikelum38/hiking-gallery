@@ -28,6 +28,13 @@ app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'votre_clé_secrète_ici')
 app.logger.setLevel(logging.INFO)
 
+# Ajout des routes pour les fichiers statiques spéciaux
+@app.route('/favicon.ico')
+@app.route('/revision.ico')
+@app.route('/revision.png')
+def favicon():
+    return '', 204  # No Content
+
 # Log du mode de l'application au démarrage
 app.logger.info(f"Application running in {'DEVELOPMENT' if app.config['DEV_MODE'] else 'PRODUCTION'} mode")
 
