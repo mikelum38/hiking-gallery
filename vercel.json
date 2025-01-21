@@ -3,7 +3,7 @@
     "builds": [
         {
             "src": "app.py",
-            "use": "@vercel/python@3.1.0"
+            "use": "@vercel/python"
         }
     ],
     "routes": [
@@ -11,8 +11,5 @@
             "src": "/(.*)",
             "dest": "app.py"
         }
-    ],
-    "env": {
-        "PYTHONUNBUFFERED": "1"
-    }
+    ]
 }
