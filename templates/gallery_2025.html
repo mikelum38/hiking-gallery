@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ gallery.name }} - Galerie de Randonnées</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lightbox.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            z-index: 10;
+            color: white;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-link:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(-5px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .back-link i {
+            font-size: 1.1rem;
+        }
+
+        /* Nouvelle grille adaptative */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .photo-item {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Format spécifiques */
+        .photo-item.landscape {
+            grid-column: span 2;
+            aspect-ratio: 16/9;
+        }
+
+        .photo-item.portrait {
+            grid-row: span 2;
+            aspect-ratio: 3/4;
+        }
+
+        .photo-item.square {
+            aspect-ratio: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .photo-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .photo-item.landscape {
+                grid-column: auto;
+                aspect-ratio: 16/9;
+            }
+
+            .photo-item.portrait {
+                grid-row: auto;
+                aspect-ratio: 3/4;
+            }
+        }
+
+        /* Reste des styles existants */
+        .gallery-page {
+            min-height: 100vh;
+            background: #f5f5f5;
+            padding-top: 80px;
+        }
+
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .gallery-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .gallery-date {
+            font-family: 'Open Sans', sans-serif;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .gallery-description {
+            font-family: 'Open Sans', sans-serif;
+            color: #555;
+            max-width: 800px;
+            margin: 1rem auto;
+            line-height: 1.6;
+        }
+
+        /* Hide fullscreen button */
+        ::-webkit-full-screen-exit {
+            display: none !important;
+        }
+        ::-moz-full-screen-exit {
+            display: none !important;
+        }
+        ::backdrop {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery-page">
+        <a href="{{ url_for('future') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour aux galeries
+        </a>
+
+        <div class="gallery-header">
+            <h1 class="gallery-title">{{ gallery.name }}</h1>
+            <div class="gallery-date">{{ gallery.date }}</div>
+            <p class="gallery-description">{{ gallery.description }}</p>
+        </div>
+
+        <div class="photo-grid">
+            {% for photo in gallery.photos %}
+            <div class="photo-item {{ photo.format }}" data-src="{{ photo.url }}">
+                <img src="{{ photo.url }}" alt="{{ photo.description }}" loading="lazy">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="lightbox" class="lightbox">
+            <div class="lightbox-content">
+                <img id="lightbox-image" src="" alt="Image en plein écran">
+                <div class="spinner"></div>
+                <button class="lightbox-prev">❮</button>
+                <button class="lightbox-next">❯</button>
+                <button class="lightbox-close">×</button>
+                <button class="lightbox-slideshow" title="Démarrer le diaporama">▶</button>
+                <button class="lightbox-fullscreen" title="Mode plein écran">⛶</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        let isSlideshow = false;
+        let slideshowInterval;
+        const photos = document.querySelectorAll('.photo-item');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const slideshowButton = document.querySelector('.lightbox-slideshow');
+        const closeButton = document.querySelector('.lightbox-close');
+        const fullscreenButton = document.querySelector('.lightbox-fullscreen');
+
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        function startSlideshow() {
+            isSlideshow = true;
+            closeButton.classList.add('slideshow-active');
+            slideshowButton.innerHTML = '⏸';
+            slideshowButton.title = 'Arrêter le diaporama';
+            slideshowInterval = setInterval(() => {
+                document.querySelector('.lightbox-next').click();
+            }, 3000);
+        }
+
+        function stopSlideshow() {
+            isSlideshow = false;
+            closeButton.classList.remove('slideshow-active');
+            slideshowButton.innerHTML = '▶';
+            slideshowButton.title = 'Démarrer le diaporama';
+            clearInterval(slideshowInterval);
+        }
+
+        // Gestion du diaporama
+        slideshowButton.addEventListener('click', () => {
+            if (isSlideshow) {
+                stopSlideshow();
+            } else {
+                startSlideshow();
+            }
+        });
+
+        // Ouvrir la lightbox
+        photos.forEach((photo, index) => {
+            photo.addEventListener('click', async function() {
+                currentIndex = index;
+                lightbox.style.display = 'flex';
+                const src = this.dataset.src;
+                document.querySelector('.spinner').style.display = 'block';
+                lightboxImage.style.opacity = '0';
+                
+                try {
+                    await loadImage(src);
+                    lightboxImage.src = src;
+                    lightboxImage.style.opacity = '1';
+                } finally {
+                    document.querySelector('.spinner').style.display = 'none';
+                }
+            });
+        });
+
+        // Navigation dans la lightbox
+        document.querySelector('.lightbox-prev').addEventListener('click', async () => {
+            if (isSlideshow) {
+                stopSlideshow();
+            }
+            currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+            const src = photos[currentIndex].dataset.src;
+            document.querySelector('.spinner').style.display = 'block';
+            lightboxImage.style.opacity = '0';
+            
+            try {
+                await loadImage(src);
+                lightboxImage.src = src;
+                lightboxImage.style.opacity = '1';
+            } finally {
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        });
+
+        document.querySelector('.lightbox-next').addEventListener('click', async () => {
+            if (isSlideshow && !e.isTrusted) {
+                // Ne pas arrêter le diaporama si le clic vient du setInterval
+            } else if (isSlideshow) {
+                stopSlideshow();
+            }
+            currentIndex = (currentIndex + 1) % photos.length;
+            const src = photos[currentIndex].dataset.src;
+            document.querySelector('.spinner').style.display = 'block';
+            lightboxImage.style.opacity = '0';
+            
+            try {
+                await loadImage(src);
+                lightboxImage.src = src;
+                lightboxImage.style.opacity = '1';
+            } finally {
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        });
+
+        // Fermer la lightbox
+        document.querySelector('.lightbox-close').addEventListener('click', () => {
+            stopSlideshow();
+            lightbox.style.display = 'none';
+        });
+
+        // Fonction pour gérer le mode plein écran
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                lightbox.requestFullscreen().catch(err => {
+                    console.log(`Erreur: ${err.message}`);
+                });
+                fullscreenButton.innerHTML = '';
+                fullscreenButton.title = 'Quitter le mode plein écran';
+            } else {
+                document.exitFullscreen();
+                fullscreenButton.innerHTML = '';
+                fullscreenButton.title = 'Mode plein écran';
+            }
+        }
+
+        // Gestionnaire du bouton plein écran
+        fullscreenButton.addEventListener('click', toggleFullScreen);
+
+        // Gérer les changements de mode plein écran
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenButton.innerHTML = '';
+                fullscreenButton.title = 'Mode plein écran';
+            }
+        });
+
+        // Navigation clavier
+        document.addEventListener('keydown', (e) => {
+            if (lightbox.style.display === 'flex') {
+                if (e.key === 'ArrowLeft') {
+                    document.querySelector('.lightbox-prev').click();
+                } else if (e.key === 'ArrowRight') {
+                    document.querySelector('.lightbox-next').click();
+                } else if (e.key === 'Escape' && !document.fullscreenElement) {
+                    // Ne ferme la lightbox que si on n'est pas en plein écran
+                    stopSlideshow();
+                    lightbox.style.display = 'none';
+                } else if (e.key === ' ') {
+                    // Espace pour démarrer/arrêter le diaporama
+                    slideshowButton.click();
+                    e.preventDefault();
+                } else if (e.key === 'f') {
+                    // 'f' pour basculer le mode plein écran
+                    toggleFullScreen();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Fermer en cliquant en dehors de l'image
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                stopSlideshow();
+                lightbox.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

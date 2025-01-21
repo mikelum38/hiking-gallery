@@ -177,6 +177,216 @@
         .delete-photo-btn:hover {
             background: rgba(255, 0, 0, 0.9);
         }
+
+        /* Style de la lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 1000;
+        }
+
+        .lightbox-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: black;
+        }
+
+        #lightbox-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #lightbox-image.fade {
+            opacity: 0;
+        }
+
+        .fullscreen #lightbox-image {
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+        }
+
+        /* Styles de base pour tous les boutons de contrôle */
+        .control-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .control-btn:hover {
+            opacity: 1;
+        }
+
+        /* Barre de contrôle en haut à droite */
+        .controls-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 2100;
+        }
+
+        /* Styles des tooltips */
+        .control-btn[data-tooltip]::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            z-index: 2100;
+        }
+
+        .control-btn[data-tooltip]:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Bouton retour */
+        #return-arrow {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+        }
+
+        #return-arrow[data-tooltip]::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            z-index: 2100;
+        }
+
+        #return-arrow[data-tooltip]:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Bouton musique - caché par défaut */
+        .music-btn {
+            display: none !important;
+        }
+
+        /* Bouton musique - visible pendant le diaporama */
+        .slideshow-active .music-btn {
+            display: flex !important;
+        }
+
+        /* Animation des contrôles pendant le diaporama */
+        .slideshow-active .controls-sidebar {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .slideshow-active .controls-sidebar:hover {
+            opacity: 1;
+        }
+
+        /* Boutons précédent/suivant */
+        .prev-btn, .next-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2000;
+        }
+
+        .prev-btn {
+            left: 20px;
+        }
+
+        .next-btn {
+            right: 20px;
+        }
+
+        /* Compteur de photos */
+        .photo-counter {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 1001;
+        }
+
+        /* S'assurer que les contrôles restent visibles en plein écran */
+        .fullscreen #return-arrow,
+        .fullscreen .controls-sidebar,
+        .fullscreen .photo-counter {
+            position: fixed;
+            z-index: 2000;
+        }
+
+        /* Style pour cacher les contrôles en mode diaporama */
+        .slideshow-active .prev-btn,
+        .slideshow-active .next-btn,
+        .slideshow-active .close-btn {
+            display: none !important;
+        }
+
+        .slideshow-active .controls-sidebar,
+        .slideshow-active #return-arrow,
+        .slideshow-active .photo-counter {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .slideshow-active:hover .controls-sidebar,
+        .slideshow-active:hover #return-arrow {
+            opacity: 1;
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
@@ -273,119 +483,266 @@
         {% endif %}
 
         <div id="lightbox" class="lightbox">
+            <button id="return-arrow" data-tooltip="Retour à la galerie">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             <div class="lightbox-content">
                 <img id="lightbox-image" src="" alt="Image en plein écran">
                 <div class="spinner"></div>
-                <button class="lightbox-prev">❮</button>
-                <button class="lightbox-next">❯</button>
-                <button class="lightbox-close">×</button>
+                <div class="controls-sidebar">
+                    <button class="control-btn fullscreen-btn" onclick="toggleFullscreen()" data-tooltip="Passer en plein écran">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button class="control-btn slideshow-btn" onclick="toggleSlideshow()" data-tooltip="Lancer le diaporama">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="control-btn music-btn" onclick="toggleMusic()" data-tooltip="Activer la musique">
+                        <i class="fas fa-music"></i>
+                    </button>
+                </div>
+                <button class="control-btn prev-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="control-btn next-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <div class="photo-counter">
+                    <span id="current-index">1</span> / <span id="total-photos">0</span>
+                </div>
             </div>
+            <audio id="bgMusic" loop>
+                <source src="{{ url_for('static', filename='audio/Askthemountains.mp3') }}" type="audio/mp3">
+            </audio>
         </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 let currentIndex = 0;
-                const images = Array.from(document.querySelectorAll('.photo-item img')).map(img => img.src);
-                const lightbox = document.getElementById('lightbox');
+                const images = document.querySelectorAll('.photo-item img');
+                const lightbox = document.querySelector('.lightbox');
                 const lightboxImage = document.getElementById('lightbox-image');
                 const spinner = document.querySelector('.spinner');
+                const totalPhotos = images.length;
+                let slideshowInterval = null;
+                let isMusicPlaying = false;
+                const bgMusic = document.getElementById('bgMusic');
 
-                // Fonction pour charger une image
-                function loadImage(src) {
-                    spinner.style.display = 'block';
-                    lightboxImage.style.display = 'none';
-                    
-                    lightboxImage.src = src;
-                    lightboxImage.onload = function() {
-                        spinner.style.display = 'none';
-                        lightboxImage.style.display = 'block';
-                    };
-                    lightboxImage.onerror = function() {
-                        console.error('Erreur de chargement de l\'image');
-                        spinner.style.display = 'none';
-                    };
+                // Mettre à jour le compteur
+                function updateCounter() {
+                    document.getElementById('current-index').textContent = currentIndex + 1;
+                    document.getElementById('total-photos').textContent = totalPhotos;
                 }
 
+                // Charger une image
+                async function loadImage(src) {
+                    const img = document.getElementById('lightbox-image');
+                    
+                    // Démarrer le fondu
+                    img.classList.add('fade');
+                    
+                    // Attendre la fin du fondu
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Charger la nouvelle image
+                    return new Promise((resolve) => {
+                        const newImage = new Image();
+                        newImage.onload = () => {
+                            img.src = src;
+                            requestAnimationFrame(() => {
+                                img.classList.remove('fade');
+                                resolve();
+                            });
+                        };
+                        newImage.src = src;
+                    });
+                }
+
+                // Navigation précédent
+                document.querySelector('.prev-btn').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    currentIndex = (currentIndex - 1 + totalPhotos) % totalPhotos;
+                    await loadImage(images[currentIndex].src);
+                    updateCounter();
+                });
+
+                // Navigation suivant
+                document.querySelector('.next-btn').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    currentIndex = (currentIndex + 1) % totalPhotos;
+                    await loadImage(images[currentIndex].src);
+                    updateCounter();
+                });
+
                 // Ouvrir la lightbox
-                document.querySelectorAll('.photo-item img').forEach((img, index) => {
-                    img.addEventListener('click', function() {
+                images.forEach((img, index) => {
+                    img.addEventListener('click', async function() {
                         currentIndex = index;
-                        lightbox.style.display = 'block';
-                        document.body.style.overflow = 'hidden';
-                        loadImage(images[currentIndex]);
+                        lightbox.style.display = 'flex';
+                        await loadImage(this.src);
+                        updateCounter();
                     });
                 });
 
-                // Fermer la lightbox
-                document.querySelector('.lightbox-close').addEventListener('click', function() {
+                // Fermer la lightbox avec la flèche retour
+                document.getElementById('return-arrow').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    stopSlideshow();
+                    if (document.fullscreenElement) {
+                        await document.exitFullscreen();
+                    }
                     lightbox.style.display = 'none';
-                    document.body.style.overflow = '';
-                    lightboxImage.src = '';
                 });
 
-                // Image précédente
-                document.querySelector('.lightbox-prev').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    currentIndex = (currentIndex - 1 + images.length) % images.length;
-                    loadImage(images[currentIndex]);
-                });
+                // Gestion du plein écran
+                const fullscreenBtn = document.querySelector('.fullscreen-btn');
+                const lightboxContent = document.querySelector('.lightbox-content');
 
-                // Image suivante
-                document.querySelector('.lightbox-next').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    currentIndex = (currentIndex + 1) % images.length;
-                    loadImage(images[currentIndex]);
-                });
-
-                // Fermer en cliquant en dehors
-                lightbox.addEventListener('click', function(e) {
-                    if (e.target === lightbox) {
-                        lightbox.style.display = 'none';
-                        document.body.style.overflow = '';
-                        lightboxImage.src = '';
-                    }
-                });
-
-                // Navigation au clavier
-                document.addEventListener('keydown', function(e) {
-                    if (lightbox.style.display === 'block') {
-                        if (e.key === 'ArrowLeft') {
-                            currentIndex = (currentIndex - 1 + images.length) % images.length;
-                            loadImage(images[currentIndex]);
-                        } else if (e.key === 'ArrowRight') {
-                            currentIndex = (currentIndex + 1) % images.length;
-                            loadImage(images[currentIndex]);
-                        } else if (e.key === 'Escape') {
-                            lightbox.style.display = 'none';
-                            document.body.style.overflow = '';
-                            lightboxImage.src = '';
-                        }
-                    }
-                });
-
-                // Gestion du swipe sur mobile
-                let touchStartX = 0;
-                let touchEndX = 0;
-
-                lightbox.addEventListener('touchstart', function(e) {
-                    touchStartX = e.touches[0].clientX;
-                }, { passive: true });
-
-                lightbox.addEventListener('touchmove', function(e) {
-                    touchEndX = e.touches[0].clientX;
-                }, { passive: true });
-
-                lightbox.addEventListener('touchend', function() {
-                    const swipeLength = touchEndX - touchStartX;
-                    if (Math.abs(swipeLength) > 50) {
-                        if (swipeLength > 0) {
-                            currentIndex = (currentIndex - 1 + images.length) % images.length;
+                async function toggleFullscreen() {
+                    try {
+                        if (!document.fullscreenElement) {
+                            await lightbox.requestFullscreen();
+                            lightbox.classList.add('fullscreen');
+                            document.querySelector('.fullscreen-btn i').className = 'fas fa-compress';
+                            document.querySelector('.fullscreen-btn').setAttribute('data-tooltip', 'Quitter le plein écran');
                         } else {
-                            currentIndex = (currentIndex + 1) % images.length;
+                            await document.exitFullscreen();
+                            lightbox.classList.remove('fullscreen');
+                            document.querySelector('.fullscreen-btn i').className = 'fas fa-expand';
+                            document.querySelector('.fullscreen-btn').setAttribute('data-tooltip', 'Passer en plein écran');
+                            if (slideshowInterval) {
+                                stopSlideshow();
+                            }
                         }
-                        loadImage(images[currentIndex]);
+                    } catch (err) {
+                        console.error('Erreur lors du changement de mode plein écran:', err);
                     }
-                }, { passive: true });
+                }
+
+                // Écouteur pour détecter la sortie du mode plein écran
+                document.addEventListener('fullscreenchange', function() {
+                    if (!document.fullscreenElement && slideshowInterval) {
+                        stopSlideshow();
+                        if (isMusicPlaying) {
+                            toggleMusic();
+                        }
+                    }
+                });
+
+                // Arrêter le diaporama lors de la fermeture de la lightbox
+                document.getElementById('return-arrow').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    stopSlideshow();
+                    if (document.fullscreenElement) {
+                        await document.exitFullscreen();
+                    }
+                    lightbox.style.display = 'none';
+                });
+
+                // Arrêter le diaporama lors de la navigation manuelle
+                document.querySelector('.prev-btn').addEventListener('click', () => {
+                    stopSlideshow();
+                });
+
+                document.querySelector('.next-btn').addEventListener('click', () => {
+                    stopSlideshow();
+                });
+
+                // Arrêter le diaporama avec la touche Escape
+                document.addEventListener('keydown', async (e) => {
+                    if (lightbox.style.display === 'flex') {
+                        if (e.key === 'Escape') {
+                            stopSlideshow();
+                            document.getElementById('return-arrow').click();
+                        } else if (slideshowInterval && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                            stopSlideshow();
+                        }
+                    }
+                });
+
+                function toggleMusic() {
+                    if (isMusicPlaying) {
+                        bgMusic.pause();
+                        isMusicPlaying = false;
+                        document.querySelector('.music-btn i').className = 'fas fa-music';
+                        document.querySelector('.music-btn').setAttribute('data-tooltip', 'Activer la musique');
+                    } else {
+                        bgMusic.play();
+                        isMusicPlaying = true;
+                        document.querySelector('.music-btn i').className = 'fas fa-volume-up';
+                        document.querySelector('.music-btn').setAttribute('data-tooltip', 'Désactiver la musique');
+                    }
+                }
+
+                async function nextSlide() {
+                    currentIndex = (currentIndex + 1) % totalPhotos;
+                    await loadImage(images[currentIndex].src);
+                }
+
+                function startSlideshow() {
+                    if (!document.fullscreenElement) {
+                        lightbox.requestFullscreen();
+                    }
+                    lightbox.classList.add('fullscreen', 'slideshow-active');
+                    document.querySelector('.slideshow-btn i').className = 'fas fa-pause';
+                    document.querySelector('.slideshow-btn').setAttribute('data-tooltip', 'Arrêter le diaporama');
+                    
+                    // Cacher les contrôles en mode diaporama
+                    document.querySelector('.prev-btn').style.display = 'none';
+                    document.querySelector('.next-btn').style.display = 'none';
+                    document.querySelector('.photo-counter').style.display = 'none';
+                    
+                    slideshowInterval = setInterval(nextSlide, 5000);
+                    if (!isMusicPlaying) {
+                        toggleMusic();
+                    }
+                }
+
+                function stopSlideshow() {
+                    lightbox.classList.remove('slideshow-active');
+                    document.querySelector('.slideshow-btn i').className = 'fas fa-play';
+                    document.querySelector('.slideshow-btn').setAttribute('data-tooltip', 'Lancer le diaporama');
+                    
+                    // Réafficher les contrôles
+                    document.querySelector('.prev-btn').style.display = 'flex';
+                    document.querySelector('.next-btn').style.display = 'flex';
+                    document.querySelector('.photo-counter').style.display = 'block';
+                    
+                    if (slideshowInterval) {
+                        clearInterval(slideshowInterval);
+                        slideshowInterval = null;
+                    }
+                    
+                    if (isMusicPlaying) {
+                        toggleMusic();
+                    }
+                }
+
+                // Gestionnaire pour le bouton plein écran
+                document.querySelector('.fullscreen-btn').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    await toggleFullscreen();
+                });
+
+                // Gestion du diaporama
+                const slideshowBtn = document.querySelector('.slideshow-btn');
+                
+                slideshowBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (slideshowInterval) {
+                        stopSlideshow();
+                    } else {
+                        await startSlideshow();
+                    }
+                });
+
+                // Initialiser le compteur
+                document.getElementById('total-photos').textContent = totalPhotos;
+
+                // S'assurer que la musique peut être contrôlée pendant le diaporama
+                document.querySelector('.music-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMusic();
+                });
             });
         </script>
 
