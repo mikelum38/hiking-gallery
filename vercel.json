@@ -4,12 +4,34 @@
         {
             "src": "app.py",
             "use": "@vercel/python"
+        },
+        {
+            "src": "static/**",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/(.*\\.ico)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/(.*\\.png)",
+            "dest": "/static/$1"
+        },
+        {
             "src": "/(.*)",
             "dest": "app.py"
         }
-    ]
+    ],
+    "functions": {
+        "app.py": {
+            "memory": 1024,
+            "maxDuration": 10
+        }
+    }
 }
