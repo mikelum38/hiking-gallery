@@ -4,24 +4,12 @@
         {
             "src": "app.py",
             "use": "@vercel/python"
-        },
-        {
-            "src": "static/**",
-            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
-            "src": "/static/(.*)",
-            "dest": "/static/$1"
-        },
-        {
-            "src": "/(.*\\.ico)",
-            "dest": "/static/$1"
-        },
-        {
-            "src": "/(.*\\.png)",
-            "dest": "/static/$1"
+            "src": "/revision\\.(ico|png)",
+            "status": 404
         },
         {
             "src": "/(.*)",
