@@ -8,8 +8,35 @@
     ],
     "routes": [
         {
+            "src": "/revision\\.(ico|png)",
+            "status": 204,
+            "headers": {
+                "content-type": "text/plain"
+            },
+            "continue": false
+        },
+        {
+            "src": "/favicon\\.ico",
+            "status": 204,
+            "headers": {
+                "content-type": "text/plain"
+            },
+            "continue": false
+        },
+        {
             "src": "/(.*)",
             "dest": "app.py"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=0, must-revalidate"
+                }
+            ]
         }
     ]
 }

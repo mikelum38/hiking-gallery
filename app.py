@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 import logging
 import uuid
 import re
-from middleware import StaticFileMiddleware
 
 load_dotenv()  # Chargement des variables d'environnement depuis .env
 
@@ -23,7 +22,6 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-app.wsgi_app = StaticFileMiddleware(app.wsgi_app)  # Ajouter le middleware
 # Configuration du mode développement
 app.config['DEV_MODE'] = os.environ.get('DEV_MODE', 'false').lower() == 'true'
 app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
