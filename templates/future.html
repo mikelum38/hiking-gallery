@@ -371,12 +371,23 @@
             font-size: 1.1rem;
         }
 
-        .buttons-container {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-            padding: 0 1rem;
+        .dreams-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 1rem 0 3rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .dreams-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
         }
 
         @media (max-width: 768px) {
@@ -397,6 +408,16 @@
 
             .memories-btn i, .dream-btn i {
                 font-size: 1rem;
+            }
+
+            .dreams-btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+                margin: 1rem 0 4rem;
+            }
+
+            .month-card {
+                margin-top: 1rem;
             }
         }
 
@@ -439,7 +460,7 @@
             <a href="/memories" class="memories-btn">
                 <i class="fas fa-images"></i> Projets en vrac
             </a>
-            <a href="/dreams" class="dream-btn">
+            <a href="/dreams" class="dreams-btn">
                 <i class="fas fa-mountain"></i> Rêves d'Altitude
             </a>
         </div>
