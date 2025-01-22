@@ -152,6 +152,67 @@
 
         @media (max-width: 768px) {
             .cork-board {
+                padding: 4rem 1rem 1rem;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1.5rem;
+                margin-top: 0;
+            }
+
+            .back-link {
+                padding: 0.4rem 1rem;
+                font-size: 0.85rem;
+                top: 0.7rem;
+                left: 0.7rem;
+            }
+
+            .photo-card {
+                margin-bottom: 1rem;
+            }
+
+            .photo-card h3 {
+                font-size: 1rem;
+                margin: 0.5rem 0;
+            }
+
+            .photo-card p {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .photo-card .date {
+                display: none;
+            }
+
+            .photo-card::before {
+                width: 12px;
+                height: 12px;
+                top: -6px;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-width: none;
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .modal-content h2 {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .modal-content p {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .photo-card:last-child {
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cork-board {
                 padding: 1rem;
                 gap: 1rem;
             }
