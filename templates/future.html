@@ -7,18 +7,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body, html {
+        body {
             margin: 0;
             padding: 0;
-            height: 100%;
             font-family: 'Poppins', sans-serif;
-            overflow: hidden;
+            background: #1a1a1a;
+            overflow-x: hidden;
         }
 
         .page-container {
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
+                          url('/static/images/tourpercee.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             position: relative;
-            padding-top: 60px;
         }
 
         .nav-buttons {
@@ -29,491 +39,173 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
             gap: 0.5rem;
+            z-index: 100;
         }
 
         .home-hero {
-            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            padding: 2rem 1rem;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
-                          url('/static/images/tourpercee.jpg');
-            background-size: cover;
-            background-position: center;
+            color: white;
+            padding: 1rem;
+        }
+
+        .gallery-section {
+            background: #1a1a1a;
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             z-index: 2;
+            padding: 2rem 1rem;
         }
 
-        .home-hero h1 {
-            font-size: 3.5rem;
-            margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            letter-spacing: 1px;
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .home-hero p {
-            font-size: 1.4rem;
-            margin: 1rem 0 2rem;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
+        .back-link, .mountain-flowers-btn, .mountain-animals-btn {
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            display: inline-flex;
             align-items: center;
-            margin: 1rem 0;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mountain-buttons {
+            display: flex;
+            gap: 0.5rem;
         }
 
         .memories-btn, .dreams-btn {
             background: rgba(0, 0, 0, 0.4);
             color: white;
             text-decoration: none;
-            padding: 0.8rem 2rem;
+            padding: 0.8rem;
             border-radius: 25px;
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.8rem;
-            transition: all 0.3s ease;
+            font-size: 1rem;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .memories-btn:hover, .dreams-btn:hover {
-            background: rgba(0, 0, 0, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-            margin-top: 1rem;
+            width: 100%;
         }
 
         @media (max-width: 768px) {
-            .page-container {
-                padding-top: 50px;
+            .hero-section {
+                min-height: 100vh;
+                background-attachment: scroll;
             }
 
             .nav-buttons {
-                top: 0.7rem;
-                left: 0.7rem;
-                right: 0.7rem;
-                z-index: 100;
+                top: 0.5rem;
+                left: 0.5rem;
+                right: 0.5rem;
             }
 
             .back-link, .mountain-flowers-btn, .mountain-animals-btn {
-                padding: 0.4rem 1rem;
-                font-size: 0.85rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
             }
 
             .home-hero {
-                padding: 1rem;
+                padding-top: 4rem;
             }
 
             .home-hero h1 {
                 font-size: 2.5rem;
-                margin: 0.5rem 0;
             }
 
             .home-hero p {
-                font-size: 1.1rem;
-                margin: 0.5rem 0;
+                font-size: 1.2rem;
+                margin: 0.5rem 0 2rem;
             }
 
             .memories-btn, .dreams-btn {
-                padding: 0.5rem 1.2rem;
-                font-size: 0.85rem;
-                width: auto;
-                min-width: 180px;
-                justify-content: center;
+                padding: 0.6rem;
+                font-size: 0.9rem;
             }
 
-            .memories-btn i, .dreams-btn i {
-                font-size: 0.85rem;
-            }
-
-            .action-buttons {
-                margin: 0.5rem auto;
-                width: 90%;
-                max-width: 250px;
+            .gallery-section {
+                padding: 1rem;
             }
 
             .month-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 1rem;
-                padding: 1rem;
-                margin-top: 0.5rem;
-            }
-
-            .month-card {
-                margin: 0;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .home-hero {
-                padding-top: 15vh; /* Encore plus haut sur petit mobile */
-            }
-
-            .home-hero h1 {
-                font-size: 2.5rem;
-            }
-        }
-
-        /* Styles pour la galerie */
-        .months-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
-            padding: 2rem;
-            overflow-x: auto;
-            z-index: 5;
-        }
-
-        .months-scroll {
-            display: flex;
-            gap: 1.5rem;
-            padding: 0.5rem;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .month-card {
-            flex: 0 0 auto;
-            width: 280px;
-            height: 180px;
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease;
-        }
-
-        .month-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .month-cover {
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-
-        .month-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 1.5rem;
-            color: white;
-        }
-
-        .month-name {
-            font-size: 1.4rem;
-            font-weight: 500;
-            margin: 0;
-            margin-bottom: 0.3rem;
-        }
-
-        .gallery-count {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* Optimisation des animations */
-        .home-hero, .home-hero h1, .home-hero p, .add-hike-btn, .back-link, .months-container {
-            will-change: transform, opacity;
-        }
-
-        /* Styles pour le modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: #2c3e50;
-            padding: 2rem;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            color: white;
-        }
-
-        .close {
-            position: absolute;
-            right: 1.5rem;
-            top: 1rem;
-            color: #ffd700;
-            font-size: 1.8rem;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #fff;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #ffd700;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #ffd700;
-        }
-
-        .submit-btn {
-            background: #ffd700;
-            color: #2c3e50;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 500;
-            width: 100%;
-            margin-top: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .submit-btn:hover {
-            background: #fff;
-            transform: translateY(-2px);
-        }
-
-        /* Style commun pour les deux boutons */
-        .memories-btn, .dream-btn {
-            padding: 1rem 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 30px;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.1rem;
-            text-decoration: none;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .memories-btn:hover, .dream-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .memories-btn i, .dream-btn i {
-            font-size: 1.1rem;
-        }
-
-        .dreams-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            text-decoration: none;
-            padding: 0.8rem 2rem;
-            border-radius: 25px;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin: 1rem 0 3rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-
-        .dreams-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-            .buttons-container {
-                flex-direction: column;
-                align-items: center;
-                gap: 0.8rem;
-                margin-top: 1.5rem;
-            }
-
-            .memories-btn, .dream-btn {
-                width: 100%;
-                max-width: 300px;
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
-                justify-content: center;
-            }
-
-            .memories-btn i, .dream-btn i {
-                font-size: 1rem;
-            }
-
-            .dreams-btn {
-                padding: 0.6rem 1.5rem;
-                font-size: 0.9rem;
-                margin: 1rem 0 4rem;
-            }
-
-            .month-card {
-                margin-top: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .buttons-container {
-                gap: 0.6rem;
-                margin-top: 1rem;
-            }
-
-            .memories-btn, .dream-btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-
-            .memories-btn i, .dream-btn i {
-                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="page-container">
-        <div class="nav-buttons">
-            <a href="/years" class="back-link">
-                <i class="fas fa-arrow-left"></i> Retour aux années
-            </a>
-            <div class="mountain-buttons">
-                <a href="/mountain_flowers" class="mountain-flowers-btn">
-                    <i class="fas fa-seedling"></i> Fleurs de nos montagnes
+        <div class="hero-section">
+            <nav class="nav-buttons">
+                <a href="/years" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Retour aux années
                 </a>
-                <a href="/mountain_animals" class="mountain-animals-btn">
-                    <i class="fas fa-paw"></i> Animaux de nos montagnes
-                </a>
+                <div class="mountain-buttons">
+                    <a href="/mountain_flowers" class="mountain-flowers-btn">
+                        <i class="fas fa-seedling"></i> Fleurs de nos montagnes
+                    </a>
+                    <a href="/mountain_animals" class="mountain-animals-btn">
+                        <i class="fas fa-paw"></i> Animaux de nos montagnes
+                    </a>
+                </div>
+            </nav>
+
+            <div class="home-hero">
+                <h1>Escapades en altitude</h1>
+                <p>Année 2025</p>
+                <div class="action-buttons">
+                    <a href="/memories" class="memories-btn">
+                        <i class="fas fa-images"></i> Projets en vrac
+                    </a>
+                    <a href="/dreams" class="dreams-btn">
+                        <i class="fas fa-mountain"></i> Souvenirs
+                    </a>
+                </div>
+                {% if dev_mode %}
+                <button class="add-hike-btn" onclick="showAddProjectForm()">
+                    <i class="fas fa-plus"></i> Ajouter un projet
+                </button>
+                {% endif %}
             </div>
         </div>
 
-        <div class="home-hero">
-            <h1>Escapades en altitude</h1>
-            <p>Année 2025</p>
-            <div class="action-buttons">
-                <a href="/memories" class="memories-btn">
-                    <i class="fas fa-images"></i> Projets en vrac
-                </a>
-                <a href="/dreams" class="dreams-btn">
-                    <i class="fas fa-mountain"></i> Souvenirs
-                </a>
-            </div>
-            {% if dev_mode %}
-            <button class="add-hike-btn" onclick="showAddProjectForm()">
-                <i class="fas fa-plus"></i> Ajouter un projet
-            </button>
-            {% endif %}
-        </div>
-
-        <div class="month-grid">
-            {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
-            <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
-                <div class="month-cover" {% if data.cover %}style="background-image: url('{{ data.cover }}')"{% endif %}>
-                    <div class="month-overlay">
-                        <h2 class="month-name">{{ month }}</h2>
-                        <div class="gallery-count">
-                            {{ data.galleries|length }} 
-                            {% if data.is_future %}
-                                projet{% if data.galleries|length > 1 %}s{% endif %}
-                            {% else %}
-                                sortie{% if data.galleries|length > 1 %}s{% endif %}
-                            {% endif %}
+        <div class="gallery-section">
+            <div class="month-grid">
+                {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
+                <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
+                    <div class="month-cover" {% if data.cover %}style="background-image: url('{{ data.cover }}')"{% endif %}>
+                        <div class="month-overlay">
+                            <h2 class="month-name">{{ month }}</h2>
+                            <div class="gallery-count">
+                                {{ data.galleries|length }} 
+                                {% if data.is_future %}
+                                    projet{% if data.galleries|length > 1 %}s{% endif %}
+                                {% else %}
+                                    sortie{% if data.galleries|length > 1 %}s{% endif %}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </a>
-            {% endfor %}
+                </a>
+                {% endfor %}
+            </div>
         </div>
     </div>
 
