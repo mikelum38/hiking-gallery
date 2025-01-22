@@ -145,7 +145,7 @@
                 padding-top: 15vh;
                 position: relative;
                 z-index: 20;
-                margin-bottom: 6rem;
+                margin-bottom: 2rem;
             }
 
             .nav-buttons {
@@ -180,13 +180,16 @@
             .action-buttons {
                 position: relative;
                 z-index: 20;
-                margin: 2rem auto 6rem;
+                margin: 2rem auto;
                 width: 90%;
                 max-width: 300px;
             }
 
             .month-grid {
-                margin-top: 2rem;
+                position: relative;
+                z-index: 5;
+                margin-top: 1rem;
+                padding-bottom: 2rem;
             }
         }
 
@@ -518,7 +521,7 @@
                 <i class="fas fa-images"></i> Projets en vrac
             </a>
             <a href="/dreams" class="dreams-btn">
-                <i class="fas fa-mountain"></i> Rêves d'Altitude
+                <i class="fas fa-mountain"></i> Rêves de montagne
             </a>
         </div>
         {% if dev_mode %}
