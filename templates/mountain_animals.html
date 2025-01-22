@@ -320,6 +320,26 @@
                 height: auto;
                 min-height: 100vh;
                 overflow-y: auto;
+                position: relative;
+            }
+
+            .nav-arrow {
+                position: fixed;
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .nav-arrow.left {
+                left: 10px;
+                bottom: 20px;
+            }
+
+            .nav-arrow.right {
+                right: 10px;
+                bottom: 20px;
             }
 
             .animal-details {
@@ -328,6 +348,7 @@
                 margin-top: 3rem;
                 height: auto;
                 max-height: none;
+                padding-bottom: 80px;
             }
 
             .animal-image {
@@ -349,7 +370,7 @@
                 font-size: 0.9rem;
                 line-height: 1.6;
                 margin-top: 1rem;
-                padding: 0 0.5rem 4rem 0.5rem;
+                padding: 0 0.5rem 1rem 0.5rem;
                 height: auto;
                 max-height: none;
                 overflow-y: visible;
@@ -372,10 +393,6 @@
 
             .container {
                 flex-direction: column;
-            }
-
-            .nav-arrow {
-                display: none;
             }
         }
     </style>
