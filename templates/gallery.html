@@ -511,7 +511,7 @@
                 </div>
             </div>
             <audio id="bgMusic" loop>
-                <source src="{{ url_for('static', filename='audio/Askthemountains.mp3') }}" type="audio/mp3">
+                <source src="{{ url_for('static', filename='audio/Chariots.mp3') if gallery.date.startswith('2025') else url_for('static', filename='audio/Askthemountains.mp3') }}" type="audio/mp3">
             </audio>
         </div>
 
