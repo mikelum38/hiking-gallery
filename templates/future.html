@@ -27,7 +27,8 @@
             align-items: center;
             text-align: center;
             color: white;
-            padding-top: 25vh; /* Déplace le contenu vers le haut */
+            padding: 4rem 2rem;
+            z-index: 2;
         }
 
         .home-hero h1 {
@@ -113,7 +114,7 @@
             align-items: center;
             margin: 1rem 0;
             position: relative;
-            z-index: 10;
+            z-index: 2;
         }
 
         .memories-btn, .dreams-btn {
@@ -136,23 +137,26 @@
         }
 
         .month-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
             position: relative;
-            z-index: 5;
-            padding-top: 1rem;
+            z-index: 1;
         }
 
         @media (max-width: 768px) {
             .home-hero {
                 padding-top: 12vh;
-                position: relative;
-                z-index: 20;
-                margin-bottom: 1rem;
+                padding-bottom: 0;
+                margin-bottom: 0;
             }
 
             .nav-buttons {
                 top: 0.7rem;
                 left: 0.7rem;
                 right: 0.7rem;
+                z-index: 3;
             }
 
             .back-link, .mountain-flowers-btn, .mountain-animals-btn {
@@ -163,6 +167,7 @@
             .home-hero h1 {
                 font-size: 2.8rem;
                 margin-top: 3rem;
+                margin-bottom: 0.5rem;
             }
 
             .home-hero p {
@@ -183,18 +188,20 @@
             }
 
             .action-buttons {
-                position: relative;
-                z-index: 20;
-                margin: 1rem auto;
+                margin: 0.5rem auto 1rem;
                 width: 90%;
                 max-width: 250px;
             }
 
             .month-grid {
-                position: relative;
-                z-index: 5;
-                margin-top: 0.5rem;
-                padding-bottom: 2rem;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+                padding: 1rem;
+                margin-top: 0;
+            }
+
+            .month-card {
+                margin: 0;
             }
         }
 
@@ -536,7 +543,7 @@
         {% endif %}
     </div>
 
-    <div class="months-container">
+    <div class="month-grid">
         <div class="months-scroll">
             {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
             <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
