@@ -1,0 +1,3 @@
+#!/bin/bash
+mkdir -p .vercel/output/static
+cp -r static/* .vercel/output/static/
