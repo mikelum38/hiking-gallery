@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escapades en altitude - Rêves de Montagnes</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <title>Escapades en altitude - 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -57,16 +57,20 @@
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             white-space: nowrap;
+            transition: background-color 0.3s ease;
         }
 
         .back-link:hover, .action-btn:hover {
             background: rgba(0, 0, 0, 0.6);
+            color: white;
+            text-decoration: none;
         }
 
         .hero-content {
             text-align: center;
             padding: 0 1rem;
             margin-top: 6rem;
+            z-index: 1;
         }
 
         .hero-content h1 {
@@ -170,7 +174,8 @@
             }
 
             .hero-content {
-                margin-top: 5rem;
+                margin-top: 7.5rem;
+                padding: 0 0.5rem;
             }
 
             .hero-content h1 {
@@ -183,11 +188,20 @@
 
             .gallery-container {
                 padding: 1rem;
+                bottom: 1rem;
             }
 
             .month-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 1rem;
+            }
+
+            .month-name {
+                font-size: 1.2rem;
+            }
+
+            .gallery-count {
+                font-size: 0.8rem;
             }
         }
     </style>
