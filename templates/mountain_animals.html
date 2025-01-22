@@ -315,40 +315,33 @@
         }
 
         @media (max-width: 768px) {
+            body, html {
+                overflow: auto;
+                height: auto;
+            }
+
+            .container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+
             .main-content {
                 padding: 15px;
                 height: auto;
-                min-height: 100vh;
-                overflow-y: auto;
-                position: relative;
+                overflow: visible;
             }
 
-            .nav-arrow {
-                position: fixed;
-                width: 35px;
-                height: 35px;
-                font-size: 16px;
-                background: rgba(0, 0, 0, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-
-            .nav-arrow.left {
-                left: 10px;
-                bottom: 20px;
-            }
-
-            .nav-arrow.right {
-                right: 10px;
-                bottom: 20px;
+            #animal-display {
+                width: 100%;
+                height: auto;
+                padding-bottom: 60px;
             }
 
             .animal-details {
-                position: relative;
-                padding: 15px;
-                margin-top: 3rem;
+                width: 100%;
                 height: auto;
-                max-height: none;
-                padding-bottom: 80px;
+                margin-top: 3rem;
             }
 
             .animal-image {
@@ -364,16 +357,58 @@
                 gap: 1rem;
                 align-items: center;
                 margin-bottom: 1rem;
+                width: 100%;
             }
 
             .animal-description {
-                font-size: 0.9rem;
-                line-height: 1.6;
-                margin-top: 1rem;
-                padding: 0 0.5rem 1rem 0.5rem;
+                width: 100%;
+                padding: 15px;
+                margin: 10px 0;
+                box-sizing: border-box;
                 height: auto;
                 max-height: none;
-                overflow-y: visible;
+                overflow: visible;
+            }
+
+            .animal-description p {
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin-bottom: 60px;
+            }
+
+            .navigation-arrows {
+                position: fixed;
+                bottom: 20px;
+                left: 0;
+                right: 0;
+                top: auto;
+                transform: none;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                padding: 0 20px;
+                box-sizing: border-box;
+                z-index: 1000;
+            }
+
+            .nav-arrow {
+                position: relative;
+                top: auto;
+                transform: none;
+                left: auto;
+                right: auto;
+                width: 40px;
+                height: 40px;
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .nav-arrow.left {
+                left: 0;
+            }
+
+            .nav-arrow.right {
+                right: 0;
             }
 
             .back-link {
@@ -389,10 +424,6 @@
                 width: 100%;
                 max-height: 30vh;
                 order: 2;
-            }
-
-            .container {
-                flex-direction: column;
             }
         }
     </style>
