@@ -22,7 +22,7 @@
         }
 
         .hero-section {
-            min-height: 100vh;
+            height: 100vh;
             background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
                           url('/static/images/tourpercee.jpg');
             background-size: cover;
@@ -59,6 +59,7 @@
             position: relative;
             z-index: 2;
             padding: 2rem 1rem;
+            min-height: 100vh;
         }
 
         .month-grid {
@@ -106,46 +107,30 @@
 
         @media (max-width: 768px) {
             .hero-section {
-                min-height: 100vh;
+                height: auto;
+                min-height: auto;
+                padding-bottom: 2rem;
                 background-attachment: scroll;
-            }
-
-            .nav-buttons {
-                top: 0.5rem;
-                left: 0.5rem;
-                right: 0.5rem;
-            }
-
-            .back-link, .mountain-flowers-btn, .mountain-animals-btn {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
             }
 
             .home-hero {
                 padding-top: 4rem;
-            }
-
-            .home-hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .home-hero p {
-                font-size: 1.2rem;
-                margin: 0.5rem 0 2rem;
-            }
-
-            .memories-btn, .dreams-btn {
-                padding: 0.6rem;
-                font-size: 0.9rem;
+                padding-bottom: 2rem;
+                min-height: auto;
             }
 
             .gallery-section {
                 padding: 1rem;
+                min-height: auto;
             }
 
             .month-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 1rem;
+            }
+
+            .add-hike-btn {
+                display: none;
             }
         }
     </style>
@@ -178,11 +163,6 @@
                         <i class="fas fa-mountain"></i> Souvenirs
                     </a>
                 </div>
-                {% if dev_mode %}
-                <button class="add-hike-btn" onclick="showAddProjectForm()">
-                    <i class="fas fa-plus"></i> Ajouter un projet
-                </button>
-                {% endif %}
             </div>
         </div>
 
@@ -209,6 +189,7 @@
         </div>
     </div>
 
+    {% if dev_mode %}
     <div id="addProjectModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="hideAddProjectForm()">&times;</span>
@@ -235,7 +216,6 @@
         </div>
     </div>
 
-    {% if dev_mode %}
     <div id="createGalleryForm" class="modal">
         <div class="modal-content">
             <form action="{{ url_for('create_gallery') }}" method="post" enctype="multipart/form-data">
