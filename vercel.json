@@ -8,20 +8,12 @@
     ],
     "routes": [
         {
-            "src": "/revision\\.(ico|png)",
-            "status": 204,
-            "headers": {
-                "content-type": "text/plain"
-            },
-            "continue": false
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
         },
         {
-            "src": "/favicon\\.ico",
-            "status": 204,
-            "headers": {
-                "content-type": "text/plain"
-            },
-            "continue": false
+            "src": "/(.*\\.(ico|png|jpg|jpeg|gif|webp|svg|css|js))",
+            "dest": "/$1"
         },
         {
             "src": "/(.*)",
