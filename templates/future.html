@@ -43,12 +43,13 @@
             left: 1rem;
             z-index: 100;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-link, .action-btn {
             background: rgba(0, 0, 0, 0.4);
-            color: white;
-            text-decoration: none;
+            color: white !important;
+            text-decoration: none !important;
             padding: 0.6rem 1.2rem;
             border-radius: 25px;
             display: inline-flex;
@@ -59,13 +60,16 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             white-space: nowrap;
             transition: all 0.3s ease;
+            touch-action: manipulation;
         }
 
         .back-link:hover, .action-btn:hover {
             background: rgba(0, 0, 0, 0.6);
-            color: white;
-            text-decoration: none;
             transform: translateY(-1px);
+        }
+
+        .back-link:active, .action-btn:active {
+            transform: translateY(0);
         }
 
         .hero-content {
@@ -180,7 +184,7 @@
             }
 
             .hero-content {
-                margin-top: 6.5rem;
+                margin-top: 5.5rem;
                 padding: 0 0.5rem;
             }
 
@@ -194,15 +198,15 @@
 
             .gallery-container {
                 padding: 1rem;
-                bottom: 0;
-                max-height: 60vh;
+                bottom: 0.5rem;
+                max-height: 65vh;
                 overflow-y: auto;
             }
 
             .month-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 0.75rem;
-                padding-bottom: 1rem;
+                padding-bottom: 0.5rem;
             }
 
             .month-card {
