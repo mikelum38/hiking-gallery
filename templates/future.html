@@ -38,6 +38,7 @@
             justify-content: space-between;
             align-items: flex-start;
             z-index: 100;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
         }
 
         .right-buttons {
@@ -140,8 +141,14 @@
         }
 
         @media (max-width: 768px) {
+            .page-container {
+                height: 100%;
+                min-height: 100vh;
+            }
+
             .top-nav {
                 padding: 0.5rem;
+                background: rgba(0, 0, 0, 0.5);
             }
 
             .nav-btn {
@@ -155,7 +162,8 @@
             }
 
             .hero-content {
-                padding: 6rem 0.5rem 0;
+                padding: 4rem 0.5rem 0;
+                margin-bottom: 1rem;
             }
 
             .hero-content h1 {
@@ -168,12 +176,17 @@
 
             .gallery-section {
                 padding: 0.5rem;
+                margin-bottom: 0;
             }
 
             .month-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 0.75rem;
                 padding-bottom: 0.5rem;
+            }
+
+            .month-card {
+                aspect-ratio: 16/10;
             }
         }
     </style>
