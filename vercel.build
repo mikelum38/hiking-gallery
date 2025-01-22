@@ -1,3 +1,14 @@
 #!/bin/bash
-mkdir -p .vercel/output/static
-cp -r static/* .vercel/output/static/
+echo "Creating output directories..."
+mkdir -p .vercel/output/static/images
+mkdir -p .vercel/output/static/css
+mkdir -p .vercel/output/static/js
+mkdir -p .vercel/output/static/audio
+
+echo "Copying static files..."
+cp -r static/images/* .vercel/output/static/images/
+cp -r static/css/* .vercel/output/static/css/
+cp -r static/js/* .vercel/output/static/js/
+cp -r static/audio/* .vercel/output/static/audio/
+
+echo "Static files copied successfully"
