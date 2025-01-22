@@ -12,65 +12,32 @@
             padding: 0;
             font-family: 'Poppins', sans-serif;
             background: #1a1a1a;
-            overflow-x: hidden;
         }
 
-        .page-container {
+        .home-hero {
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .hero-section {
-            height: 100vh;
             background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
                           url('/static/images/tourpercee.jpg');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
             position: relative;
         }
 
         .nav-buttons {
             position: fixed;
             top: 1rem;
-            left: 1rem;
             right: 1rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
             gap: 0.5rem;
             z-index: 100;
         }
 
-        .home-hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-            padding: 1rem;
-        }
-
-        .gallery-section {
-            background: #1a1a1a;
-            position: relative;
-            z-index: 2;
-            padding: 2rem 1rem;
-            min-height: 100vh;
-        }
-
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .back-link, .mountain-flowers-btn, .mountain-animals-btn {
+        .action-btn {
             background: rgba(0, 0, 0, 0.4);
             color: white;
             text-decoration: none;
@@ -82,91 +49,144 @@
             font-size: 0.9rem;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
         }
 
-        .mountain-buttons {
-            display: flex;
-            gap: 0.5rem;
+        .action-btn:hover {
+            background: rgba(0, 0, 0, 0.6);
         }
 
-        .memories-btn, .dreams-btn {
-            background: rgba(0, 0, 0, 0.4);
-            color: white;
+        .hero-content {
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .gallery-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+            padding: 2rem;
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .month-card {
+            aspect-ratio: 16/9;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
             text-decoration: none;
-            padding: 0.8rem;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-            font-size: 1rem;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .month-cover {
             width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .month-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1rem;
+        }
+
+        .month-name {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .gallery-count {
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
 
         @media (max-width: 768px) {
-            .hero-section {
-                height: auto;
-                min-height: auto;
-                padding-bottom: 2rem;
-                background-attachment: scroll;
+            .nav-buttons {
+                top: 0.5rem;
+                right: 0.5rem;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                max-width: calc(100% - 1rem);
             }
 
-            .home-hero {
-                padding-top: 4rem;
-                padding-bottom: 2rem;
-                min-height: auto;
+            .action-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
             }
 
-            .gallery-section {
+            .hero-content h1 {
+                font-size: 2.5rem;
+                margin-top: 4rem;
+            }
+
+            .hero-content p {
+                font-size: 1.2rem;
+            }
+
+            .gallery-container {
                 padding: 1rem;
-                min-height: auto;
             }
 
             .month-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 1rem;
             }
-
-            .add-hike-btn {
-                display: none;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="page-container">
-        <div class="hero-section">
-            <nav class="nav-buttons">
-                <a href="/years" class="back-link">
-                    <i class="fas fa-arrow-left"></i> Retour aux années
-                </a>
-                <div class="mountain-buttons">
-                    <a href="/mountain_flowers" class="mountain-flowers-btn">
-                        <i class="fas fa-seedling"></i> Fleurs de nos montagnes
-                    </a>
-                    <a href="/mountain_animals" class="mountain-animals-btn">
-                        <i class="fas fa-paw"></i> Animaux de nos montagnes
-                    </a>
-                </div>
-            </nav>
+    <div class="home-hero">
+        <nav class="nav-buttons">
+            <a href="/mountain_flowers" class="action-btn">
+                <i class="fas fa-seedling"></i> Fleurs de nos montagnes
+            </a>
+            <a href="/mountain_animals" class="action-btn">
+                <i class="fas fa-paw"></i> Animaux de nos montagnes
+            </a>
+            <a href="/memories" class="action-btn">
+                <i class="fas fa-images"></i> Projets en vrac
+            </a>
+            <a href="/dreams" class="action-btn">
+                <i class="fas fa-mountain"></i> Souvenirs
+            </a>
+        </nav>
 
-            <div class="home-hero">
-                <h1>Escapades en altitude</h1>
-                <p>Année 2025</p>
-                <div class="action-buttons">
-                    <a href="/memories" class="memories-btn">
-                        <i class="fas fa-images"></i> Projets en vrac
-                    </a>
-                    <a href="/dreams" class="dreams-btn">
-                        <i class="fas fa-mountain"></i> Souvenirs
-                    </a>
-                </div>
-            </div>
+        <div class="hero-content">
+            <h1>Escapades en altitude</h1>
+            <p>Année 2025</p>
         </div>
 
-        <div class="gallery-section">
+        <div class="gallery-container">
             <div class="month-grid">
                 {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
                 <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
