@@ -391,13 +391,7 @@
 </head>
 <body>
     <div class="gallery-page">
-        <a href="{% if gallery.date.startswith('2025') %}{{ url_for('future') }}
-                {% elif gallery.date.startswith('2023') %}{{ url_for('bestof') }}
-                {% elif gallery.date.startswith('2022') %}{{ url_for('year_2022') }}
-                {% elif gallery.date.startswith('2021') %}{{ url_for('year_2021') }}
-                {% elif gallery.date.startswith('2020') %}{{ url_for('year_2020') }}
-                {% else %}{{ url_for('index') }}{% endif %}" 
-           class="back-link">
+        <a href="{{ url_for(return_page) }}" class="back-link">
             <i class="fas fa-arrow-left"></i>
             Retour aux galeries
         </a>

@@ -151,7 +151,23 @@ def gallery(gallery_id):
     
     # Déterminer la page de retour en fonction de l'année
     date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-    return_page = 'future' if date.year == 2025 else 'index'
+    year = date.year
+    if year == 2025:
+        return_page = 'future'
+    elif year == 2017:
+        return_page = 'year2017'
+    elif year == 2018:
+        return_page = 'year2018'
+    elif year == 2019:
+        return_page = 'year2019'
+    elif year == 2020:
+        return_page = 'year_2020'
+    elif year == 2021:
+        return_page = 'year_2021'
+    elif year == 2022:
+        return_page = 'year_2022'
+    else:
+        return_page = 'index'
     
     # Ajouter l'ID à l'objet gallery
     gallery['id'] = gallery_id
@@ -373,7 +389,6 @@ def future():
                 }
             
             gallery['id'] = gallery_id
-            gallery['is_future'] = date > today  # Ajouter l'indicateur à chaque galerie
             galleries_by_month[month_key]['galleries'].append(gallery)
             
             if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
