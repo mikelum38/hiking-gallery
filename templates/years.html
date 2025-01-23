@@ -6,6 +6,7 @@
     <title>Les années</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -43,6 +44,64 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+        }
+
+        /* Style pour le titre principal */
+        .main-title {
+            position: relative;
+            color: white;
+            font-size: 3.5rem;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            font-family: 'Playfair Display', serif;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
+            z-index: 2;
+        }
+
+        .main-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.8), 
+                transparent
+            );
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+                letter-spacing: 2px;
+            }
         }
 
         .wheel-container {
@@ -292,6 +351,8 @@
         <a href="/" class="back-link">
             <i class="fas fa-arrow-left"></i> Retour
         </a>
+
+        <h1 class="main-title">La roue du temps</h1>
 
         <div class="wheel-container">
             <div class="wheel" id="wheel">
