@@ -208,14 +208,10 @@
         }
 
         @media (max-width: 768px) {
-            body {
-                padding-top: 15vh;
-            }
-            
             .wheel-container {
                 width: 600px;
                 height: 500px;
-                transform: scale(0.9);
+                transform: scale(0.8);
                 margin-top: -30px;
             }
 
@@ -228,20 +224,65 @@
             .year-card h2 {
                 font-size: 1.5rem;
             }
+
+            .controls {
+                bottom: 4rem;
+            }
         }
 
         @media (max-width: 480px) {
             body {
-                padding-top: 20vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
             }
-            
+
             .wheel-container {
-                transform: scale(0.7);
-                margin-top: -20px;
+                transform: scale(0.45);
+                margin-top: 0;
             }
 
             .controls {
-                bottom: 5vh;
+                position: relative;
+                bottom: auto;
+                margin-top: 1rem;
+                gap: 3rem;
+            }
+
+            .control-btn {
+                padding: 1rem;
+                font-size: 1.2rem;
+            }
+
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .year-card h2 {
+                font-size: 1.8rem;
+            }
+
+            .year-card p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .wheel-container {
+                transform: scale(0.4);
+            }
+
+            .controls {
+                gap: 2rem;
+            }
+
+            .control-btn {
+                padding: 0.8rem;
             }
         }
     </style>
