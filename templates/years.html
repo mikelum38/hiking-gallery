@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            background: url('/static/images/background-mountain.jpg') no-repeat center center fixed;
+            background: url('/static/images/granier.jpg') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -29,17 +29,18 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
             z-index: 0;
         }
 
         .wheel-container {
-            width: 700px;
-            height: 600px;
+            width: 900px;
+            height: 800px;
             position: relative;
             transform-style: preserve-3d;
             animation: initialRotation 1s ease-out forwards;
             z-index: 1;
+            margin-top: -50px; /* Léger ajustement pour compenser la hauteur des contrôles */
         }
 
         .wheel {
@@ -47,53 +48,93 @@
             height: 100%;
             position: absolute;
             transform-style: preserve-3d;
-            transition: transform 0.5s ease-out;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .year-block {
+        .year-link {
             position: absolute;
-            width: 220px;
+            width: 280px;
             height: 180px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(450px);
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .year-card {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transform-origin: center;
+            transition: all 0.3s ease;
             cursor: pointer;
-            transform-style: preserve-3d;
-            padding: 1.5rem;
-            text-align: center;
-            transition: background-color 0.3s ease;
+            overflow: hidden;
         }
 
-        /* Couleurs des blocs */
-        .year-block:nth-child(1) { background-color: rgba(255, 107, 107, 0.2); }
-        .year-block:nth-child(2) { background-color: rgba(78, 205, 196, 0.2); }
-        .year-block:nth-child(3) { background-color: rgba(69, 183, 175, 0.2); }
-        .year-block:nth-child(4) { background-color: rgba(168, 230, 207, 0.2); }
-        .year-block:nth-child(5) { background-color: rgba(255, 217, 61, 0.2); }
-        .year-block:nth-child(6) { background-color: rgba(108, 92, 231, 0.2); }
-        .year-block:nth-child(7) { background-color: rgba(255, 107, 107, 0.2); }
-        .year-block:nth-child(8) { background-color: rgba(78, 205, 196, 0.2); }
+        /* Couleurs spécifiques pour chaque année */
+        .year-link:nth-child(1) .year-card { background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.4)); }
+        .year-link:nth-child(2) .year-card { background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(78, 205, 196, 0.4)); }
+        .year-link:nth-child(3) .year-card { background: linear-gradient(135deg, rgba(69, 183, 175, 0.2), rgba(69, 183, 175, 0.4)); }
+        .year-link:nth-child(4) .year-card { background: linear-gradient(135deg, rgba(168, 230, 207, 0.2), rgba(168, 230, 207, 0.4)); }
+        .year-link:nth-child(5) .year-card { background: linear-gradient(135deg, rgba(255, 217, 61, 0.2), rgba(255, 217, 61, 0.4)); }
+        .year-link:nth-child(6) .year-card { background: linear-gradient(135deg, rgba(108, 92, 231, 0.2), rgba(108, 92, 231, 0.4)); }
+        .year-link:nth-child(7) .year-card { background: linear-gradient(135deg, rgba(95, 39, 205, 0.2), rgba(95, 39, 205, 0.4)); }
+        .year-link:nth-child(8) .year-card { background: linear-gradient(135deg, rgba(200, 55, 171, 0.2), rgba(200, 55, 171, 0.4)); }
 
-        .year-block:hover {
-            background-color: rgba(255, 255, 255, 0.3);
+        .year-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
-        .year-block h2 {
-            font-size: 2rem;
-            margin: 0 0 0.5rem 0;
+        .year-card h2 {
+            font-size: 2.2rem;
             color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 0 0 10px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: 1px;
         }
 
-        .year-block p {
-            font-size: 0.9rem;
-            margin: 0;
+        .year-card p {
+            font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.9);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin: 0;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Effet de brillance au survol */
+        .year-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .year-card:hover::before {
+            left: 100%;
         }
 
         .controls {
@@ -102,7 +143,7 @@
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 1.5rem;
+            gap: 2rem;
             z-index: 10;
         }
 
@@ -135,50 +176,72 @@
             z-index: 10;
         }
 
+        @keyframes initialRotation {
+            from {
+                transform: rotateY(180deg);
+            }
+            to {
+                transform: rotateY(0);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                padding-top: 6vh;
+            }
+            
+            .wheel-container {
+                width: 800px;
+                height: 700px;
+                margin-top: -40px;
+            }
+
+            .year-link {
+                width: 240px;
+                height: 160px;
+                transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(400px);
+            }
+
+            .year-card h2 {
+                font-size: 1.8rem;
+            }
+        }
+
         @media (max-width: 768px) {
             body {
-                overflow-x: hidden;
+                padding-top: 15vh;
             }
-
+            
             .wheel-container {
-                transform: scale(0.7);
-                transform-origin: center center;
+                width: 600px;
+                height: 500px;
+                transform: scale(0.9);
+                margin-top: -30px;
             }
 
-            .controls {
-                bottom: 5rem;
+            .year-link {
+                width: 200px;
+                height: 140px;
+                transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(300px);
+            }
+
+            .year-card h2 {
+                font-size: 1.5rem;
             }
         }
 
         @media (max-width: 480px) {
+            body {
+                padding-top: 20vh;
+            }
+            
             .wheel-container {
-                transform: scale(0.45);
-                transform-origin: center center;
+                transform: scale(0.7);
+                margin-top: -20px;
             }
 
             .controls {
-                bottom: 4rem;
-                gap: 1rem;
-            }
-
-            .control-btn {
-                padding: 0.7rem;
-            }
-
-            .back-link {
-                font-size: 12px;
-                padding: 6px 12px;
-                top: 10px;
-                left: 10px;
-            }
-        }
-
-        @keyframes initialRotation {
-            from {
-                transform: rotateX(-20deg) rotateY(0deg);
-            }
-            to {
-                transform: rotateX(-20deg) rotateY(360deg);
+                bottom: 5vh;
             }
         }
     </style>
@@ -195,10 +258,10 @@
     </div>
 
     <div class="controls">
-        <button class="control-btn" onclick="rotateWheel('prev')">
+        <button class="control-btn" onclick="rotateWheel(-1)">
             <i class="fas fa-chevron-left"></i>
         </button>
-        <button class="control-btn" onclick="rotateWheel('next')">
+        <button class="control-btn" onclick="rotateWheel(1)">
             <i class="fas fa-chevron-right"></i>
         </button>
     </div>
@@ -224,18 +287,20 @@
         // Créer les blocs d'années
         years.forEach((yearData, index) => {
             const block = document.createElement('div');
-            block.className = 'year-block';
+            block.className = 'year-link';
+            block.style.setProperty('--i', index);
             block.innerHTML = `
-                <h2>${yearData.year}</h2>
-                <p>${yearData.desc}</p>
+                <div class="year-card">
+                    <h2>${yearData.year}</h2>
+                    <p>${yearData.desc}</p>
+                </div>
             `;
             
             // Positionner chaque bloc en 3D
             const angle = anglePerItem * index;
-            const radius = 350;
+            const radius = 450;
             block.style.transform = `
-                rotateY(${angle}deg) 
-                translateZ(${radius}px)
+                translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px)
             `;
             
             block.addEventListener('click', () => {
@@ -245,31 +310,45 @@
             wheel.appendChild(block);
         });
 
+        let isRotating = false;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
         function rotateWheel(direction) {
-            currentRotation += direction === 'next' ? -anglePerItem : anglePerItem;
+            if (isRotating) return;
+            isRotating = true;
+            
+            currentRotation += direction * 45;
             wheel.style.transform = `rotateY(${currentRotation}deg)`;
+            
+            setTimeout(() => {
+                isRotating = false;
+            }, 800); // Synchronisé avec la durée de transition CSS
         }
 
-        // Améliorer la gestion des événements
-        let isRotating = false;
         document.addEventListener('wheel', (e) => {
             if (!isRotating) {
-                e.preventDefault();
-                isRotating = true;
-                rotateWheel(e.deltaY > 0 ? 'next' : 'prev');
-                setTimeout(() => { isRotating = false; }, 500);
+                const direction = e.deltaY > 0 ? 1 : -1;
+                rotateWheel(direction);
             }
+            e.preventDefault();
         }, { passive: false });
 
-        document.addEventListener('keydown', (e) => {
-            if (!isRotating) {
-                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                    isRotating = true;
-                    rotateWheel(e.key === 'ArrowLeft' ? 'prev' : 'next');
-                    setTimeout(() => { isRotating = false; }, 500);
-                }
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isRotating) return;
+            touchEndX = e.touches[0].clientX;
+            const diffX = touchEndX - touchStartX;
+            
+            if (Math.abs(diffX) > 50) {
+                const direction = diffX > 0 ? -1 : 1;
+                rotateWheel(direction);
+                touchStartX = touchEndX;
             }
-        });
+        }, { passive: true });
     </script>
 </body>
 </html>
