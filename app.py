@@ -154,6 +154,8 @@ def gallery(gallery_id):
     year = date.year
     if year == 2025:
         return_page = 'future'
+    elif year == 2016:
+        return_page = 'year2016'
     elif year == 2017:
         return_page = 'year2017'
     elif year == 2018:
@@ -1268,6 +1270,55 @@ def delete_animal(animal_id):
     except Exception as e:
         app.logger.error(f"Error deleting animal: {str(e)}")
         return jsonify({'error': 'Failed to delete animal'}), 500
+
+@app.route('/year2016')
+def year2016():
+    galleries = load_gallery_data()
+    galleries_by_month = {}
+    background_image = None
+    
+    # Dictionnaire de traduction des mois
+    month_translations = {
+        'January': 'Janvier',
+        'February': 'Février',
+        'March': 'Mars',
+        'April': 'Avril',
+        'May': 'Mai',
+        'June': 'Juin',
+        'July': 'Juillet',
+        'August': 'Août',
+        'September': 'Septembre',
+        'October': 'Octobre',
+        'November': 'Novembre',
+        'December': 'Décembre'
+    }
+    
+    for gallery_id, gallery in galleries.items():
+        date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        if date.year == 2016:
+            month_name = date.strftime('%B')  # Nom du mois en anglais
+            french_month = month_translations[month_name]  # Traduction en français
+            if french_month not in galleries_by_month:
+                galleries_by_month[french_month] = {
+                    'year': date.year,
+                    'month': date.month,
+                    'cover': None
+                }
+            if gallery.get('cover_image'):
+                if not galleries_by_month[french_month]['cover']:
+                    galleries_by_month[french_month]['cover'] = gallery['cover_image']
+                if not background_image:
+                    background_image = gallery['cover_image']
+
+    # Traduire les noms des mois en français
+    french_months = {}
+    for month in galleries_by_month:
+        french_months[month] = galleries_by_month[month]
+
+    return render_template('year2016.html', 
+                         galleries_by_month=french_months,
+                         background_image=background_image,
+                         dev_mode=app.config['DEV_MODE'])
 
 if __name__ == '__main__':
     app.run(debug=True)
