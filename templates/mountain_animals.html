@@ -323,10 +323,8 @@
             .container {
                 flex-direction: column;
                 height: 100vh;
-            }
-
-            .sidebar {
-                display: none;
+                width: 100vw;
+                overflow: hidden;
             }
 
             .main-content {
@@ -334,6 +332,8 @@
                 padding: 0;
                 justify-content: center;
                 position: relative;
+                width: 100vw;
+                overflow: hidden;
             }
 
             #animal-display {
@@ -342,10 +342,12 @@
                 flex-direction: column;
                 justify-content: center;
                 padding: 0;
+                position: relative;
+                width: 100%;
             }
 
             .animal-image {
-                height: calc(100vh - 200px);
+                max-height: calc(100vh - 220px);
                 width: 100%;
                 object-fit: contain;
                 margin: 0;
@@ -361,6 +363,22 @@
                 padding: 10px;
                 background: rgba(0, 0, 0, 0.5);
                 border-radius: 10px;
+                z-index: 2;
+            }
+
+            .animal-description {
+                position: absolute;
+                bottom: 80px;
+                left: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.5);
+                padding: 15px;
+                border-radius: 10px;
+                max-height: 30vh;
+                overflow-y: auto;
+                margin: 0;
+                font-size: 0.9rem;
+                z-index: 2;
             }
 
             .navigation-buttons {
@@ -373,15 +391,22 @@
                 gap: 20px;
                 padding: 10px;
                 background: rgba(0, 0, 0, 0.5);
+                z-index: 2;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .nav-button {
                 padding: 10px 20px;
                 font-size: 1.2em;
+                white-space: nowrap;
             }
 
             .back-link {
                 z-index: 1000;
+                position: fixed;
+                top: 20px;
+                right: 20px;
             }
         }
     </style>
