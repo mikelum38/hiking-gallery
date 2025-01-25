@@ -315,17 +315,23 @@
         }
 
         @media (max-width: 768px) {
-            body, html {
+            body {
                 overflow-x: hidden;
                 width: 100%;
+                margin: 0;
+                padding: 0;
+                position: relative;
             }
 
             .container {
                 width: 100%;
-                padding: 20px;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
                 position: relative;
                 overflow: hidden;
                 display: block;
+                box-sizing: border-box;
             }
 
             .sidebar {
@@ -339,20 +345,34 @@
                 width: 100%;
                 margin: 0;
                 padding: 0;
+                overflow: hidden;
             }
 
             #animal-display {
                 width: 100%;
                 position: relative;
-                padding: 0 0 60px 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
 
             .main-image {
-                width: 100%;
+                width: auto;
+                max-width: 100%;
                 height: auto;
                 max-height: 60vh;
                 object-fit: contain;
                 display: block;
+                margin: 0 auto;
+            }
+
+            .animal-description {
+                width: 100%;
+                max-width: 100%;
+                padding: 15px;
+                margin: 20px 0;
+                box-sizing: border-box;
             }
 
             .next-link {
@@ -374,6 +394,13 @@
 
             .next-link i {
                 font-size: 20px;
+            }
+
+            .back-link {
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1000;
             }
         }
     </style>
