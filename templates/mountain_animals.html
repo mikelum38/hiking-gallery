@@ -315,25 +315,28 @@
         }
 
         @media (max-width: 768px) {
-            body {
+            body, html {
+                overflow-y: auto;
+                height: auto;
+                width: 100%;
                 overflow-x: hidden;
-                min-height: 100vh;
-                background: #1a2a3a;
             }
 
             .container {
-                width: 100%;
-                min-height: 100vh;
-                padding: 60px 15px;
-                display: flex;
                 flex-direction: column;
+                height: auto;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .sidebar {
+                display: none;
             }
 
             .main-content {
-                flex: 1;
                 width: 100%;
-                display: flex;
-                flex-direction: column;
+                height: auto;
+                padding: 20px 0;
             }
 
             #animal-display {
@@ -341,33 +344,23 @@
                 height: auto;
                 display: flex;
                 flex-direction: column;
-                gap: 20px;
+                align-items: center;
                 padding-bottom: 60px;
             }
 
-            .animal-image {
-                width: 100%;
-                height: auto;
-                max-height: 50vh;
+            .main-image {
+                width: auto;
+                max-width: 100%;
+                max-height: 60vh;
                 object-fit: contain;
-                border-radius: 15px;
-            }
-
-            .animal-title {
-                font-size: 24px;
-                color: white;
-                margin: 0;
-                padding: 15px;
-                background: rgba(0, 0, 0, 0.3);
-                border-radius: 10px;
+                margin: 0 auto 20px;
+                display: block;
             }
 
             .animal-description {
-                font-size: 16px;
-                line-height: 1.5;
-                color: white;
-                margin: 0;
+                width: 100%;
                 padding: 15px;
+                margin: 0;
                 background: rgba(0, 0, 0, 0.3);
                 border-radius: 10px;
             }
@@ -388,7 +381,7 @@
                 position: fixed;
                 top: 50%;
                 transform: translateY(-50%);
-                right: 5px;
+                right: 15px;
                 z-index: 1000;
                 background: rgba(0, 0, 0, 0.5);
                 width: 40px;
@@ -399,14 +392,7 @@
                 border-radius: 50%;
                 color: white;
                 text-decoration: none;
-            }
-
-            .next-link i {
                 font-size: 24px;
-            }
-
-            .sidebar {
-                display: none;
             }
         }
     </style>
@@ -530,6 +516,11 @@
                     </div>
                     {% endif %}
                 </div>
+                {% if not loop.last %}
+                <a href="#" onclick="showNextAnimal(); return false;" class="next-link">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
             `;
 
             const navigationArrows = display.querySelector('.navigation-arrows');
