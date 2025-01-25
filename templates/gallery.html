@@ -391,6 +391,13 @@
 </head>
 <body>
     <div class="gallery-page">
+        <audio id="slideshowAudio" loop>
+            {% if gallery.date == "2025-01-22" %}
+                <source src="{{ url_for('static', filename='audio/Chariots.mp3') }}" type="audio/mp3">
+            {% else %}
+                <source src="{{ url_for('static', filename='audio/Askthemountains.mp3') }}" type="audio/mp3">
+            {% endif %}
+        </audio>
         <a href="{{ url_for(return_page) }}" class="back-link">
             <i class="fas fa-arrow-left"></i>
             Retour aux galeries
@@ -504,9 +511,6 @@
                     <span id="current-index">1</span> / <span id="total-photos">0</span>
                 </div>
             </div>
-            <audio id="bgMusic" loop>
-                <source src="{{ url_for('static', filename='audio/Chariots.mp3') if gallery.date.startswith('2025') else url_for('static', filename='audio/Askthemountains.mp3') }}" type="audio/mp3">
-            </audio>
         </div>
 
         <script>
@@ -519,7 +523,7 @@
                 const totalPhotos = images.length;
                 let slideshowInterval = null;
                 let isMusicPlaying = false;
-                const bgMusic = document.getElementById('bgMusic');
+                const bgMusic = document.getElementById('slideshowAudio');
 
                 // Mettre à jour le compteur
                 function updateCounter() {

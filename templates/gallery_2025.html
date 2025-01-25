@@ -171,6 +171,13 @@
 </head>
 <body>
     <div class="gallery-page">
+        <audio id="slideshowAudio" loop>
+            {% if gallery.date == "2025-01-22" %}
+                <source src="{{ url_for('static', filename='audio/Chariots.mp3') }}" type="audio/mp3">
+            {% else %}
+                <source src="{{ url_for('static', filename='audio/Askthemountains.mp3') }}" type="audio/mp3">
+            {% endif %}
+        </audio>
         <a href="{{ url_for('future') }}" class="back-link">
             <i class="fas fa-arrow-left"></i> Retour aux galeries
         </a>
@@ -224,19 +231,31 @@
 
         function startSlideshow() {
             isSlideshow = true;
-            closeButton.classList.add('slideshow-active');
-            slideshowButton.innerHTML = '⏸';
-            slideshowButton.title = 'Arrêter le diaporama';
+            slideshowButton.innerHTML = '<i class="fas fa-pause"></i>';
+            const audio = document.getElementById('slideshowAudio');
+            audio.play();
             slideshowInterval = setInterval(() => {
-                document.querySelector('.lightbox-next').click();
+                currentIndex = (currentIndex + 1) % photos.length;
+                const src = photos[currentIndex].dataset.src;
+                document.querySelector('.spinner').style.display = 'block';
+                lightboxImage.style.opacity = '0';
+                
+                try {
+                    loadImage(src);
+                    lightboxImage.src = src;
+                    lightboxImage.style.opacity = '1';
+                } finally {
+                    document.querySelector('.spinner').style.display = 'none';
+                }
             }, 3000);
         }
 
         function stopSlideshow() {
             isSlideshow = false;
-            closeButton.classList.remove('slideshow-active');
-            slideshowButton.innerHTML = '▶';
-            slideshowButton.title = 'Démarrer le diaporama';
+            slideshowButton.innerHTML = '<i class="fas fa-play"></i>';
+            const audio = document.getElementById('slideshowAudio');
+            audio.pause();
+            audio.currentTime = 0;
             clearInterval(slideshowInterval);
         }
 
