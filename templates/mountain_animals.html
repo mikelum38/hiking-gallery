@@ -7,107 +7,448 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            min-height: 100vh;
-            width: 100vw;
-            overflow-x: hidden;
-            background: #1a2a3a;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            overflow: hidden;
+            color: #ecf0f1;
         }
 
         .container {
-            width: 100%;
-            min-height: 100vh;
-            padding: 60px 20px 20px 20px;
-            box-sizing: border-box;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100vh;
+            background: rgba(44, 62, 80, 0.9);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar {
-            display: none;
+            width: 300px;
+            background: rgba(44, 62, 80, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+            scroll-behavior: smooth;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
         }
 
         .main-content {
-            width: 100%;
-            max-width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        #animal-display {
-            width: 100%;
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            position: relative;
+            background: linear-gradient(to bottom right, rgba(44, 62, 80, 0.95), rgba(52, 152, 219, 0.8));
         }
 
-        .animal-image {
+        .main-content::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .animal-thumbnail {
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            border-radius: 12px;
+            padding: 0;
+            position: relative;
+        }
+
+        .animal-thumbnail img {
             width: 100%;
-            height: auto;
-            max-height: 50vh;
-            object-fit: contain;
-            border-radius: 15px;
-            margin: 0;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
-        .animal-title {
-            font-size: 24px;
-            color: white;
-            margin: 0;
-            text-align: center;
+        .animal-thumbnail.active {
+            transform: translateX(5px);
+        }
+
+        .animal-thumbnail.active img {
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.7);
+        }
+
+        .animal-thumbnail:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .animal-thumbnail:hover {
+            transform: translateY(-5px);
+        }
+
+        #animal-display {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation-arrows {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 200px);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(44, 62, 80, 0.8);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ecf0f1;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
+            z-index: 1000;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(52, 152, 219, 0.8);
+        }
+
+        .nav-arrow.left {
+            left: -60px;
+        }
+
+        .nav-arrow.right {
+            right: -60px;
+        }
+
+        .main-image {
+            max-width: 95%;
+            max-height: 75vh;
+            object-fit: contain;
+            margin: 0 auto 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: block;
         }
 
         .animal-description {
-            width: 100%;
-            margin: 0;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
+            width: 90%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .animal-description h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #ecf0f1;
+        }
+
+        .animal-description p {
+            font-size: 15px;
             line-height: 1.5;
-            box-sizing: border-box;
+            color: #ecf0f1;
         }
 
         .back-link {
             position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 8px 15px;
-            border-radius: 20px;
-            color: white;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(44, 62, 80, 0.8);
+            color: #ecf0f1;
             text-decoration: none;
-            font-size: 16px;
+            border-radius: 25px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
 
-        .next-link {
+        .back-link:hover {
+            background: rgba(52, 152, 219, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
             position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            right: 5px;
-            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            width: 35px;
-            height: 35px;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            background: rgba(236, 240, 241, 0.1);
+            color: #ecf0f1;
+            border: 1px solid rgba(236, 240, 241, 0.2);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            background: rgba(236, 240, 241, 0.15);
+            border-color: #3498db;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button.primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .button.secondary {
+            background: #2c3e50;
+            color: white;
+            border: 1px solid #3498db;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .button.primary:hover {
+            background: #2980b9;
+        }
+
+        .button.secondary:hover {
+            background: #34495e;
+        }
+
+        .add-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #3498db;
+            color: white;
+            border: none;
             border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 100;
         }
 
-        .next-link i {
-            font-size: 20px;
+        .add-button:hover {
+            background: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .container {
+                overflow-x: hidden;
+                width: 100%;
+            }
+
+            .next-link {
+                position: fixed;
+                top: 50%;
+                transform: translateY(-50%);
+                right: 5px;
+                z-index: 1000;
+                background: rgba(0, 0, 0, 0.5);
+                width: 35px;
+                height: 35px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                color: white;
+            }
+
+            .next-link i {
+                font-size: 20px;
+            }
+
+            .container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .main-content {
+                padding: 15px;
+                height: auto;
+                overflow: visible;
+            }
+
+            #animal-display {
+                width: 100%;
+                height: auto;
+                padding-bottom: 60px;
+            }
+
+            .animal-details {
+                width: 100%;
+                height: auto;
+                margin-top: 3rem;
+            }
+
+            .animal-image {
+                max-height: 35vh;
+                width: auto;
+                margin: 0.5rem auto;
+                display: block;
+            }
+
+            .animal-images {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+                margin-bottom: 1rem;
+                width: 100%;
+            }
+
+            .animal-description {
+                width: 100%;
+                padding: 15px;
+                margin: 10px 0;
+                box-sizing: border-box;
+                height: auto;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .animal-description p {
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin-bottom: 60px;
+            }
+
+            .navigation-arrows {
+                position: fixed;
+                bottom: 20px;
+                left: 0;
+                right: 0;
+                top: auto;
+                transform: none;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                padding: 0 20px;
+                box-sizing: border-box;
+                z-index: 1000;
+            }
+
+            .nav-arrow {
+                position: relative;
+                top: auto;
+                transform: none;
+                left: auto;
+                right: auto;
+                width: 40px;
+                height: 40px;
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .nav-arrow.left {
+                left: 0;
+            }
+
+            .nav-arrow.right {
+                right: 0;
+            }
+
+            .back-link {
+                padding: 0.4rem 1rem;
+                font-size: 0.85rem;
+                top: 0.7rem;
+                right: 0.7rem;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 20px;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 30vh;
+                order: 2;
+            }
         }
     </style>
 </head>
@@ -118,8 +459,20 @@
     </a>
 
     <div class="container">
+        <div class="sidebar" id="thumbnails-container">
+            <!-- Les miniatures des animaux seront ajoutées ici dynamiquement -->
+        </div>
+
         <div class="main-content">
             <div id="animal-display">
+                <div class="navigation-arrows">
+                    <button class="nav-arrow left" onclick="showPreviousAnimal()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-arrow right" onclick="showNextAnimal()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -203,9 +556,9 @@
             currentAnimalId = animal.id;
 
             const content = `
-                <img src="${animal.image_url}" alt="${animal.name}" class="animal-image">
+                <img src="${animal.image_url}" alt="${animal.name}" class="main-image">
                 <div class="animal-description">
-                    <h2 class="animal-title">${animal.name}</h2>
+                    <h2>${animal.name}</h2>
                     <p>${animal.description}</p>
                     {% if dev_mode %}
                     <div class="button-group">
@@ -220,9 +573,39 @@
                 </div>
             `;
 
+            const navigationArrows = display.querySelector('.navigation-arrows');
             display.innerHTML = content;
+            display.appendChild(navigationArrows);
 
             highlightThumbnail(animal.id);
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            const animals = {{ animals|tojson|safe }};
+            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+            
+            const leftArrow = document.querySelector('.nav-arrow.left');
+            const rightArrow = document.querySelector('.nav-arrow.right');
+            
+            if (leftArrow) leftArrow.style.display = currentIndex > 0 ? 'flex' : 'none';
+            if (rightArrow) rightArrow.style.display = currentIndex < animals.length - 1 ? 'flex' : 'none';
+        }
+
+        function showNextAnimal() {
+            const animals = {{ animals|tojson|safe }};
+            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+            if (currentIndex < animals.length - 1) {
+                showAnimal(animals[currentIndex + 1]);
+            }
+        }
+
+        function showPreviousAnimal() {
+            const animals = {{ animals|tojson|safe }};
+            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+            if (currentIndex > 0) {
+                showAnimal(animals[currentIndex - 1]);
+            }
         }
 
         function showAddAnimalForm() {
@@ -349,6 +732,15 @@
                 hideEditAnimalForm();
             }
         };
+
+        // Ajouter la navigation au clavier
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') {
+                showNextAnimal();
+            } else if (e.key === 'ArrowLeft') {
+                showPreviousAnimal();
+            }
+        });
     </script>
 </body>
 </html>
