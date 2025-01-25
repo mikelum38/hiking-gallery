@@ -168,6 +168,8 @@ def gallery(gallery_id):
         return_page = 'year_2021'
     elif year == 2022:
         return_page = 'year_2022'
+    elif year == 2023:
+        return_page = 'bestof'
     else:
         return_page = 'index'
     
