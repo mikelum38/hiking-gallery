@@ -393,11 +393,10 @@
                 font-size: 24px;
             }
 
-            .next-link {
+            .next-link, .prev-link {
                 position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
-                right: 10px;
                 z-index: 1000;
                 background: rgba(0, 0, 0, 0.5);
                 width: 40px;
@@ -410,7 +409,15 @@
                 text-decoration: none;
             }
 
-            .next-link i {
+            .next-link {
+                right: 10px;
+            }
+
+            .prev-link {
+                left: 10px;
+            }
+
+            .next-link i, .prev-link i {
                 font-size: 20px;
             }
 
@@ -540,6 +547,7 @@
             const animals = {{ animals|tojson|safe }};
             const currentIndex = animals.findIndex(a => a.id === animal.id);
             const isLastAnimal = currentIndex === animals.length - 1;
+            const isFirstAnimal = currentIndex === 0;
 
             const content = `
                 <img src="${animal.image_url}" alt="${animal.name}" class="main-image">
@@ -557,6 +565,11 @@
                     </div>
                     {% endif %}
                 </div>
+                ${!isFirstAnimal ? `
+                <a href="#" onclick="showPreviousAnimal(); return false;" class="prev-link">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                ` : ''}
                 ${!isLastAnimal ? `
                 <a href="#" onclick="showNextAnimal(); return false;" class="next-link">
                     <i class="fas fa-chevron-right"></i>
@@ -564,25 +577,8 @@
                 ` : ''}
             `;
 
-            const navigationArrows = display.querySelector('.navigation-arrows');
             display.innerHTML = content;
-            if (navigationArrows) {
-                display.appendChild(navigationArrows);
-            }
-
             highlightThumbnail(animal.id);
-            updateNavigationButtons();
-        }
-
-        function updateNavigationButtons() {
-            const animals = {{ animals|tojson|safe }};
-            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
-            
-            const leftArrow = document.querySelector('.nav-arrow.left');
-            const rightArrow = document.querySelector('.nav-arrow.right');
-            
-            if (leftArrow) leftArrow.style.display = currentIndex > 0 ? 'flex' : 'none';
-            if (rightArrow) rightArrow.style.display = currentIndex < animals.length - 1 ? 'flex' : 'none';
         }
 
         function showNextAnimal() {
