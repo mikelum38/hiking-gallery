@@ -316,72 +316,36 @@
 
         @media (max-width: 768px) {
             body, html {
-                overflow-y: auto;
-                height: auto;
-                width: 100%;
                 overflow-x: hidden;
+                width: 100%;
             }
 
             .container {
-                flex-direction: column;
-                height: auto;
                 width: 100%;
                 padding: 20px;
-            }
-
-            .sidebar {
-                display: none;
-            }
-
-            .main-content {
-                width: 100%;
-                height: auto;
-                padding: 20px 0;
+                position: relative;
+                overflow: hidden;
             }
 
             #animal-display {
                 width: 100%;
-                height: auto;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding-bottom: 60px;
+                position: relative;
+                padding: 0 0 60px 0;
             }
 
             .main-image {
-                width: auto;
-                max-width: 100%;
+                width: 100%;
+                height: auto;
                 max-height: 60vh;
                 object-fit: contain;
-                margin: 0 auto 20px;
                 display: block;
             }
 
-            .animal-description {
-                width: 100%;
-                padding: 15px;
-                margin: 0;
-                background: rgba(0, 0, 0, 0.3);
-                border-radius: 10px;
-            }
-
-            .back-link {
-                position: fixed;
-                top: 15px;
-                left: 15px;
-                z-index: 1000;
-                background: rgba(0, 0, 0, 0.5);
-                padding: 8px 15px;
-                border-radius: 20px;
-                color: white;
-                text-decoration: none;
-            }
-
             .next-link {
-                position: fixed;
+                position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
-                right: 15px;
+                right: 10px;
                 z-index: 1000;
                 background: rgba(0, 0, 0, 0.5);
                 width: 40px;
@@ -392,7 +356,10 @@
                 border-radius: 50%;
                 color: white;
                 text-decoration: none;
-                font-size: 24px;
+            }
+
+            .next-link i {
+                font-size: 20px;
             }
         }
     </style>
