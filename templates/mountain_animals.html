@@ -317,11 +317,71 @@
         @media (max-width: 768px) {
             body {
                 overflow-x: hidden;
+                min-height: 100vh;
+                background: #1a2a3a;
             }
 
             .container {
-                overflow-x: hidden;
                 width: 100%;
+                min-height: 100vh;
+                padding: 60px 15px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .main-content {
+                flex: 1;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #animal-display {
+                width: 100%;
+                height: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                padding-bottom: 60px;
+            }
+
+            .animal-image {
+                width: 100%;
+                height: auto;
+                max-height: 50vh;
+                object-fit: contain;
+                border-radius: 15px;
+            }
+
+            .animal-title {
+                font-size: 24px;
+                color: white;
+                margin: 0;
+                padding: 15px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
+            }
+
+            .animal-description {
+                font-size: 16px;
+                line-height: 1.5;
+                color: white;
+                margin: 0;
+                padding: 15px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
+            }
+
+            .back-link {
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1000;
+                background: rgba(0, 0, 0, 0.5);
+                padding: 8px 15px;
+                border-radius: 20px;
+                color: white;
+                text-decoration: none;
             }
 
             .next-link {
@@ -331,123 +391,22 @@
                 right: 5px;
                 z-index: 1000;
                 background: rgba(0, 0, 0, 0.5);
-                width: 35px;
-                height: 35px;
+                width: 40px;
+                height: 40px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 50%;
                 color: white;
+                text-decoration: none;
             }
 
             .next-link i {
-                font-size: 20px;
-            }
-
-            .container {
-                flex-direction: column;
-                height: auto;
-                min-height: 100vh;
-            }
-
-            .main-content {
-                padding: 15px;
-                height: auto;
-                overflow: visible;
-            }
-
-            #animal-display {
-                width: 100%;
-                height: auto;
-                padding-bottom: 60px;
-            }
-
-            .animal-details {
-                width: 100%;
-                height: auto;
-                margin-top: 3rem;
-            }
-
-            .animal-image {
-                max-height: 35vh;
-                width: auto;
-                margin: 0.5rem auto;
-                display: block;
-            }
-
-            .animal-images {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-                align-items: center;
-                margin-bottom: 1rem;
-                width: 100%;
-            }
-
-            .animal-description {
-                width: 100%;
-                padding: 15px;
-                margin: 10px 0;
-                box-sizing: border-box;
-                height: auto;
-                max-height: none;
-                overflow: visible;
-            }
-
-            .animal-description p {
-                font-size: 0.9rem;
-                line-height: 1.6;
-                margin-bottom: 60px;
-            }
-
-            .navigation-arrows {
-                position: fixed;
-                bottom: 20px;
-                left: 0;
-                right: 0;
-                top: auto;
-                transform: none;
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                padding: 0 20px;
-                box-sizing: border-box;
-                z-index: 1000;
-            }
-
-            .nav-arrow {
-                position: relative;
-                top: auto;
-                transform: none;
-                left: auto;
-                right: auto;
-                width: 40px;
-                height: 40px;
-                background: rgba(0, 0, 0, 0.5);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-
-            .nav-arrow.left {
-                left: 0;
-            }
-
-            .nav-arrow.right {
-                right: 0;
-            }
-
-            .back-link {
-                padding: 0.4rem 1rem;
-                font-size: 0.85rem;
-                top: 0.7rem;
-                right: 0.7rem;
-                background: rgba(0, 0, 0, 0.3);
-                border-radius: 20px;
+                font-size: 24px;
             }
 
             .sidebar {
-                width: 100%;
-                max-height: 30vh;
-                order: 2;
+                display: none;
             }
         }
     </style>
