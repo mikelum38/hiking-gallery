@@ -323,6 +323,8 @@
             .container {
                 flex-direction: column;
                 height: auto;
+                padding: 0 10px;
+                overflow-x: hidden;
             }
 
             .sidebar {
@@ -388,17 +390,6 @@
 
             .back-link {
                 position: fixed;
-                top: 15px;
-                right: 15px;
-                z-index: 1000;
-                background: rgba(0, 0, 0, 0.5);
-                padding: 8px 15px;
-                border-radius: 20px;
-                font-size: 0.9rem;
-            }
-
-            .back-link {
-                position: fixed;
                 right: 20px;
                 top: 20px;
                 z-index: 1000;
@@ -406,6 +397,22 @@
 
             .back-link i {
                 font-size: 24px;
+            }
+
+            .next-link {
+                position: fixed;
+                right: 20px;
+                bottom: 20px;
+                z-index: 1000;
+            }
+
+            .next-link i {
+                font-size: 24px;
+            }
+
+            body {
+                overflow-x: hidden;
+                width: 100%;
             }
         }
     </style>
