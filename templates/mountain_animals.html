@@ -499,6 +499,9 @@
         function showAnimal(animal) {
             const display = document.getElementById('animal-display');
             currentAnimalId = animal.id;
+            const animals = {{ animals|tojson|safe }};
+            const currentIndex = animals.findIndex(a => a.id === animal.id);
+            const isLastAnimal = currentIndex === animals.length - 1;
 
             const content = `
                 <img src="${animal.image_url}" alt="${animal.name}" class="main-image">
@@ -516,16 +519,18 @@
                     </div>
                     {% endif %}
                 </div>
-                {% if not loop.last %}
+                ${!isLastAnimal ? `
                 <a href="#" onclick="showNextAnimal(); return false;" class="next-link">
                     <i class="fas fa-chevron-right"></i>
                 </a>
-                {% endif %}
+                ` : ''}
             `;
 
             const navigationArrows = display.querySelector('.navigation-arrows');
             display.innerHTML = content;
-            display.appendChild(navigationArrows);
+            if (navigationArrows) {
+                display.appendChild(navigationArrows);
+            }
 
             highlightThumbnail(animal.id);
             updateNavigationButtons();
