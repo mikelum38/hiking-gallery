@@ -1,0 +1,3 @@
+@app.route('/in_my_life')
+def in_my_life():
+    return render_template('in_my_life.html')

@@ -149,6 +149,13 @@ def gallery(gallery_id):
     if not gallery:
         return "Gallery not found", 404
     
+    # Special case for GR20 gallery
+    if gallery_id == "20240905_gr20":
+        return render_template('gallery_gr20.html', 
+                             gallery=gallery,
+                             dev_mode=app.config['DEV_MODE'],
+                             format_date=format_date)
+    
     # Déterminer la page de retour en fonction de l'année
     date = datetime.strptime(gallery['date'], '%Y-%m-%d')
     year = date.year
@@ -1321,6 +1328,10 @@ def year2016():
                          galleries_by_month=french_months,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
+
+@app.route('/in_my_life')
+def in_my_life():
+    return render_template('in_my_life.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3754,22 +3754,6 @@
         ],
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1734340952/axhumxqdjwpkcmp4yx5a.jpg"
     },
-    "20241216_104656": {
-        "name": "Corsica - GR20",
-        "date": "2024-09-05",
-        "description": "Une aventure extraordinaire de 17 jours , avec 14 jours de marche .\r\nJe ferais un site dédié pour présenter l'ensemble du parcours , avec récit commenté de chaque étape .\r\nIl sera accessible directement ici , par un lien web .",
-        "photos": [
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1734342602/qebkc5a8dasaitlu9h5t.jpg",
-                "filename": "IMG_20240906_090108.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1734342698/qdglqo8kifl3k0pcrcwi.jpg",
-                "filename": "IMG_20240905_184018.jpg"
-            }
-        ],
-        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1734342431/ay1dzrlo23gp0dxtjtsl.jpg"
-    },
     "20241216_110435": {
         "name": "Lac des Béraudes",
         "date": "2024-10-19",
@@ -16651,5 +16635,206 @@
             }
         ],
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738083534/vtyq3dziuynpg6irrvv2.jpg"
+    },
+    "20240905_gr20": {
+        "name": "Corsica - GR20",
+        "date": "2024-09-05",
+        "description": "Une aventure extraordinaire de 17 jours, avec 14 jours de marche. Je ferais un site dédié pour présenter l'ensemble du parcours, avec récit commenté de chaque étape. Il sera accessible directement ici, par un lien web.",
+        "photos": [
+            {
+                "url": "/static/images/gr20/gr20_thumbnail.jpg",
+                "filename": "gr20_thumbnail.jpg",
+                "link": "https://mikelum38.pythonanywhere.com/"
+            }
+        ],
+        "cover_image": "/static/images/gr20/gr20_thumbnail.jpg"
+    },
+    "59dc1f9b-b3d9-49cf-ae48-df1212f2a519": {
+        "name": "Tête Chevalière (1951m) par le Pas de l'Aiguille",
+        "date": "2021-02-28",
+        "description": "Avec une fine équipe , véritable balcon sur les Hauts Plateaux du Vercors, les sommets des Écrins et du Dévoluy, Tête Chevalière est un objectif honorable avec un passage un peu raide au pas de l'aiguille , mais c'était peu enneigé à cet endroit .",
+        "photos": [
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237534/mismcmu9gi9orjqtfu0g.jpg",
+                "filename": "155202434_4344691495560872_4528799814706858241_n.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237536/eowixer3yvndy2549cyn.jpg",
+                "filename": "155814535_4344686208894734_9030430706602282698_n.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237551/kjzexwuydkpiact44yl0.jpg",
+                "filename": "IMG_20210228_100224.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237560/dqom7iput0cmnbtkzusp.jpg",
+                "filename": "IMG_20210228_110403.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237570/dgn9r55aixe8fzx7a9xg.jpg",
+                "filename": "IMG_20210228_110634.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237575/hugurjock32u7xn8pqil.jpg",
+                "filename": "IMG_20210228_110642.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237586/gfrby5kwkj9fbyy4jx0w.jpg",
+                "filename": "IMG_20210228_111714.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237594/bbf7acs5vamherjoloy1.jpg",
+                "filename": "IMG_20210228_113208.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237604/ugaw523x6ygdqx29hmss.jpg",
+                "filename": "IMG_20210228_113228.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237617/s59rynuvhb6uy52oj1pg.jpg",
+                "filename": "IMG_20210228_115831.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237627/uhd9qj6zkzw5pai3ccen.jpg",
+                "filename": "IMG_20210228_121235.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237634/ok9xgsgl6kqj9qumupty.jpg",
+                "filename": "IMG_20210228_121240.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237650/r5m95i5znhzc1mkn83bn.jpg",
+                "filename": "IMG_20210228_121459.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237663/zjioa1pqkzf4e9cg1dub.jpg",
+                "filename": "IMG_20210228_122651.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237669/cpakwhxg4bmojufb9wuh.jpg",
+                "filename": "IMG_20210228_125237.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237675/ivmn8m838ysfglpaengg.jpg",
+                "filename": "IMG_20210228_125244.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237684/p6tsf7bwo71sfixfyqgy.jpg",
+                "filename": "IMG_20210228_130140.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237690/delnntwygsxiugxgxpdy.jpg",
+                "filename": "IMG_20210228_133325.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237699/hfyoll5zvol5pfy80gvt.jpg",
+                "filename": "IMG_20210228_133507.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237703/cyv5sfvxfwq9mctpyhs3.jpg",
+                "filename": "IMG_20210228_133749.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237717/jxyevoqgesfdtalyzizf.jpg",
+                "filename": "IMG_20210228_140459.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237727/umzn9hppwam4mwkgvbi1.jpg",
+                "filename": "IMG_20210228_140601.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237737/micqffuykbnboz9n5wl7.jpg",
+                "filename": "IMG_20210228_140605.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237743/mo0c0kfa16re0tznwpj8.jpg",
+                "filename": "IMG_20210228_140631.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237752/bv9gbll55rexbjux5h7q.jpg",
+                "filename": "IMG_20210228_140653.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237757/s4aoh7km1w9pugewgawm.jpg",
+                "filename": "IMG_20210228_140700.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237765/cdcflcmgltgvrtzufzb1.jpg",
+                "filename": "IMG_20210228_140753.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237771/cynjhdcw4fkxp1yaeadh.jpg",
+                "filename": "IMG_20210228_140819.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237779/m0miwdbaq2aayxfuu6qx.jpg",
+                "filename": "IMG_20210228_141001.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237784/vfs671h6wlzwzfudame7.jpg",
+                "filename": "IMG_20210228_141007.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237791/hs16wsbl3x7lduse8vsi.jpg",
+                "filename": "IMG_20210228_141117.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237800/ouc7iuwtoissfzplkgav.jpg",
+                "filename": "IMG_20210228_141449.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237809/lefl8kketmneafy2faq7.jpg",
+                "filename": "IMG_20210228_141456.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237814/dbnei8prqx08gimdpk9y.jpg",
+                "filename": "IMG_20210228_141601.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237822/auehib046rtobl53bui0.jpg",
+                "filename": "IMG_20210228_142603.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237835/iy612yuezkmpjaydli4m.jpg",
+                "filename": "IMG_20210228_152522.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237847/pwnm2dyczssoetyo9cn0.jpg",
+                "filename": "IMG_20210228_152710.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237860/kqe9iod1ptrhtdfty0ll.jpg",
+                "filename": "IMG_20210228_154604.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237871/usag74inyxjimmb6k4st.jpg",
+                "filename": "IMG_20210228_160034.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237885/lzn6qsym86uhk1sw66tw.jpg",
+                "filename": "IMG_20210228_161341.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237890/xngsjdm4ataphvcb7ss6.jpg",
+                "filename": "IMG_20210228_161407.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237896/wkymmqkkagvkyd8vhimg.jpg",
+                "filename": "IMG_20210228_161419.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237901/hczrircnk7cfje7gsprx.jpg",
+                "filename": "IMG_20210228_165016.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237905/fj7c52dorwliqmwuvjhp.jpg",
+                "filename": "IMG_20210228_172511.jpg"
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237911/do5fp4gqzxxyrbf1248j.jpg",
+                "filename": "PANO_20210228_140710.jpg"
+            }
+        ],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1738237268/khklyeqmib0zzvgasko6.jpg"
     }
 }

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livre avec Effet Roulé</title>
+    <style>
+        body {
+            background: #e8e1d5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .book-container {
+            position: relative;
+            width: 900px;
+            height: 650px;
+            perspective: 3000px;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-origin: left center;
+            background: #fffef9;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 0 8px 8px 0;
+            overflow: hidden;
+        }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, 
+                rgba(0,0,0,0.05) 0%,
+                rgba(0,0,0,0.01) 3%,
+                rgba(0,0,0,0) 10%);
+            z-index: 2;
+        }
+
+        .page-front, .page-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-front {
+            z-index: 2;
+            background: #fffef9;
+        }
+
+        .page-back {
+            transform: rotateY(180deg);
+            background: #fffef9;
+        }
+
+        .page.flipped {
+            transform: 
+                rotateY(-180deg) 
+                translateX(-15px) 
+                rotateZ(-4deg) 
+                scale(0.98);
+            box-shadow: 
+                -25px 20px 40px rgba(0,0,0,0.2),
+                inset -10px 0 20px rgba(0,0,0,0.05);
+        }
+
+        .page.flipped::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: 0;
+            height: 100%;
+            width: 30px;
+            background: linear-gradient(to left,
+                rgba(0,0,0,0.1) 0%,
+                rgba(0,0,0,0.05) 50%,
+                transparent 100%);
+            transform: rotateY(90deg);
+        }
+
+        @keyframes pageCurl {
+            0% {
+                transform: rotateY(0) translateZ(0) rotateZ(0);
+            }
+            30% {
+                transform: 
+                    rotateY(-45deg) 
+                    translateZ(30px) 
+                    rotateZ(-8deg) 
+                    scale(1.02);
+            }
+            70% {
+                transform: 
+                    rotateY(-135deg) 
+                    translateZ(20px) 
+                    rotateZ(-6deg) 
+                    scale(0.99);
+            }
+            100% {
+                transform: 
+                    rotateY(-180deg) 
+                    translateX(-15px) 
+                    rotateZ(-4deg) 
+                    scale(0.98);
+            }
+        }
+
+        .page.flipped {
+            animation: pageCurl 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            z-index: 10;
+        }
+
+        .page img {
+            width: 75%;
+            height: 60%;
+            object-fit: cover;
+            border-radius: 3px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .page p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #5a4a42;
+            text-align: justify;
+            max-width: 80%;
+            margin: 0;
+            hyphens: auto;
+        }
+
+        .navigation-buttons {
+            position: fixed;
+            bottom: 40px;
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 35px;
+            background: #6d5d4f;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background: #5a4d41;
+            transform: translateY(-2px);
+        }
+
+        .page-number {
+            position: fixed;
+            top: 30px;
+            font-size: 22px;
+            color: #6d5d4f;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 25px;
+            border-radius: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .back-link {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            z-index: 10;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateX(-5px);
+        }
+    </style>
+</head>
+<body>
+    <a href="/years" class="back-link">
+        <i class="fas fa-arrow-left"></i> Retour
+    </a>
+    <div class="page-number">Page <span id="currentPage">1</span>/3</div>
+    
+    <div class="book-container">
+        <!-- Page 1 -->
+        <div class="page" id="page1">
+            <div class="page-front">
+                <img src="https://picsum.photos/800/600?random=1" alt="Image 1">
+                <p>L'aventure commence ici. Cette première image plante le décor d'un voyage visuel à travers les nuances et les formes.</p>
+            </div>
+            <div class="page-back">
+                <img src="https://picsum.photos/800/600?random=2" alt="Image 2">
+                <p>Deuxième étape de notre exploration, où la lumière joue avec les contours pour révéler de nouvelles perspectives.</p>
+            </div>
+        </div>
+
+        <!-- Page 2 -->
+        <div class="page" id="page2">
+            <div class="page-front">
+                <img src="https://picsum.photos/800/600?random=3" alt="Image 3">
+                <p>Troisième chapitre : les textures prennent vie, créant un dialogue entre le sujet et son environnement.</p>
+            </div>
+            <div class="page-back">
+                <img src="https://picsum.photos/800/600?random=4" alt="Image 4">
+                <p>Quatrième perspective : une symphonie de couleurs et de mouvements qui défie les conventions spatiales.</p>
+            </div>
+        </div>
+
+        <!-- Page 3 -->
+        <div class="page" id="page3">
+            <div class="page-front">
+                <img src="https://picsum.photos/800/600?random=5" alt="Image 5">
+                <p>Cinquième arrêt : l'équilibre parfait entre force et délicatesse, entre ombre et lumière.</p>
+            </div>
+            <div class="page-back">
+                <img src="https://picsum.photos/800/600?random=6" alt="Image 6">
+                <p>Dernière page : synthèse des éléments explorés, un point final visuel à cette odyssée artistique.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation-buttons">
+        <button onclick="previousPage()">← Précédent</button>
+        <button onclick="nextPage()">Suivant →</button>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 3;
+
+        function updatePageNumber() {
+            document.getElementById('currentPage').textContent = currentPage;
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                const page = document.getElementById(`page${currentPage}`);
+                page.style.zIndex = 10;
+                page.classList.add('flipped');
+                currentPage++;
+                updatePageNumber();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                const page = document.getElementById(`page${currentPage}`);
+                page.classList.remove('flipped');
+                page.style.zIndex = 10 - currentPage;
+                updatePageNumber();
+            }
+        }
+
+        // Gestion du clic sur la page
+        document.querySelectorAll('.page').forEach(page => {
+            page.addEventListener('click', (e) => {
+                const rect = page.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                
+                if (clickX > rect.width * 0.75 && currentPage < totalPages) {
+                    nextPage();
+                } else if (clickX < rect.width * 0.25 && currentPage > 1) {
+                    previousPage();
+                }
+            });
+        });
+
+        // Gestion tactile améliorée
+        let touchStartX = 0;
+        const swipeThreshold = 50;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const deltaX = touchStartX - touchEndX;
+
+            if (Math.abs(deltaX) > swipeThreshold) {
+                if (deltaX > 0 && currentPage < totalPages) {
+                    nextPage();
+                } else if (deltaX < 0 && currentPage > 1) {
+                    previousPage();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
