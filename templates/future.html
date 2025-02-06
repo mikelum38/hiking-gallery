@@ -316,6 +316,9 @@
                 <i class="fas fa-arrow-left"></i> Retour aux années
             </a>
             <div class="right-buttons">
+                <a href="/wheel-of-fortune" class="nav-btn">
+                    <i class="fas fa-dharmachakra"></i> Roue de la Fortune
+                </a>
                 <a href="/mountain_flowers" class="nav-btn">
                     <i class="fas fa-seedling"></i> Fleurs
                 </a>
@@ -328,6 +331,11 @@
                 <a href="/dreams" class="nav-btn">
                     <i class="fas fa-mountain"></i> Souvenirs
                 </a>
+                {% if dev_mode %}
+                <a href="#" class="nav-btn" onclick="showAddProjectForm()">
+                    <i class="fas fa-plus"></i> Ajouter un projet
+                </a>
+                {% endif %}
             </div>
         </nav>
 

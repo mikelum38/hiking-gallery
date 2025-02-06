@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>La Roue de la Fortune - Escapades en altitude</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)),
+                          url('/static/images/roue.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 2rem;
+        }
+
+        .top-nav {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 20px auto;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        .wheel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .segment {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 50%;
+            transform-origin: 0% 100%;
+        }
+
+        .segment img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform-origin: 0% 100%;
+        }
+
+        /* 12 segments égaux de 30 degrés chacun */
+        .segment:nth-child(1) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(0deg) skew(-30deg);
+        }
+
+        .segment:nth-child(2) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(30deg) skew(-30deg);
+        }
+
+        .segment:nth-child(3) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(60deg) skew(-30deg);
+        }
+
+        .segment:nth-child(4) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(90deg) skew(-30deg);
+        }
+
+        .segment:nth-child(5) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(120deg) skew(-30deg);
+        }
+
+        .segment:nth-child(6) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(150deg) skew(-30deg);
+        }
+
+        .segment:nth-child(7) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(180deg) skew(-30deg);
+        }
+
+        .segment:nth-child(8) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(210deg) skew(-30deg);
+        }
+
+        .segment:nth-child(9) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(240deg) skew(-30deg);
+        }
+
+        .segment:nth-child(10) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(270deg) skew(-30deg);
+        }
+
+        .segment:nth-child(11) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(300deg) skew(-30deg);
+        }
+
+        .segment:nth-child(12) {
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform: rotate(330deg) skew(-30deg);
+        }
+
+        .segment img {
+            transform: skew(30deg);
+        }
+
+        .stopped .segment:not(.active) img {
+            filter: blur(2px) brightness(0.6) grayscale(30%);
+            opacity: 0.9;
+        }
+
+        .stopped .segment.active {
+            z-index: 12;
+        }
+
+        .stopped .segment.active img {
+            filter: brightness(1.1) contrast(1.1);
+            cursor: pointer;
+        }
+
+        .destination-name {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFD700;  /* Jaune doré */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .spin-button {
+            position: relative;
+            z-index: 100;
+            padding: 15px 40px;
+            font-size: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .spin-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .spin-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+
+        .modal img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-text {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            background: #333;
+            color: white;
+        }
+
+        .close-btn {
+            padding: 10px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <nav class="top-nav">
+            <a href="/future" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        </nav>
+
+        <audio id="winSound" preload="auto">
+            <source src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" type="audio/mpeg">
+        </audio>
+
+        <div class="wheel-container">
+            <div class="wheel" id="wheel"></div>
+        </div>
+        <button id="spinButton" class="spin-button">Tourner la roue</button>
+        <div id="activeDestination" class="destination-name"></div>
+
+        <div class="modal" id="modal">
+            <div class="modal-content">
+                <img id="modalImage" src="" alt="Destination">
+                <h2 id="modalTitle"></h2>
+                <textarea class="modal-text" id="modalText" placeholder="Notez vos idées de randonnée pour cette destination..."></textarea>
+                <button class="close-btn" onclick="closeModal()">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const destinations = [
+            { name: 'Col de Marcieu', image: '/static/images/roue1.jpg' },
+            { name: 'Belle Étoile', image: '/static/images/roue2.jpg' },
+            { name: 'St Eynard', image: '/static/images/roue3.jpg' },
+            { name: 'Ciamarella', image: '/static/images/roue4.jpg' },
+            { name: 'Grand Colombier', image: '/static/images/roue5.jpg' },
+            { name: 'Pyrénées 98', image: '/static/images/roue6.jpg' },
+            { name: 'Désert de Platé', image: '/static/images/roue7.jpg' },
+            { name: 'St Bernard du Touvet', image: '/static/images/roue8.jpg' },
+            { name: 'Ventoux 96', image: '/static/images/roue9.jpg' },
+            { name: 'Lances de Malissard', image: '/static/images/roue10.jpg' },
+            { name: 'Matheysine', image: '/static/images/roue11.jpg' },
+            { name: 'Galibier', image: '/static/images/roue12.jpg' }
+        ];
+
+        // Créer les segments de la roue
+        const wheel = document.getElementById('wheel');
+        destinations.forEach((destination, index) => {
+            const segment = document.createElement('div');
+            segment.className = 'segment';
+            
+            const img = document.createElement('img');
+            img.src = destination.image;
+            img.alt = destination.name;
+            
+            segment.appendChild(img);
+            wheel.appendChild(segment);
+        });
+
+        let isSpinning = false;
+        let rotation = 0;
+        const segmentAngle = 360 / destinations.length;
+        const winSound = document.getElementById('winSound');
+        let tickInterval;
+
+        // Créer le contexte audio
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playClick() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function startSpin() {
+            isSpinning = true;
+            wheel.classList.remove('stopped');
+            const spinButton = document.getElementById('spinButton');
+            spinButton.textContent = 'Arrêter';
+            spinButton.disabled = true;
+
+            // Cacher le nom de la destination
+            document.getElementById('activeDestination').textContent = '';
+
+            // Démarrer les clics
+            tickInterval = setInterval(playClick, 200);
+
+            const spin = () => {
+                if (!isSpinning) return;
+                rotation += 4;
+                wheel.style.transform = `rotate(${rotation}deg)`;
+                requestAnimationFrame(spin);
+            };
+            
+            spin();
+            
+            setTimeout(() => {
+                spinButton.disabled = false;
+            }, 1000);
+        }
+
+        function stopSpin() {
+            isSpinning = false;
+            document.getElementById('spinButton').textContent = 'Tourner la roue';
+            
+            // Arrêter le son principal
+            clearInterval(tickInterval);
+
+            // Ralentir progressivement les clics
+            let delay = 200;
+            for(let i = 0; i < 5; i++) {
+                setTimeout(playClick, delay);
+                delay += 300;
+            }
+
+            const normalizedRotation = (rotation % 360 + 360) % 360;
+            const offsetRotation = normalizedRotation + segmentAngle/2;
+            const activeIndex = Math.floor(offsetRotation / segmentAngle) % destinations.length;
+            const targetRotation = activeIndex * segmentAngle;
+
+            animateToPosition(360 - targetRotation);
+        }
+
+        function animateToPosition(target) {
+            const startRotation = rotation % 360;
+            const distance = (target - startRotation + 360) % 360;
+
+            const startTime = Date.now();
+            const duration = 2000;
+            let lastTickTime = startTime;
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easing = 1 - Math.pow(1 - progress, 3);
+
+                rotation = startRotation + distance * easing;
+                wheel.style.transform = `rotate(${rotation}deg)`;
+
+                const now = Date.now();
+                if (now - lastTickTime > (100 + progress * 300)) {
+                    playClick();
+                    lastTickTime = now;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    finalizeStop();
+                }
+            };
+
+            requestAnimationFrame(animate);
+        }
+
+        function finalizeStop() {
+            wheel.classList.add('stopped');
+            const normalizedRotation = (rotation % 360 + 360) % 360;
+            const offsetRotation = normalizedRotation + segmentAngle/2;
+            const activeIndex = Math.floor(offsetRotation / segmentAngle) % destinations.length;
+            
+            // Marquer le segment actif
+            const segments = document.querySelectorAll('.segment');
+            segments.forEach(s => s.classList.remove('active'));
+            segments[activeIndex].classList.add('active');
+            
+            // Afficher le nom de la destination active
+            const activeDestination = document.getElementById('activeDestination');
+            activeDestination.textContent = destinations[activeIndex].name;
+            
+            // Ajouter le gestionnaire de clic pour ouvrir le modal
+            segments[activeIndex].onclick = () => {
+                openModal(
+                    destinations[activeIndex].image,
+                    destinations[activeIndex].name,
+                    activeIndex
+                );
+            };
+
+            // Jouer le son de victoire
+            winSound.currentTime = 0;
+            winSound.play();
+        }
+
+        function openModal(src, title, id) {
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalText = document.getElementById('modalText');
+            
+            modalImage.src = src;
+            modalTitle.textContent = title;
+            modalText.value = localStorage.getItem('wheelNote_' + id) || '';  // Charge le texte sauvegardé
+            modal.style.display = 'flex';
+            modalText.dataset.destinationId = id;  // Stocke l'ID pour la sauvegarde
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            const modalText = document.getElementById('modalText');
+            const destinationId = modalText.dataset.destinationId;
+            
+            // Sauvegarde le texte
+            if (modalText.value.trim()) {
+                localStorage.setItem('wheelNote_' + destinationId, modalText.value);
+            } else {
+                localStorage.removeItem('wheelNote_' + destinationId);
+            }
+            
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('spinButton').addEventListener('click', () => {
+            if (isSpinning) {
+                stopSpin();
+            } else {
+                startSpin();
+            }
+        });
+    </script>
+</body>
+</html>

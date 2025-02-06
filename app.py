@@ -1333,5 +1333,9 @@ def year2016():
 def in_my_life():
     return render_template('in_my_life.html')
 
+@app.route('/wheel-of-fortune')
+def wheel_of_fortune():
+    return render_template('wheel_of_fortune.html', dev_mode=app.config['DEV_MODE'])
+
 if __name__ == '__main__':
     app.run(debug=True)
