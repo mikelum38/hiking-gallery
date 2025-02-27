@@ -49,22 +49,24 @@
         }
 
         .nav-btn {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
+            padding: 0.8rem 1.6rem;
+            border-radius: 30px;
             text-decoration: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 25px;
-            display: inline-flex;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.9rem;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
             white-space: nowrap;
         }
 
         .nav-btn:hover {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
 
         .hero-content {
@@ -88,27 +90,48 @@
         }
 
         .gallery-section {
-            margin-top: auto;
-            padding: 1rem;
-            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0 2rem;
+            z-index: 2;
         }
 
         .month-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding-bottom: 1rem;
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            gap: 1rem;
+            padding: 1rem 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .month-grid::-webkit-scrollbar {
+            display: none;
         }
 
         .month-card {
-            aspect-ratio: 16/9;
-            border-radius: 15px;
+            flex: 0 0 300px;
+            scroll-snap-align: start;
+            background: white;
+            border-radius: 8px;
             overflow: hidden;
-            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            color: inherit;
+            height: 200px;
+            position: relative;
+            aspect-ratio: auto;
+        }
+
+        .month-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
         .month-cover {
@@ -116,28 +139,61 @@
             height: 100%;
             background-size: cover;
             background-position: center;
+            position: relative;
         }
 
         .month-overlay {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 1rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: white;
         }
 
         .month-name {
+            font-size: 1.4rem;
             margin: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            margin-bottom: 0.3rem;
         }
 
         .gallery-count {
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             opacity: 0.9;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button.prev {
+            left: 1rem;
+        }
+
+        .nav-button.next {
+            right: 1rem;
+        }
+
+        .nav-button:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
         }
 
         /* Styles pour le modal */
@@ -312,12 +368,15 @@
 <body>
     <div class="page-container">
         <nav class="top-nav">
-            <a href="/years" class="nav-btn">
-                <i class="fas fa-arrow-left"></i> Retour aux années
+            <a href="{{ url_for('years') }}" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Retour
             </a>
             <div class="right-buttons">
-                <a href="/wheel-of-fortune" class="nav-btn">
+                <a href="{{ url_for('wheel_of_fortune') }}" class="nav-btn">
                     <i class="fas fa-dharmachakra"></i> Roue de la Fortune
+                </a>
+                <a href="{{ url_for('inmy_landing') }}" class="nav-btn">
+                    <i class="fas fa-book"></i> In My Life
                 </a>
                 <a href="/mountain_flowers" class="nav-btn">
                     <i class="fas fa-seedling"></i> Fleurs
@@ -341,28 +400,24 @@
 
         <div class="hero-content">
             <h1>Escapades en altitude</h1>
-            <p>Année 2025</p>
-            {% if dev_mode %}
-            <button onclick="showAddProjectForm()" class="add-btn">
-                <i class="fas fa-plus"></i> Ajouter un projet
-            </button>
-            {% endif %}
+            <p>Projets et aventures pour l'année 2025</p>
         </div>
 
         <div class="gallery-section">
+            <button class="nav-button prev" onclick="scrollMonths('prev')">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="nav-button next" onclick="scrollMonths('next')">
+                <i class="fas fa-chevron-right"></i>
+            </button>
             <div class="month-grid">
-                {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
+                {% for month, data in galleries_by_month.items()|sort(attribute='1.year,1.month') %}
                 <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
                     <div class="month-cover" {% if data.cover %}style="background-image: url('{{ data.cover }}')"{% endif %}>
                         <div class="month-overlay">
                             <h2 class="month-name">{{ month }}</h2>
                             <div class="gallery-count">
-                                {{ data.galleries|length }} 
-                                {% if data.is_future %}
-                                    projet{% if data.galleries|length > 1 %}s{% endif %}
-                                {% else %}
-                                    sortie{% if data.galleries|length > 1 %}s{% endif %}
-                                {% endif %}
+                                {{ data.galleries|length }} sortie{% if data.galleries|length > 1 %}s{% endif %}
                             </div>
                         </div>
                     </div>
@@ -405,11 +460,19 @@
 
     <script>
         function scrollMonths(direction) {
-            const container = document.querySelector('.months-scroll');
-            const cardWidth = document.querySelector('.month-card').offsetWidth + 24;
-            const scrollAmount = direction === 'next' ? cardWidth : -cardWidth;
+            const container = document.querySelector('.month-grid');
+            const scrollAmount = direction === 'next' ? container.clientWidth : -container.clientWidth;
             container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
+
+        // Ajouter la gestion du défilement horizontal avec la molette
+        document.querySelector('.month-grid').addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                const direction = e.deltaY > 0 ? 'next' : 'prev';
+                scrollMonths(direction);
+            }
+        }, { passive: false });
 
         function showAddProjectForm() {
             document.getElementById('addProjectModal').style.display = 'flex';
@@ -420,12 +483,11 @@
         }
 
         // Fermer le modal en cliquant en dehors
-        window.onclick = function(event) {
-            const modal = document.getElementById('addProjectModal');
-            if (event.target == modal) {
+        document.getElementById('addProjectModal')?.addEventListener('click', function(event) {
+            if (event.target === this) {
                 hideAddProjectForm();
             }
-        }
+        });
     </script>
 </body>
 </html>

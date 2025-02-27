@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In My Life - Page {{ page }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #1a1a1a;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-sizing: border-box;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                        url('/static/images/slide-img-fall02.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .page-container {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            margin: 0 auto;
+            perspective: 2000px;
+            transform-style: preserve-3d;
+        }
+
+        .page-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .page-content {
+            background: linear-gradient(rgba(47, 102, 87, 0.9), rgba(47, 102, 87, 0.95));
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+            padding: 2rem;
+            box-sizing: border-box;
+            position: relative;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: all 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+            backface-visibility: hidden;
+        }
+
+        .page-content::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, 
+                rgba(0,0,0,0.1) 0%, 
+                rgba(0,0,0,0.05) 5%,
+                rgba(0,0,0,0) 10%);
+            pointer-events: none;
+            border-radius: 15px;
+            z-index: 1;
+        }
+
+        .page-content.turn {
+            transform: rotateY(-180deg);
+        }
+
+        .page-fold {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right,
+                rgba(0,0,0,0.15) 0%,
+                rgba(0,0,0,0.1) 1%,
+                rgba(0,0,0,0) 3%);
+            transform-origin: left;
+            transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+            pointer-events: none;
+            border-radius: 15px;
+            opacity: 0;
+        }
+
+        .page-content.turn .page-fold {
+            opacity: 1;
+            transform: rotateY(-20deg);
+        }
+
+        .page-layout {
+            display: flex;
+            gap: 2rem;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-image {
+            width: 300px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .page-text-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .page-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: white;
+            outline: none;
+        }
+
+        .page-text[contenteditable="true"] {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .back-cover {
+            text-align: center;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .back-cover-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .back-cover-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin: 0 auto;
+            max-width: 600px;
+            color: white;
+        }
+
+        .back-cover-quote {
+            font-style: italic;
+            margin-top: 3rem;
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 10;
+            opacity: 0.6;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, 0.25);
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-arrow.prev {
+            left: -20px;
+        }
+
+        .nav-arrow.next {
+            right: -20px;
+        }
+
+        .nav-arrow i {
+            font-size: 1.2rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .page-number .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .page-number .dot.active {
+            background: white;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes pageShadow {
+            0% {
+                box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+                filter: brightness(1);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(0,0,0,0.3);
+                filter: brightness(0.95);
+            }
+            100% {
+                box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+                filter: brightness(1);
+            }
+        }
+
+        .edit-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .edit-btn, .save-btn {
+            padding: 0.8rem 1.6rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .edit-btn:hover, .save-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="{{ 'dev-mode' if dev_mode }}">
+    <div class="container">
+        <div class="page-container">
+            <div class="page-wrapper">
+                <div class="page-content {% if turn %}turn{% endif %}">
+                    <div class="page-fold"></div>
+                    <div class="page-layout">
+                        {% if page == 1 %}
+                        <img src="{{ url_for('static', filename='images/inmy_life/page1.jpg') }}" alt="Première page" class="page-image">
+                        <div class="page-text-container">
+                            <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
+                                {{ text1 | safe }}
+                            </div>
+                        </div>
+                        {% elif page == 2 %}
+                        <img src="{{ url_for('static', filename='images/inmy_life/page2.jpg') }}" alt="Deuxième page" class="page-image">
+                        <div class="page-text-container">
+                            <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
+                                {{ text2 | safe }}
+                            </div>
+                        </div>
+                        {% elif page == 3 %}
+                        <img src="{{ url_for('static', filename='images/inmy_life/page3.jpg') }}" alt="Troisième page" class="page-image">
+                        <div class="page-text-container">
+                            <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
+                                {{ text3 | safe }}
+                            </div>
+                        </div>
+                        {% elif page == 4 %}
+                        <div class="back-cover">
+                            <div>
+                                <h2 class="back-cover-title">À bientôt pour de nouvelles aventures</h2>
+                                <div class="back-cover-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
+                                    {{ text4 | safe }}
+                                </div>
+                            </div>
+                            <div class="back-cover-quote">
+                                "La montagne nous offre le décor... À nous d'inventer l'histoire qui va avec."
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if prev_url %}
+                <a href="{{ prev_url }}" class="nav-arrow prev" onclick="turnPage(event)">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                {% if next_url %}
+                <a href="{{ next_url }}" class="nav-arrow next" onclick="turnPage(event)">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+
+                <div class="page-number">
+                    {% for i in range(1, total_pages + 1) %}
+                    <span class="dot {% if i == page %}active{% endif %}"></span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if dev_mode %}
+    <div class="edit-controls">
+        <button class="edit-btn" onclick="toggleEdit()">Éditer</button>
+        <button class="save-btn" onclick="saveText()">Sauvegarder</button>
+    </div>
+
+    <script>
+        function toggleEdit() {
+            const textElement = document.getElementById('pageText');
+            const isEditable = textElement.contentEditable === 'true';
+            textElement.contentEditable = !isEditable;
+            textElement.classList.toggle('editing');
+        }
+
+        function saveText() {
+            const text = document.getElementById('pageText').innerHTML;
+            const page = {{ page }};
+            
+            fetch('/save_inmy_life_text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: text,
+                    page: page
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Texte sauvegardé avec succès !');
+                } else {
+                    alert('Erreur lors de la sauvegarde : ' + (data.error || 'Erreur inconnue'));
+                }
+            })
+            .catch(error => {
+                alert('Erreur lors de la sauvegarde : ' + error);
+            });
+        }
+    </script>
+    {% endif %}
+
+    <script>
+        function turnPage(event) {
+            event.preventDefault();
+            const pageContent = event.target.closest('.page-container').querySelector('.page-content');
+            const targetUrl = event.target.closest('a').href;
+            
+            // Ajouter la classe pour l'animation
+            pageContent.classList.add('turn');
+            
+            // Animer l'ombre et la luminosité
+            pageContent.style.animation = 'pageShadow 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000)';
+            
+            // Attendre la fin de l'animation avant de naviguer
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 700);
+        }
+    </script>
+
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+</body>
+</html>

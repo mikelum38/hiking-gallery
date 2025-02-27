@@ -69,21 +69,6 @@ def save_projects(projects):
     with open('projects.json', 'w', encoding='utf-8') as f:
         json.dump(projects, f, ensure_ascii=False, indent=4)
 
-def format_date(date_str):
-    date = datetime.strptime(date_str, '%Y-%m-%d')
-    return f"{date.day} {MOIS_FR[date.month-1]} {date.year}"
-
-def sort_galleries_by_date(galleries):
-    # Convert galleries dict to list and add date object for sorting
-    gallery_list = []
-    for gallery_id, gallery in galleries.items():
-        gallery['id'] = gallery_id
-        gallery['date_obj'] = datetime.strptime(gallery['date'], '%Y-%m-%d')
-        gallery_list.append(gallery)
-    
-    # Sort galleries by date
-    return sorted(gallery_list, key=lambda x: x['date_obj'])
-
 def load_flowers_data():
     try:
         with open('mountain_flowers.json', 'r', encoding='utf-8') as f:
@@ -106,6 +91,21 @@ def load_animals_data():
 def save_animals_data(animals):
     with open('mountain_animals.json', 'w', encoding='utf-8') as f:
         json.dump({'animals': animals}, f, ensure_ascii=False, indent=4)
+
+def format_date(date_str):
+    date = datetime.strptime(date_str, '%Y-%m-%d')
+    return f"{date.day} {MOIS_FR[date.month-1]} {date.year}"
+
+def sort_galleries_by_date(galleries):
+    # Convert galleries dict to list and add date object for sorting
+    gallery_list = []
+    for gallery_id, gallery in galleries.items():
+        gallery['id'] = gallery_id
+        gallery['date_obj'] = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        gallery_list.append(gallery)
+    
+    # Sort galleries by date
+    return sorted(gallery_list, key=lambda x: x['date_obj'])
 
 @app.route('/')
 def home():
@@ -375,7 +375,7 @@ def delete_gallery(gallery_id):
 
 @app.route('/years')
 def years():
-    return render_template('years.html')
+    return render_template('years.html', dev_mode=app.config['DEV_MODE'])
 
 @app.route('/future')
 def future():
@@ -782,8 +782,12 @@ def memories():
     photos = load_projects()
     app.logger.info(f"Nombre de projets chargés : {len(photos)}")
     
+    # Debug: afficher le contenu des projets
+    for photo in photos:
+        app.logger.info(f"Projet: {photo.get('gallery_name')} - Date: {photo.get('formatted_date')}")
+    
     # Trier les projets par date
-    photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'), reverse=True)
+    photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
     
     return render_template('memories.html',
                          photos=photos,
@@ -1331,11 +1335,78 @@ def year2016():
 
 @app.route('/in_my_life')
 def in_my_life():
-    return render_template('in_my_life.html')
+    return redirect(url_for('inmy_landing'))
 
 @app.route('/wheel-of-fortune')
 def wheel_of_fortune():
     return render_template('wheel_of_fortune.html', dev_mode=app.config['DEV_MODE'])
+
+@app.route('/inmy')
+def inmy_landing():
+    if request.args.get('back') == 'true':
+        return redirect(url_for('years'))
+    return render_template('inmy_cover.html')
+
+@app.route('/inmy/life')
+def inmy_life():
+    page = request.args.get('page', 1, type=int)
+    total_pages = 4
+    
+    # Load texts from JSON file
+    try:
+        with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
+            texts = json.load(f)
+    except FileNotFoundError:
+        texts = {}
+    
+    # Get text for current page
+    text_key = str(page)
+    page_text = texts.get(text_key, '')
+    
+    # Navigation URLs
+    prev_url = url_for('inmy_landing') if page == 1 else url_for('inmy_life', page=page-1)
+    next_url = url_for('inmy_life', page=page+1) if page < total_pages else None
+    
+    return render_template('inmy_life.html', 
+                         page=page,
+                         total_pages=total_pages,
+                         prev_url=prev_url,
+                         next_url=next_url,
+                         dev_mode=app.config['DEV_MODE'],
+                         **{f'text{page}': page_text})
+
+@app.route('/save_inmy_life_text', methods=['POST'])
+def save_inmy_life_text():
+    try:
+        data = request.get_json()
+        page = data.get('page')
+        text = data.get('text')
+        
+        if not page or text is None:
+            return jsonify({'success': False, 'error': 'Page ou texte manquant'})
+        
+        # Charger le fichier JSON existant ou créer un nouveau
+        try:
+            with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
+                texts = json.load(f)
+        except FileNotFoundError:
+            texts = {}
+        
+        # Mettre à jour le texte pour la page
+        texts[str(page)] = text
+        
+        # Sauvegarder dans le fichier
+        with open('inmy_life_texts.json', 'w', encoding='utf-8') as f:
+            json.dump(texts, f, ensure_ascii=False, indent=4)
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde du texte: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/inmy/back')
+def inmy_back():
+    return render_template('inmy_back_cover.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

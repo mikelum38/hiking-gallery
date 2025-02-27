@@ -37,21 +37,24 @@
         }
 
         .nav-btn {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
+            padding: 0.8rem 1.6rem;
+            border-radius: 30px;
             text-decoration: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 25px;
-            display: inline-flex;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.9rem;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
         }
 
         .nav-btn:hover {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
 
         .wheel-container {
@@ -268,7 +271,7 @@
 <body>
     <div class="page-container">
         <nav class="top-nav">
-            <a href="/future" class="nav-btn">
+            <a href="{{ url_for('years') }}" class="nav-btn">
                 <i class="fas fa-arrow-left"></i> Retour
             </a>
         </nav>
@@ -295,18 +298,18 @@
 
     <script>
         const destinations = [
-            { name: 'Col de Marcieu', image: '/static/images/roue1.jpg' },
-            { name: 'Belle Étoile', image: '/static/images/roue2.jpg' },
-            { name: 'St Eynard', image: '/static/images/roue3.jpg' },
-            { name: 'Ciamarella', image: '/static/images/roue4.jpg' },
-            { name: 'Grand Colombier', image: '/static/images/roue5.jpg' },
-            { name: 'Pyrénées 98', image: '/static/images/roue6.jpg' },
-            { name: 'Désert de Platé', image: '/static/images/roue7.jpg' },
-            { name: 'St Bernard du Touvet', image: '/static/images/roue8.jpg' },
-            { name: 'Ventoux 96', image: '/static/images/roue9.jpg' },
-            { name: 'Lances de Malissard', image: '/static/images/roue10.jpg' },
-            { name: 'Matheysine', image: '/static/images/roue11.jpg' },
-            { name: 'Galibier', image: '/static/images/roue12.jpg' }
+            { name: 'Future', url: '/future', image: '/static/images/roue1.jpg' },
+            { name: 'Memories', url: '/memories', image: '/static/images/roue2.jpg' },
+            { name: 'Best Of', url: '/bestof', image: '/static/images/roue3.jpg' },
+            { name: 'In My Life', url: '/inmy', image: '/static/images/roue4.jpg' },
+            { name: 'Memories Shuffle', url: '/memories_shuffle', image: '/static/images/roue5.jpg' },
+            { name: 'Memories Pile', url: '/memories_pile', image: '/static/images/roue6.jpg' },
+            { name: 'Memories of Centuries', url: '/memories_of_centuries', image: '/static/images/roue7.jpg' },
+            { name: 'Mountain Flowers', url: '/mountain_flowers', image: '/static/images/roue8.jpg' },
+            { name: 'Bouquetin', url: '/bouquetin', image: '/static/images/roue9.jpg' },
+            { name: 'Mountain Animals', url: '/mountain_animals', image: '/static/images/roue10.jpg' },
+            { name: 'Dreams', url: '/dreams', image: '/static/images/roue11.jpg' },
+            { name: 'Years', url: '/years', image: '/static/images/roue12.jpg' }
         ];
 
         // Créer les segments de la roue
@@ -314,6 +317,7 @@
         destinations.forEach((destination, index) => {
             const segment = document.createElement('div');
             segment.className = 'segment';
+            segment.dataset.url = destination.url;
             
             const img = document.createElement('img');
             img.src = destination.image;
@@ -432,45 +436,29 @@
         }
 
         function finalizeStop() {
+            const currentRotation = wheel.style.transform;
+            const match = currentRotation.match(/rotate\(([-\d.]+)deg\)/);
+            if (!match) return;
+
+            const finalRotation = parseFloat(match[1]);
+            const normalizedRotation = ((finalRotation % 360) + 360) % 360;
+            const segmentIndex = Math.floor(normalizedRotation / 30);
+            
             wheel.classList.add('stopped');
-            const normalizedRotation = (rotation % 360 + 360) % 360;
-            const offsetRotation = normalizedRotation + segmentAngle/2;
-            const activeIndex = Math.floor(offsetRotation / segmentAngle) % destinations.length;
             
             // Marquer le segment actif
             const segments = document.querySelectorAll('.segment');
             segments.forEach(s => s.classList.remove('active'));
-            segments[activeIndex].classList.add('active');
+            segments[segmentIndex].classList.add('active');
             
-            // Afficher le nom de la destination active
-            const activeDestination = document.getElementById('activeDestination');
-            activeDestination.textContent = destinations[activeIndex].name;
-            
-            // Ajouter le gestionnaire de clic pour ouvrir le modal
-            segments[activeIndex].onclick = () => {
-                openModal(
-                    destinations[activeIndex].image,
-                    destinations[activeIndex].name,
-                    activeIndex
-                );
-            };
-
-            // Jouer le son de victoire
-            winSound.currentTime = 0;
-            winSound.play();
+            // Rediriger vers la destination
+            const destination = destinations[segmentIndex];
+            window.location.href = destination.url;
         }
 
         function openModal(src, title, id) {
-            const modal = document.getElementById('modal');
-            const modalImage = document.getElementById('modalImage');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalText = document.getElementById('modalText');
-            
-            modalImage.src = src;
-            modalTitle.textContent = title;
-            modalText.value = localStorage.getItem('wheelNote_' + id) || '';  // Charge le texte sauvegardé
-            modal.style.display = 'flex';
-            modalText.dataset.destinationId = id;  // Stocke l'ID pour la sauvegarde
+            // Redirection directe vers la destination
+            window.location.href = src;
         }
 
         function closeModal() {

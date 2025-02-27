@@ -297,5 +297,51 @@
     <button class="audio-control" onclick="toggleAudio()" title="Contrôle de la musique">
         <i class="fas fa-volume-up" id="audioIcon"></i>
     </button>
+
+        <!-- Bouton flottant -->
+    <button id="chatbot-opener" style="
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        font-size: 24px;
+        z-index: 1000;">
+        💬
+    </button>
+
+    <!-- Iframe du chatbot -->
+    <iframe id="chatbot-iframe" 
+            src="https://chatbot-jitt.onrender.com" 
+            style="
+                display: none;
+                position: fixed;
+                bottom: 100px;
+                right: 30px;
+                width: 400px;
+                height: 600px;
+                border: none;
+                border-radius: 15px;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+                z-index: 999;">
+    </iframe>
+
+    <script>
+        // Gestion de l'ouverture/fermeture
+        const opener = document.getElementById('chatbot-opener');
+        const iframe = document.getElementById('chatbot-iframe');
+
+        opener.addEventListener('click', () => {
+            const isVisible = iframe.style.display === 'block';
+            iframe.style.display = isVisible ? 'none' : 'block';
+            opener.textContent = isVisible ? '💬' : '✕';
+        });
+    </script>
 </body>
 </html>
