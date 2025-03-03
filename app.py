@@ -111,8 +111,8 @@ def sort_galleries_by_date(galleries):
 def home():
     return render_template('home.html')
 
-@app.route('/index')
-def index():
+@app.route('/2024')
+def year_2024():
     galleries = load_gallery_data()
     
     galleries_by_month = {}
@@ -138,7 +138,7 @@ def index():
             if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
                 galleries_by_month[month_key]['cover'] = gallery['cover_image']
     
-    return render_template('index.html', 
+    return render_template('2024.html', 
                          galleries_by_month=galleries_by_month,
                          dev_mode=app.config['DEV_MODE'])
 
@@ -160,15 +160,15 @@ def gallery(gallery_id):
     date = datetime.strptime(gallery['date'], '%Y-%m-%d')
     year = date.year
     if year == 2025:
-        return_page = 'future'
+        return_page = 'year_2025'
     elif year == 2016:
-        return_page = 'year2016'
+        return_page = 'year_2016'
     elif year == 2017:
-        return_page = 'year2017'
+        return_page = 'year_2017'
     elif year == 2018:
-        return_page = 'year2018'
+        return_page = 'year_2018'
     elif year == 2019:
-        return_page = 'year2019'
+        return_page = 'year_2019'
     elif year == 2020:
         return_page = 'year_2020'
     elif year == 2021:
@@ -176,9 +176,9 @@ def gallery(gallery_id):
     elif year == 2022:
         return_page = 'year_2022'
     elif year == 2023:
-        return_page = 'bestof'
+        return_page = 'year_2023'
     else:
-        return_page = 'index'
+        return_page = 'year_2024'
     
     # Ajouter l'ID à l'objet gallery
     gallery['id'] = gallery_id
@@ -229,7 +229,7 @@ def upload_photos(gallery_id):
     if gallery_id not in galleries:
         app.logger.error(f"Galerie {gallery_id} non trouvée")
         flash('Galerie non trouvée')
-        return redirect(url_for('index'))
+        return redirect(url_for('years'))
     
     gallery = galleries[gallery_id]
     if 'photos' not in gallery:
@@ -283,16 +283,26 @@ def create_gallery():
     
     # Vérifier l'année de la date pour rediriger vers la bonne page
     year = datetime.strptime(date, '%Y-%m-%d').year
-    return_route = 'index'  # par défaut pour 2024
+    return_route = 'year_2024'  # par défaut pour 2024
     
     if year == 2021:
         return_route = 'year_2021'
     elif year == 2022:
         return_route = 'year_2022'
     elif year == 2023:
-        return_route = 'bestof'
+        return_route = 'year_2023'
     elif year == 2025:
-        return_route = 'future'
+        return_route = 'year_2025'
+    elif year == 2020:
+        return_route = 'year_2020'
+    elif year == 2019:
+        return_route = 'year2019'
+    elif year == 2018:
+        return_route = 'year2018'
+    elif year == 2017:
+        return_route = 'year2017'
+    elif year == 2016:
+        return_route = 'year_2016'
     
     # Création d'un ID unique pour la galerie
     gallery_id = str(uuid.uuid4())
@@ -336,7 +346,7 @@ def edit_gallery(gallery_id):
     galleries = load_gallery_data()
     if gallery_id not in galleries:
         flash('Galerie non trouvée')
-        return redirect(url_for('index'))
+        return redirect(url_for('2024'))
     
     gallery = galleries[gallery_id]
     gallery['name'] = request.form.get('name', gallery['name']).strip()
@@ -371,14 +381,14 @@ def delete_gallery(gallery_id):
     else:
         flash('Galerie non trouvée', 'error')
     
-    return redirect(url_for('index'))
+    return redirect(url_for('2024'))
 
 @app.route('/years')
 def years():
     return render_template('years.html', dev_mode=app.config['DEV_MODE'])
 
-@app.route('/future')
-def future():
+@app.route('/2025')
+def year_2025():
     galleries = load_gallery_data()
     galleries_by_month = {}
     today = datetime.now()
@@ -405,70 +415,58 @@ def future():
             if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
                 galleries_by_month[month_key]['cover'] = gallery['cover_image']
     
-    return render_template('future.html', 
+    return render_template('2025.html', 
                          galleries_by_month=galleries_by_month,
                          dev_mode=app.config['DEV_MODE'])
 
-@app.route('/bestof')
-def bestof():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    background_image = None
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2023:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                # Chercher la photo de fond dans le mois d'août
-                if date.month == 8 and not background_image and gallery.get('cover_image'):
-                    background_image = gallery['cover_image']
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-    
-    return render_template('bestof.html', 
-                         galleries_by_month=galleries_by_month,
-                         background_image=background_image,
-                         dev_mode=app.config['DEV_MODE'])
-
-@app.route('/gallery/<gallery_id>/delete_photo/<int:photo_index>', methods=['POST'])
-def delete_photo(gallery_id, photo_index):
-    if not app.config['DEV_MODE']:
-        abort(403)  # Forbidden in production mode
+@app.route('/2023')
+def year_2023():
+    try:
+        galleries = load_gallery_data()
+        galleries_by_month = {}
         
-    galleries = load_gallery_data()
-    if gallery_id not in galleries:
-        flash('Galerie non trouvée', 'error')
-        return redirect(url_for('index'))
-    
-    gallery = galleries[gallery_id]
-    if 'photos' in gallery and 0 <= photo_index < len(gallery['photos']):
-        # Supprimer la photo
-        deleted_photo = gallery['photos'].pop(photo_index)
-        save_gallery_data(galleries)
-        flash('Photo supprimée avec succès', 'success')
-    else:
-        flash('Photo non trouvée', 'error')
-    
-    return redirect(url_for('gallery', gallery_id=gallery_id))
+        for gallery_id, gallery in galleries.items():
+            try:
+                date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+                if date.year == 2023:
+                    month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+                    month_num = date.strftime('%m')
+                    year = date.strftime('%Y')
+                    
+                    if month_key not in galleries_by_month:
+                        galleries_by_month[month_key] = {
+                            'galleries': [],
+                            'month': int(month_num),
+                            'year': int(year),
+                            'cover': None
+                        }
+                    
+                    gallery['id'] = gallery_id
+                    galleries_by_month[month_key]['galleries'].append(gallery)
+                    
+                    # Mettre à jour l'image de couverture si c'est la première galerie du mois
+                    if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                        galleries_by_month[month_key]['cover'] = gallery['cover_image']
+                    
+                    app.logger.info(f"Galerie ajoutée pour 2023: {gallery['name']}")
+            except Exception as e:
+                app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
+        
+        # Trouver la première image de couverture disponible
+        background_image = None
+        if galleries_by_month:
+            for month_data in galleries_by_month.values():
+                if month_data['galleries'] and month_data['galleries'][0].get('cover_image'):
+                    background_image = month_data['galleries'][0]['cover_image']
+                    break
+        
+        return render_template('2023.html', 
+                             galleries_by_month=galleries_by_month,
+                             background_image=background_image,
+                             dev_mode=app.config['DEV_MODE'])
+    except Exception as e:
+        app.logger.error(f"Error in 2023 route: {str(e)}")
+        return redirect(url_for('years'))
 
 @app.route('/2021')
 def year_2021():
@@ -529,7 +527,7 @@ def year_2021():
     
     app.logger.info("=== Fin du traitement des galeries 2021 ===")
     
-    return render_template('year2021.html', 
+    return render_template('2021.html', 
                          galleries_by_month=galleries_by_month,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
@@ -574,7 +572,7 @@ def year_2022():
                 background_image = month_data['galleries'][0]['cover_image']
                 break
     
-    return render_template('year2022.html', 
+    return render_template('2022.html', 
                          galleries_by_month=galleries_by_month,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
@@ -647,7 +645,7 @@ def year_2020():
                 background_image = month_data['galleries'][0]['cover_image']
                 break
     
-    return render_template('year2020.html', 
+    return render_template('2020.html', 
                          galleries_by_month=galleries_by_month,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
@@ -689,7 +687,7 @@ def year2019():
                 background_image = month_data['galleries'][0]['cover_image']
                 break
     
-    return render_template('year2019.html', 
+    return render_template('2019.html', 
                          galleries_by_month=galleries_by_month,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
@@ -730,7 +728,7 @@ def year2018():
                 background_image = month_data['galleries'][0]['cover_image']
                 break
     
-    return render_template('year2018.html', 
+    return render_template('2018.html', 
                          galleries_by_month=galleries_by_month,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
@@ -771,27 +769,33 @@ def year2017():
                 background_image = month_data['galleries'][0]['cover_image']
                 break
     
-    return render_template('year2017.html', 
+    return render_template('2017.html', 
                          galleries_by_month=galleries_by_month,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
 
-@app.route('/memories')
-def memories():
-    # Charger les projets
-    photos = load_projects()
-    app.logger.info(f"Nombre de projets chargés : {len(photos)}")
-    
-    # Debug: afficher le contenu des projets
-    for photo in photos:
-        app.logger.info(f"Projet: {photo.get('gallery_name')} - Date: {photo.get('formatted_date')}")
-    
-    # Trier les projets par date
-    photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
-    
-    return render_template('memories.html',
-                         photos=photos,
-                         dev_mode=app.config['DEV_MODE'])
+@app.route('/projets')
+def projets():
+    try:
+        # Charger les projets
+        photos = load_projects()
+        app.logger.info(f"Nombre de projets chargés : {len(photos)}")
+        
+        # Debug: afficher le contenu des projets
+        app.logger.info("Contenu des projets :")
+        for photo in photos:
+            app.logger.info(f"Projet: {photo}")
+        
+        # Trier les projets par date
+        photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
+        
+        return render_template('projets.html',
+                             photos=photos,
+                             dev_mode=app.config['DEV_MODE'])
+    except Exception as e:
+        app.logger.error(f"Erreur dans la route /projets : {str(e)}")
+        flash("Une erreur s'est produite lors du chargement des projets")
+        return redirect(url_for('year_2025'))
 
 @app.route('/dreams')
 def dreams():
@@ -832,12 +836,12 @@ def add_project():
             projects.append(new_project)
             save_projects(projects)
             
-        return redirect(url_for('memories'))
+        return redirect(url_for('projets'))
         
     except Exception as e:
         app.logger.error(f"Erreur lors de l'ajout du projet: {str(e)}")
         flash("Erreur lors de l'ajout du projet")
-        return redirect(url_for('memories'))
+        return redirect(url_for('projets'))
 
 @app.route('/edit_project/<project_id>', methods=['POST'])
 def edit_project(project_id):
@@ -863,12 +867,12 @@ def edit_project(project_id):
             project['url'] = upload_result['secure_url']
         
         save_projects(projects)
-        return redirect(url_for('memories'))
+        return redirect(url_for('projets'))
         
     except Exception as e:
         app.logger.error(f"Erreur lors de la modification du projet: {str(e)}")
-        flash("Erreur lors de la modification du projet")
-        return redirect(url_for('memories'))
+        flash('Erreur lors de la modification du projet')
+        return redirect(url_for('projets'))
 
 @app.route('/delete_project/<project_id>', methods=['POST'])
 def delete_project(project_id):
@@ -885,7 +889,7 @@ def delete_project(project_id):
         app.logger.error(f"Erreur lors de la suppression du projet: {str(e)}")
         flash("Erreur lors de la suppression du projet")
     
-    return redirect(url_for('memories'))
+    return redirect(url_for('projets'))
 
 @app.route('/memories-of-centuries')
 def memories_of_centuries():
@@ -1284,8 +1288,8 @@ def delete_animal(animal_id):
         app.logger.error(f"Error deleting animal: {str(e)}")
         return jsonify({'error': 'Failed to delete animal'}), 500
 
-@app.route('/year2016')
-def year2016():
+@app.route('/2016')
+def year_2016():
     galleries = load_gallery_data()
     galleries_by_month = {}
     background_image = None
@@ -1328,7 +1332,7 @@ def year2016():
     for month in galleries_by_month:
         french_months[month] = galleries_by_month[month]
 
-    return render_template('year2016.html', 
+    return render_template('2016.html', 
                          galleries_by_month=french_months,
                          background_image=background_image,
                          dev_mode=app.config['DEV_MODE'])
@@ -1407,6 +1411,28 @@ def save_inmy_life_text():
 @app.route('/inmy/back')
 def inmy_back():
     return render_template('inmy_back_cover.html')
+
+@app.route('/gallery/<gallery_id>/delete_photo/<int:photo_index>', methods=['POST'])
+def delete_photo(gallery_id, photo_index):
+    if not app.config['DEV_MODE']:
+        return "Non autorisé", 403
+        
+    galleries = load_gallery_data()
+    if gallery_id not in galleries:
+        flash('Galerie non trouvée')
+        return redirect(url_for('years'))
+        
+    gallery = galleries[gallery_id]
+    if 'photos' not in gallery or photo_index >= len(gallery['photos']):
+        flash('Photo non trouvée')
+        return redirect(url_for('gallery', gallery_id=gallery_id))
+        
+    # Supprimer la photo
+    del gallery['photos'][photo_index]
+    save_gallery_data(galleries)
+    
+    flash('Photo supprimée avec succès')
+    return redirect(url_for('gallery', gallery_id=gallery_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

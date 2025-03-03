@@ -378,16 +378,16 @@
                 <a href="{{ url_for('inmy_landing') }}" class="nav-btn">
                     <i class="fas fa-book"></i> In My Life
                 </a>
-                <a href="/mountain_flowers" class="nav-btn">
+                <a href="{{ url_for('mountain_flowers') }}" class="nav-btn">
                     <i class="fas fa-seedling"></i> Fleurs
                 </a>
-                <a href="/mountain_animals" class="nav-btn">
+                <a href="{{ url_for('mountain_animals') }}" class="nav-btn">
                     <i class="fas fa-paw"></i> Animaux
                 </a>
-                <a href="/memories" class="nav-btn">
+                <a href="{{ url_for('projets') }}" class="nav-btn">
                     <i class="fas fa-images"></i> Projets
                 </a>
-                <a href="/dreams" class="nav-btn">
+                <a href="{{ url_for('dreams') }}" class="nav-btn">
                     <i class="fas fa-mountain"></i> Souvenirs
                 </a>
                 {% if dev_mode %}
