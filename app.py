@@ -182,6 +182,13 @@ def gallery(gallery_id):
     
     # Ajouter l'ID à l'objet gallery
     gallery['id'] = gallery_id
+    
+    # Ajouter formatted_date s'il n'existe pas
+    if 'formatted_date' not in gallery:
+        date_obj = datetime.strptime(gallery['date'], '%Y-%m-%d')
+        day = str(date_obj.day).lstrip('0')  # Enlever le zéro initial
+        gallery['formatted_date'] = f"{day} {date_obj.strftime('%B %Y')}"
+    
     return render_template('gallery.html', 
                          gallery=gallery, 
                          dev_mode=app.config['DEV_MODE'],
@@ -296,11 +303,11 @@ def create_gallery():
     elif year == 2020:
         return_route = 'year_2020'
     elif year == 2019:
-        return_route = 'year2019'
+        return_route = 'year_2019'
     elif year == 2018:
-        return_route = 'year2018'
+        return_route = 'year_2018'
     elif year == 2017:
-        return_route = 'year2017'
+        return_route = 'year_2017'
     elif year == 2016:
         return_route = 'year_2016'
     
@@ -651,7 +658,7 @@ def year_2020():
                          dev_mode=app.config['DEV_MODE'])
 
 @app.route('/2019')
-def year2019():
+def year_2019():
     galleries = load_gallery_data()
     galleries_by_month = {}
     
@@ -693,7 +700,7 @@ def year2019():
                          dev_mode=app.config['DEV_MODE'])
 
 @app.route('/2018')
-def year2018():
+def year_2018():
     galleries = load_gallery_data()
     galleries_by_month = {}
     
@@ -734,7 +741,7 @@ def year2018():
                          dev_mode=app.config['DEV_MODE'])
 
 @app.route('/2017')
-def year2017():
+def year_2017():
     galleries = load_gallery_data()
     galleries_by_month = {}
     
