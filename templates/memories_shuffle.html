@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -453,7 +454,7 @@
                 {% if year != "1900" %}
                     {% for memory in memories[year]|sort(attribute='date') %}
                     <div class="slide" data-year="{{ year }}">
-                        <img src="{{ memory.url }}" alt="{{ memory.title }}" onclick="openImageModal('{{ memory.url }}')">
+                        <img src="{{ url_for('serve_cached_image', url=memory.optimized_url) }}" alt="{{ memory.title }}" onclick="openImageModal('{{ memory.optimized_url }}')">
                         {% if dev_mode %}
                         <button class="edit-btn" onclick="showEditPhotoForm('{{ memory.id }}', '{{ memory.title|replace("'", "\\'") }}', '{{ memory.description|replace("'", "\\'") }}', '{{ year }}')">
                             <i class="fas fa-edit"></i>

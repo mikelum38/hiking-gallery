@@ -20,8 +20,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
-                          url('/static/images/aulp.jpg');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('{{ background_url }}');
             background-size: cover;
             background-position: center;
             color: white;
@@ -89,7 +88,7 @@
             opacity: 0.9;
         }
 
-        .gallery-section {
+        .months-container {
             position: absolute;
             bottom: 2rem;
             left: 0;
@@ -98,7 +97,7 @@
             z-index: 2;
         }
 
-        .month-grid {
+        .months-scroll {
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
@@ -110,7 +109,7 @@
             -ms-overflow-style: none;
         }
 
-        .month-grid::-webkit-scrollbar {
+        .months-scroll::-webkit-scrollbar {
             display: none;
         }
 
@@ -343,7 +342,7 @@
                 flex: 0 0 auto;
             }
 
-            .gallery-section {
+            .months-container {
                 margin-top: 2rem;
                 flex: 1 0 auto;
                 display: flex;
@@ -352,7 +351,7 @@
                 padding: 0.5rem;
             }
 
-            .month-grid {
+            .months-scroll {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 0.75rem;
                 padding-bottom: 0;
@@ -403,22 +402,20 @@
             <p>Projets et aventures pour l'année 2025</p>
         </div>
 
-        <div class="gallery-section">
-            <button class="nav-button prev" onclick="scrollMonths('prev')">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="nav-button next" onclick="scrollMonths('next')">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-            <div class="month-grid">
-                {% for month, data in galleries_by_month.items()|sort(attribute='1.year,1.month') %}
+        <div class="months-container">
+            <div class="months-scroll">
+                {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
                 <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
-                    <div class="month-cover" {% if data.cover %}style="background-image: url('{{ data.cover }}')"{% endif %}>
+                        <div class="month-cover"
+                        {% if data.galleries|length > 0 and data.galleries[0].photos|length > 0 %}
+                            {% set first_gallery = data.galleries[0] %}
+                            {% set first_photo_url = first_gallery.photos[0].url %}
+                            {% set transformations = 'f_webp,q_auto,w_400,h_300,c_fill' %}
+                            {% set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') %}
+                            style="background-image: url('{{ optimized_cover_url }}')"
+                        {% endif %}>
                         <div class="month-overlay">
                             <h2 class="month-name">{{ month }}</h2>
-                            <div class="gallery-count">
-                                {{ data.galleries|length }} sortie{% if data.galleries|length > 1 %}s{% endif %}
-                            </div>
                         </div>
                     </div>
                 </a>
@@ -460,8 +457,9 @@
 
     <script>
         function scrollMonths(direction) {
-            const container = document.querySelector('.month-grid');
-            const scrollAmount = direction === 'next' ? container.clientWidth : -container.clientWidth;
+            const container = document.querySelector('.months-scroll');
+            const cardWidth = document.querySelector('.month-card').offsetWidth + 24; // 24px pour le gap
+            const scrollAmount = direction === 'next' ? cardWidth : -cardWidth;
             container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
 

@@ -17,8 +17,7 @@
 
         .home-hero {
             height: 100vh;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
-                          url('{{ background_image if background_image else "/static/images/default-bg.jpg" }}');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('{{ background_url }}');
             background-size: cover;
             background-position: center;
             position: relative;
@@ -321,7 +320,14 @@
         <div class="months-scroll">
             {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
             <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
-                <div class="month-cover" {% if data.cover %}style="background-image: url('{{ data.cover }}')"{% endif %}>
+                    <div class="month-cover"
+                    {% if data.galleries|length > 0 and data.galleries[0].photos|length > 0 %}
+                        {% set first_gallery = data.galleries[0] %}
+                        {% set first_photo_url = first_gallery.photos[0].url %}
+                        {% set transformations = 'f_webp,q_auto,w_400,h_300,c_fill' %}
+                        {% set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') %}
+                        style="background-image: url('{{ optimized_cover_url }}')"
+                    {% endif %}>
                     <div class="month-overlay">
                         <h2 class="month-name">{{ month }}</h2>
                     </div>

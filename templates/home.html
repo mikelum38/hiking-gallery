@@ -255,42 +255,16 @@
 
     <div id="mountainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="/static/images/mountain1.jpg" class="d-block w-100" alt="Montagne 1" 
-                     loading="eager" fetchpriority="high">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain2.jpg" class="d-block w-100" alt="Montagne 2" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain3.jpg" class="d-block w-100" alt="Montagne 3" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain4.jpg" class="d-block w-100" alt="Montagne 4" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain5.jpg" class="d-block w-100" alt="Montagne 5" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain6.jpg" class="d-block w-100" alt="Montagne 6" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain7.jpg" class="d-block w-100" alt="Montagne 7" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain8.jpg" class="d-block w-100" alt="Montagne 8" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain9.jpg" class="d-block w-100" alt="Montagne 9" loading="lazy">
-            </div>
-            <div class="carousel-item">
-                <img src="/static/images/mountain10.jpg" class="d-block w-100" alt="Montagne 10" loading="lazy">
-            </div>
+            {% for image_url in carousel_images %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ image_url }}" class="d-block w-100" alt="Montagne {{ loop.index }}" loading="lazy">
+                        </div>
+            {% endfor %}
         </div>
     </div>
 
     <audio id="bgMusic" loop preload="auto">
-        <source src="{{ url_for('static', filename='audio/music.mp3') }}" type="audio/mp3">
+       <source src="{{ url_for('cached_static', filename='audio/music.mp3') }}" type="audio/mp3">
         Votre navigateur ne supporte pas l'élément audio.
     </audio>
 

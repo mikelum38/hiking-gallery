@@ -10,6 +10,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+            background: #f5f5f5;
+            position: relative;
+        }
+        
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6))
+               {% if optimized_background_url %}, url('{{ optimized_background_url }}'){% endif %};
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: 1;
+        }
+
         .back-link {
             position: absolute;
             top: 2rem;
@@ -390,6 +413,8 @@
     </style>
 </head>
 <body>
+    <div class="background-image"></div>
+    
     <div class="gallery-page">
         <audio id="slideshowAudio" loop>
             {% if gallery.id == "c80475cc-0faf-425f-b4d6-10e3d78118a9" %}
@@ -404,7 +429,33 @@
             <i class="fas fa-arrow-left"></i>
             Retour aux galeries
         </a>
-        
+        {% if gallery.id == "20240905_gr20" %}
+            <div class="hero-content">
+                <h1>Corsica - GR20</h1>
+                <p>5 Septembre 2024</p>
+                <p>Une aventure extraordinaire avec 14 jours de marche</p>
+                
+                <div class="featured-image">
+                    <a href="https://mikelum38.pythonanywhere.com/" target="_blank">
+                        {# Optimization for the thumbnail #}
+                        {% set url_parts = gr20_thumbnail_url.split('/upload/') %}
+                        {% if url_parts|length == 2 %}
+                            {% set base_url = url_parts[0] + '/upload/' %}
+                            {% set image_name = url_parts[1] %}
+                            {% set transformations_thumb = 'f_webp,q_auto' %}
+                            {% if gr20_thumbnail_width > gr20_thumbnail_height %}
+                                {% set transformations_thumb = transformations_thumb + ',w_500,c_limit' %}
+                            {% else %}
+                                {% set transformations_thumb = transformations_thumb + ',h_400,c_limit' %}
+                            {% endif %}
+                            {% set optimized_url_thumb = base_url + transformations_thumb + '/' + image_name %}
+                            <img src="{{ url_for('serve_cached_image', url=optimized_url_thumb) }}" alt="GR20 Corse" loading="lazy">
+                        {% endif %}
+                        <p>Cliquer sur la photo pour aller sur le site décrivant cette aventure</p>
+                    </a>
+                </div>
+            </div>
+        {% else %}
         <div class="gallery-hero" {% if gallery.cover_image %}style="background-image: url('{{ gallery.cover_image }}')"{% endif %}>
             <div class="hero-overlay"></div>
             <div class="gallery-content">
@@ -438,27 +489,47 @@
 
                 <div class="photo-grid">
                     {% for photo in gallery.photos %}
-                    <div class="photo-item" onclick="openLightbox('{{ photo.url }}')">
-                        <img src="{{ photo.url }}" alt="{{ photo.filename }}" loading="lazy">
-                        {% if dev_mode %}
-                        <form action="{{ url_for('delete_photo', gallery_id=gallery.id, photo_index=loop.index0) }}" 
-                              method="post" 
-                              style="position: absolute; top: 0; right: 0;"
-                              onclick="event.stopPropagation();">
-                            <button type="submit" 
-                                    class="delete-photo-btn" 
-                                    onclick="return confirm('Voulez-vous vraiment supprimer cette photo ?');"
-                                    title="Supprimer cette photo">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </form>
+                    {% set url_parts = photo.url.split('/upload/') %}
+                    {% if url_parts|length == 2 %}
+                        {% set base_url = url_parts[0] + '/upload/' %}
+                        {% set image_name = url_parts[1] %}
+
+                        {# Déterminer l'orientation de l'image et appliquer la transformation appropriée #}
+                        {% set transformations_grid = 'f_webp,q_auto' %}
+                        {% if photo.width > photo.height %}
+                            {% set transformations_grid = transformations_grid + ',w_800,c_limit' %}
+                        {% else %}
+                            {% set transformations_grid = transformations_grid + ',h_800,c_limit' %}
                         {% endif %}
-                    </div>
+                        {% set optimized_url_grid = base_url + transformations_grid + '/' + image_name %}
+
+                        {# Transformation pour la lightbox #}
+                        {% set transformations_lightbox = 'f_webp,q_auto,w_1600,c_limit' %}
+                        {% set optimized_url_lightbox = base_url + transformations_lightbox + '/' + image_name %}
+
+                        <div class="photo-item" data-src="{{ optimized_url_lightbox }}" onclick="openLightbox(this)">
+                            <img src="{{ url_for('serve_cached_image', url=optimized_url_grid) }}" alt="{{ photo.filename }}" loading="lazy">
+                            {% if dev_mode %}
+                            <form action="{{ url_for('delete_photo', gallery_id=gallery.id, photo_index=loop.index0) }}" 
+                                  method="post" 
+                                  style="position: absolute; top: 0; right: 0;"
+                                  onclick="event.stopPropagation();">
+                                <button type="submit" 
+                                        class="delete-photo-btn" 
+                                        onclick="return confirm('Voulez-vous vraiment supprimer cette photo ?');"
+                                        title="Supprimer cette photo">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
+                
             </div>
         </div>
-
+        {% endif %}
         {% if dev_mode %}
         <div id="editModal" class="modal">
             <div class="modal-content">
@@ -515,236 +586,238 @@
             </div>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                let currentIndex = 0;
-                const images = document.querySelectorAll('.photo-item img');
-                const lightbox = document.querySelector('.lightbox');
-                const lightboxImage = document.getElementById('lightbox-image');
-                const spinner = document.querySelector('.spinner');
-                const totalPhotos = images.length;
-                let slideshowInterval = null;
-                let isMusicPlaying = false;
-                const bgMusic = document.getElementById('slideshowAudio');
+<script>
 
-                // Mettre à jour le compteur
-                function updateCounter() {
-                    document.getElementById('current-index').textContent = currentIndex + 1;
-                    document.getElementById('total-photos').textContent = totalPhotos;
-                }
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentIndex = 0;
+        const photoItems = document.querySelectorAll('.photo-item'); // Correct variable
+        const lightbox = document.querySelector('.lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const spinner = document.querySelector('.spinner');
+        const totalPhotos = photoItems.length; // Correct variable
+        let slideshowInterval = null;
+        let isMusicPlaying = false;
+        const bgMusic = document.getElementById('slideshowAudio');
 
-                // Charger une image
-                async function loadImage(src) {
-                    const img = document.getElementById('lightbox-image');
-                    
-                    // Démarrer le fondu
-                    img.classList.add('fade');
-                    
-                    // Attendre la fin du fondu
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    // Charger la nouvelle image
-                    return new Promise((resolve) => {
-                        const newImage = new Image();
-                        newImage.onload = () => {
-                            img.src = src;
-                            requestAnimationFrame(() => {
-                                img.classList.remove('fade');
-                                resolve();
-                            });
-                        };
-                        newImage.src = src;
+        // Mettre à jour le compteur
+        function updateCounter() {
+            document.getElementById('current-index').textContent = currentIndex + 1;
+            document.getElementById('total-photos').textContent = totalPhotos;
+        }
+
+        // Charger une image
+        async function loadImage(src) {
+            const img = document.getElementById('lightbox-image');
+            
+            // Démarrer le fondu
+            img.classList.add('fade');
+            
+            // Attendre la fin du fondu
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Charger la nouvelle image
+            return new Promise((resolve) => {
+                const newImage = new Image();
+                newImage.onload = () => {
+                    img.src = src;
+                    requestAnimationFrame(() => {
+                        img.classList.remove('fade');
+                        resolve();
                     });
-                }
-
-                // Navigation précédent
-                document.querySelector('.prev-btn').addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    currentIndex = (currentIndex - 1 + totalPhotos) % totalPhotos;
-                    await loadImage(images[currentIndex].src);
-                    updateCounter();
-                });
-
-                // Navigation suivant
-                document.querySelector('.next-btn').addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    currentIndex = (currentIndex + 1) % totalPhotos;
-                    await loadImage(images[currentIndex].src);
-                    updateCounter();
-                });
-
-                // Ouvrir la lightbox
-                images.forEach((img, index) => {
-                    img.addEventListener('click', async function() {
-                        currentIndex = index;
-                        lightbox.style.display = 'flex';
-                        await loadImage(this.src);
-                        updateCounter();
-                    });
-                });
-
-                // Fermer la lightbox avec la flèche retour
-                document.getElementById('return-arrow').addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    stopSlideshow();
-                    if (document.fullscreenElement) {
-                        await document.exitFullscreen();
-                    }
-                    lightbox.style.display = 'none';
-                });
-
-                // Gestion du plein écran
-                const fullscreenBtn = document.querySelector('.fullscreen-btn');
-                const lightboxContent = document.querySelector('.lightbox-content');
-
-                async function toggleFullscreen() {
-                    try {
-                        if (!document.fullscreenElement) {
-                            await lightbox.requestFullscreen();
-                            lightbox.classList.add('fullscreen');
-                            document.querySelector('.fullscreen-btn i').className = 'fas fa-compress';
-                            document.querySelector('.fullscreen-btn').setAttribute('data-tooltip', 'Quitter le plein écran');
-                        } else {
-                            await document.exitFullscreen();
-                            lightbox.classList.remove('fullscreen');
-                            document.querySelector('.fullscreen-btn i').className = 'fas fa-expand';
-                            document.querySelector('.fullscreen-btn').setAttribute('data-tooltip', 'Passer en plein écran');
-                            if (slideshowInterval) {
-                                stopSlideshow();
-                            }
-                        }
-                    } catch (err) {
-                        console.error('Erreur lors du changement de mode plein écran:', err);
-                    }
-                }
-
-                // Écouteur pour détecter la sortie du mode plein écran
-                document.addEventListener('fullscreenchange', function() {
-                    if (!document.fullscreenElement && slideshowInterval) {
-                        stopSlideshow();
-                        if (isMusicPlaying) {
-                            toggleMusic();
-                        }
-                    }
-                });
-
-                // Arrêter le diaporama lors de la fermeture de la lightbox
-                document.getElementById('return-arrow').addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    stopSlideshow();
-                    if (document.fullscreenElement) {
-                        await document.exitFullscreen();
-                    }
-                    lightbox.style.display = 'none';
-                });
-
-                // Arrêter le diaporama lors de la navigation manuelle
-                document.querySelector('.prev-btn').addEventListener('click', () => {
-                    stopSlideshow();
-                });
-
-                document.querySelector('.next-btn').addEventListener('click', () => {
-                    stopSlideshow();
-                });
-
-                // Arrêter le diaporama avec la touche Escape
-                document.addEventListener('keydown', async (e) => {
-                    if (lightbox.style.display === 'flex') {
-                        if (e.key === 'Escape') {
-                            stopSlideshow();
-                            document.getElementById('return-arrow').click();
-                        } else if (slideshowInterval && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-                            stopSlideshow();
-                        }
-                    }
-                });
-
-                function toggleMusic() {
-                    if (isMusicPlaying) {
-                        bgMusic.pause();
-                        isMusicPlaying = false;
-                        document.querySelector('.music-btn i').className = 'fas fa-music';
-                        document.querySelector('.music-btn').setAttribute('data-tooltip', 'Activer la musique');
-                    } else {
-                        bgMusic.play();
-                        isMusicPlaying = true;
-                        document.querySelector('.music-btn i').className = 'fas fa-volume-up';
-                        document.querySelector('.music-btn').setAttribute('data-tooltip', 'Désactiver la musique');
-                    }
-                }
-
-                async function nextSlide() {
-                    currentIndex = (currentIndex + 1) % totalPhotos;
-                    await loadImage(images[currentIndex].src);
-                }
-
-                function startSlideshow() {
-                    if (!document.fullscreenElement) {
-                        lightbox.requestFullscreen();
-                    }
-                    lightbox.classList.add('fullscreen', 'slideshow-active');
-                    document.querySelector('.slideshow-btn i').className = 'fas fa-pause';
-                    document.querySelector('.slideshow-btn').setAttribute('data-tooltip', 'Arrêter le diaporama');
-                    
-                    // Cacher les contrôles en mode diaporama
-                    document.querySelector('.prev-btn').style.display = 'none';
-                    document.querySelector('.next-btn').style.display = 'none';
-                    document.querySelector('.photo-counter').style.display = 'none';
-                    
-                    slideshowInterval = setInterval(nextSlide, 5000);
-                    if (!isMusicPlaying) {
-                        toggleMusic();
-                    }
-                }
-
-                function stopSlideshow() {
-                    lightbox.classList.remove('slideshow-active');
-                    document.querySelector('.slideshow-btn i').className = 'fas fa-play';
-                    document.querySelector('.slideshow-btn').setAttribute('data-tooltip', 'Lancer le diaporama');
-                    
-                    // Réafficher les contrôles
-                    document.querySelector('.prev-btn').style.display = 'flex';
-                    document.querySelector('.next-btn').style.display = 'flex';
-                    document.querySelector('.photo-counter').style.display = 'block';
-                    
-                    if (slideshowInterval) {
-                        clearInterval(slideshowInterval);
-                        slideshowInterval = null;
-                    }
-                    
-                    if (isMusicPlaying) {
-                        toggleMusic();
-                    }
-                }
-
-                // Gestionnaire pour le bouton plein écran
-                document.querySelector('.fullscreen-btn').addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    await toggleFullscreen();
-                });
-
-                // Gestion du diaporama
-                const slideshowBtn = document.querySelector('.slideshow-btn');
-                
-                slideshowBtn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    if (slideshowInterval) {
-                        stopSlideshow();
-                    } else {
-                        await startSlideshow();
-                    }
-                });
-
-                // Initialiser le compteur
-                document.getElementById('total-photos').textContent = totalPhotos;
-
-                // S'assurer que la musique peut être contrôlée pendant le diaporama
-                document.querySelector('.music-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleMusic();
-                });
+                };
+                newImage.src = src;
             });
-        </script>
+        }
+
+        // Navigation précédent
+        document.querySelector('.prev-btn').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            currentIndex = (currentIndex - 1 + totalPhotos) % totalPhotos;
+            await loadImage(photoItems[currentIndex].dataset.src); // Corrected line
+            updateCounter();
+        });
+
+        // Navigation suivant
+        document.querySelector('.next-btn').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            currentIndex = (currentIndex + 1) % totalPhotos;
+            await loadImage(photoItems[currentIndex].dataset.src); // Corrected line
+            updateCounter();
+        });
+
+        // Ouvrir la lightbox
+        photoItems.forEach((photoItem, index) => {
+            photoItem.addEventListener('click', async function() {
+                currentIndex = index;
+                lightbox.style.display = 'flex';
+                await loadImage(this.dataset.src); // Corrected line
+                updateCounter();
+            });
+        });
+
+        // Fermer la lightbox avec la flèche retour
+        document.getElementById('return-arrow').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            stopSlideshow();
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            }
+            lightbox.style.display = 'none';
+        });
+
+        // Gestion du plein écran
+        const fullscreenBtn = document.querySelector('.fullscreen-btn');
+        const lightboxContent = document.querySelector('.lightbox-content');
+
+        async function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    await lightbox.requestFullscreen();
+                    lightbox.classList.add('fullscreen');
+                    document.querySelector('.fullscreen-btn i').className = 'fas fa-compress';
+                    document.querySelector('.fullscreen-btn').setAttribute('data-tooltip', 'Quitter le plein écran');
+                } else {
+                    await document.exitFullscreen();
+                    lightbox.classList.remove('fullscreen');
+                    document.querySelector('.fullscreen-btn i').className = 'fas fa-expand';
+                    document.querySelector('.fullscreen-btn').setAttribute('data-tooltip', 'Passer en plein écran');
+                    if (slideshowInterval) {
+                        stopSlideshow();
+                    }
+                }
+            } catch (err) {
+                console.error('Erreur lors du changement de mode plein écran:', err);
+            }
+        }
+
+        // Écouteur pour détecter la sortie du mode plein écran
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && slideshowInterval) {
+                stopSlideshow();
+                if (isMusicPlaying) {
+                    toggleMusic();
+                }
+            }
+        });
+
+        // Arrêter le diaporama lors de la fermeture de la lightbox
+        document.getElementById('return-arrow').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            stopSlideshow();
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            }
+            lightbox.style.display = 'none';
+        });
+
+        // Arrêter le diaporama lors de la navigation manuelle
+        document.querySelector('.prev-btn').addEventListener('click', () => {
+            stopSlideshow();
+        });
+
+        document.querySelector('.next-btn').addEventListener('click', () => {
+            stopSlideshow();
+        });
+
+        // Arrêter le diaporama avec la touche Escape
+        document.addEventListener('keydown', async (e) => {
+            if (lightbox.style.display === 'flex') {
+                if (e.key === 'Escape') {
+                    stopSlideshow();
+                    document.getElementById('return-arrow').click();
+                } else if (slideshowInterval && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                    stopSlideshow();
+                }
+            }
+        });
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                isMusicPlaying = false;
+                document.querySelector('.music-btn i').className = 'fas fa-music';
+                document.querySelector('.music-btn').setAttribute('data-tooltip', 'Activer la musique');
+            } else {
+                bgMusic.play();
+                isMusicPlaying = true;
+                document.querySelector('.music-btn i').className = 'fas fa-volume-up';
+                document.querySelector('.music-btn').setAttribute('data-tooltip', 'Désactiver la musique');
+            }
+        }
+
+        async function nextSlide() {
+            currentIndex = (currentIndex + 1) % totalPhotos;
+            await loadImage(photoItems[currentIndex].dataset.src); // Corrected line
+        }
+
+        function startSlideshow() {
+            if (!document.fullscreenElement) {
+                lightbox.requestFullscreen();
+            }
+            lightbox.classList.add('fullscreen', 'slideshow-active');
+            document.querySelector('.slideshow-btn i').className = 'fas fa-pause';
+            document.querySelector('.slideshow-btn').setAttribute('data-tooltip', 'Arrêter le diaporama');
+            
+            // Cacher les contrôles en mode diaporama
+            document.querySelector('.prev-btn').style.display = 'none';
+            document.querySelector('.next-btn').style.display = 'none';
+            document.querySelector('.photo-counter').style.display = 'none';
+            
+            slideshowInterval = setInterval(nextSlide, 5000);
+            if (!isMusicPlaying) {
+                toggleMusic();
+            }
+        }
+
+        function stopSlideshow() {
+            lightbox.classList.remove('slideshow-active');
+            document.querySelector('.slideshow-btn i').className = 'fas fa-play';
+            document.querySelector('.slideshow-btn').setAttribute('data-tooltip', 'Lancer le diaporama');
+            
+            // Réafficher les contrôles
+            document.querySelector('.prev-btn').style.display = 'flex';
+            document.querySelector('.next-btn').style.display = 'flex';
+            document.querySelector('.photo-counter').style.display = 'block';
+            
+            if (slideshowInterval) {
+                clearInterval(slideshowInterval);
+                slideshowInterval = null;
+            }
+            
+            if (isMusicPlaying) {
+                toggleMusic();
+            }
+        }
+
+        // Gestionnaire pour le bouton plein écran
+        document.querySelector('.fullscreen-btn').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await toggleFullscreen();
+        });
+
+        // Gestion du diaporama
+        const slideshowBtn = document.querySelector('.slideshow-btn');
+        
+        slideshowBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (slideshowInterval) {
+                stopSlideshow();
+            } else {
+                await startSlideshow();
+            }
+        });
+
+        // Initialiser le compteur
+        document.getElementById('total-photos').textContent = totalPhotos;
+
+        // S'assurer que la musique peut être contrôlée pendant le diaporama
+        document.querySelector('.music-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMusic();
+        });
+    });
+</script>
+      </script>
 
         <script>
             function showEditModal() {

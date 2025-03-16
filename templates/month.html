@@ -21,7 +21,7 @@
             width: 100%;
             height: 100vh;
             background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6))
-                        {% if background_image %}, url('{{ background_image }}'){% endif %};
+               {% if optimized_background_url %}, url('{{ optimized_background_url }}'){% endif %};
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -169,6 +169,15 @@
             text-overflow: ellipsis;
         }
 
+        .month-cover {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
         @media (max-width: 768px) {
             .month-header {
                 padding: 1.5rem 1rem;
@@ -229,8 +238,9 @@
         <div class="galleries-grid">
             {% for gallery in galleries %}
             <a href="{{ url_for('gallery', gallery_id=gallery.id) }}" class="gallery-card">
-                <div class="gallery-cover" {% if gallery.cover_image %}style="background-image: url('{{ gallery.cover_image }}')"{% endif %}></div>
-                <div class="gallery-info">
+               <div class="gallery-cover" {% if gallery.optimized_cover_url %}style="background-image: url('{{ gallery.optimized_cover_url }}')"{% endif %}>
+                 </div>
+                   <div class="gallery-info">
                     <h2>{{ gallery.name }}</h2>
                     <div class="gallery-meta">
                         {{ gallery.formatted_date }}

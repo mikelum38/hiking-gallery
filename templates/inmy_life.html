@@ -23,9 +23,9 @@
             justify-content: center;
             padding: 2rem;
             box-sizing: border-box;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-                        url('/static/images/slide-img-fall02.jpg') no-repeat center center fixed;
-            background-size: cover;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                    url('{{ slide_url }}'); 
+           background-size: cover;
             position: fixed;
             top: 0;
             left: 0;
@@ -296,25 +296,11 @@
                 <div class="page-content {% if turn %}turn{% endif %}">
                     <div class="page-fold"></div>
                     <div class="page-layout">
-                        {% if page == 1 %}
-                        <img src="{{ url_for('static', filename='images/inmy_life/page1.jpg') }}" alt="Première page" class="page-image">
+                        {% if page <= 3 %}
+                        <img src="{{ page_image_url }}" alt="Page {{ page }}" class="page-image">
                         <div class="page-text-container">
                             <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
-                                {{ text1 | safe }}
-                            </div>
-                        </div>
-                        {% elif page == 2 %}
-                        <img src="{{ url_for('static', filename='images/inmy_life/page2.jpg') }}" alt="Deuxième page" class="page-image">
-                        <div class="page-text-container">
-                            <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
-                                {{ text2 | safe }}
-                            </div>
-                        </div>
-                        {% elif page == 3 %}
-                        <img src="{{ url_for('static', filename='images/inmy_life/page3.jpg') }}" alt="Troisième page" class="page-image">
-                        <div class="page-text-container">
-                            <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
-                                {{ text3 | safe }}
+                                {{ text1 | safe if page == 1 else text2 | safe if page == 2 else text3 | safe }}
                             </div>
                         </div>
                         {% elif page == 4 %}
@@ -332,7 +318,7 @@
                         {% endif %}
                     </div>
                 </div>
-
+     
                 {% if prev_url %}
                 <a href="{{ prev_url }}" class="nav-arrow prev" onclick="turnPage(event)">
                     <i class="fas fa-chevron-left"></i>

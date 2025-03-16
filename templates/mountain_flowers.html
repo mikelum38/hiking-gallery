@@ -491,13 +491,25 @@
                 </div>
                 <img id="main-image" class="main-image" src="" alt="">
                 <div id="flower-info" class="flower-description"></div>
+                {% if dev_mode %}
+                <div class="flower-actions">
+                    <button class="edit-btn" onclick="showEditFlowerForm(currentFlowerId)">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+                    <button class="delete-btn" onclick="deleteFlower(currentFlowerId, event)">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
+    {% if dev_mode %}
     <a href="#" class="add-flower-btn" onclick="showAddFlowerForm()">
         <i class="fas fa-plus"></i> Ajouter une fleur
     </a>
+    {% endif %}
 
     <div id="addFlowerModal" class="modal">
         <div class="modal-content">
@@ -553,6 +565,7 @@
         
         let currentFlowerIndex = -1;
         let flowersList = [];
+        let currentFlowerId = null;
 
         function highlightThumbnail(flowerId) {
             // Retirer la classe active de tous les thumbnails
@@ -570,9 +583,10 @@
         }
 
         function showFlower(flower) {
+            currentFlowerId = flower.id;
             currentFlowerIndex = flowersList.findIndex(f => f.id === flower.id);
             document.getElementById('flower-display').style.display = 'block';
-            document.getElementById('main-image').src = flower.image_url;
+            document.getElementById('main-image').src = flower.optimized_image_url;
             document.getElementById('flower-info').innerHTML = `
                 <h2>${flower.name}</h2>
                 <p>${flower.description}</p>
@@ -580,7 +594,7 @@
             updateNavigationButtons();
             highlightThumbnail(flower.id);
         }
-
+        
         function updateNavigationButtons() {
             const leftArrow = document.querySelector('.nav-arrow.left');
             const rightArrow = document.querySelector('.nav-arrow.right');
@@ -665,16 +679,19 @@
             }
         }
 
+
         function createFlowerThumbnail(flower) {
             flowersList.push(flower);
             const thumbnail = document.createElement('div');
             thumbnail.className = 'flower-thumbnail';
             thumbnail.setAttribute('data-flower-id', flower.id);
-            thumbnail.innerHTML = `<img src="${flower.image_url}" alt="${flower.name}">`;
+            // Utilisation de optimized_image_url pour la miniature
+            thumbnail.setAttribute('data-src', flower.optimized_image_url);
+            thumbnail.innerHTML = `<img src="${flower.optimized_image_url}" alt="${flower.name}">`;
             thumbnail.addEventListener('click', () => showFlower(flower));
             return thumbnail;
         }
-
+        
         // Charger les fleurs existantes
         const flowers = {{ flowers|tojson|safe }};
         if (flowers && flowers.length > 0) {
@@ -687,8 +704,8 @@
             // Afficher la première fleur par défaut
             showFlower(flowers[0]);
         }
-
-        // Gestion du formulaire d'ajout
+      
+         // Gestion du formulaire d'ajout
         document.getElementById('addFlowerForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
@@ -778,5 +795,6 @@
             }
         });
     </script>
+
 </body>
 </html>

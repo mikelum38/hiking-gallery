@@ -462,7 +462,8 @@
     </div>
 
     <audio id="bgMusic" loop>
-        <source src="/static/audio/Vangelis.mp3" type="audio/mp3">
+        <source src="{{ url_for('cached_static', filename='audio/Vangelis.mp3') }}" type="audio/mp3">
+ 
     </audio>
 
     <button id="musicToggle" class="music-btn">

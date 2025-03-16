@@ -21,8 +21,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)),
-                          url('/static/images/roue.jpg');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url('{{ background_url }}');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -177,7 +176,7 @@
             margin-top: 20px;
             font-size: 24px;
             font-weight: bold;
-            color: #FFD700;  /* Jaune doré */
+            color: #FFD700;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
@@ -298,20 +297,22 @@
 
     <script>
         const destinations = [
-            { name: '2025', url: '/2025', image: '/static/images/roue1.jpg' },
-            { name: 'Projets', url: '/projets', image: '/static/images/roue2.jpg' },
-            { name: '2023', url: '/2023', image: '/static/images/roue3.jpg' },
-            { name: 'In My Life', url: '/inmy', image: '/static/images/roue4.jpg' },
-            { name: 'Memories Shuffle', url: '/memories_shuffle', image: '/static/images/roue5.jpg' },
-            { name: 'Memories Pile', url: '/memories_pile', image: '/static/images/roue6.jpg' },
-            { name: 'Memories of Centuries', url: '/memories_of_centuries', image: '/static/images/roue7.jpg' },
-            { name: 'Mountain Flowers', url: '/mountain_flowers', image: '/static/images/roue8.jpg' },
-            { name: 'Bouquetin', url: '/bouquetin', image: '/static/images/roue9.jpg' },
-            { name: 'Mountain Animals', url: '/mountain_animals', image: '/static/images/roue10.jpg' },
-            { name: 'Dreams', url: '/dreams', image: '/static/images/roue11.jpg' },
-            { name: 'Years', url: '/years', image: '/static/images/roue12.jpg' }
+            { name: '2025', url: '/2025', image: 'roue1' },
+            { name: 'Projets', url: '/projets', image: 'roue2' },
+            { name: '2023', url: '/2023', image: 'roue3' },
+            { name: 'In My Life', url: '/inmy', image: 'roue4' },
+            { name: 'Memories Shuffle', url: '/memories_shuffle', image: 'roue5' },
+            { name: 'Memories Pile', url: '/memories_pile', image: 'roue6' },
+            { name: 'Memories of Centuries', url: '/memories_of_centuries', image: 'roue7' },
+            { name: 'Mountain Flowers', url: '/mountain_flowers', image: 'roue8' },
+            { name: 'Bouquetin', url: '/bouquetin', image: 'roue9' },
+            { name: 'Mountain Animals', url: '/mountain_animals', image: 'roue10' },
+            { name: 'Dreams', url: '/dreams', image: 'roue11' },
+            { name: 'Years', url: '/years', image: 'roue12' }
         ];
 
+        const wheelImages = {{ wheel_images|tojson }};
+        
         // Créer les segments de la roue
         const wheel = document.getElementById('wheel');
         destinations.forEach((destination, index) => {
@@ -320,7 +321,7 @@
             segment.dataset.url = destination.url;
             
             const img = document.createElement('img');
-            img.src = destination.image;
+            img.src = wheelImages[index];
             img.alt = destination.name;
             
             segment.appendChild(img);
@@ -380,6 +381,7 @@
                 spinButton.disabled = false;
             }, 1000);
         }
+
 
         function stopSpin() {
             isSpinning = false;
@@ -451,14 +453,23 @@
             segments.forEach(s => s.classList.remove('active'));
             segments[segmentIndex].classList.add('active');
             
-            // Rediriger vers la destination
-            const destination = destinations[segmentIndex];
-            window.location.href = destination.url;
+            // Afficher le nom de la destination
+            const destination = destinations[segmentIndex];            
+            document.getElementById('activeDestination').textContent = destination.name;
         }
 
         function openModal(src, title, id) {
-            // Redirection directe vers la destination
-            window.location.href = src;
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalText = document.getElementById('modalText');
+            
+            modalImage.src = src;
+            modalTitle.textContent = title;
+            modalText.dataset.destinationId = id;
+            modalText.value = localStorage.getItem('wheelNote_' + id) || '';
+            
+            modal.style.display = 'flex';
         }
 
         function closeModal() {
@@ -475,6 +486,14 @@
             
             modal.style.display = 'none';
         }
+
+        // Ajouter un gestionnaire d'événements click sur les segments actifs
+        wheel.addEventListener('click', (event) => {
+            if (event.target.closest('.segment.active')) {
+                const activeSegment = event.target.closest('.segment.active');
+                openModal(wheelImages[Array.from(wheel.children).indexOf(activeSegment)], destinations[Array.from(wheel.children).indexOf(activeSegment)].name, destinations[Array.from(wheel.children).indexOf(activeSegment)].url);
+            }
+        });
 
         document.getElementById('spinButton').addEventListener('click', () => {
             if (isSpinning) {

@@ -77,7 +77,7 @@
             <i class="fas fa-arrow-left"></i> Retour
         </a>
         <video controls autoplay>
-            <source src="/static/video/bouquetin.mp4" type="video/mp4">
+            <source src="{{ url_for('cached_static', filename='video/bouquetin.mp4') }}" type="video/mp4">
             Votre navigateur ne supporte pas la lecture de vidéos.
         </video>
     </div>

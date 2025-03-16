@@ -7,13 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <style>
         body {
             margin: 0;
             padding: 0;
             min-height: 100vh;
             height: 100vh;
-            background: url('/static/images/granier.jpg') no-repeat center center fixed;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('{{ background_url }}');
             background-size: cover;
             display: flex;
             justify-content: center;

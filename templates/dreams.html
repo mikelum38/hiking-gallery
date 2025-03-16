@@ -18,8 +18,8 @@
         .home-hero {
             height: 100vh;
             background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
-                          url('/static/images/loup.jpg');
-            background-size: cover;
+                              url('{{ optimized_url }}'); /* Modification ici */
+             background-size: cover;
             background-position: center;
             position: relative;
             display: flex;
@@ -30,6 +30,7 @@
             color: white;
             padding-bottom: 15vh;
         }
+
 
         .nav-buttons {
             position: fixed;

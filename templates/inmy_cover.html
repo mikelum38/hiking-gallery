@@ -14,10 +14,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-                        url('/static/images/slide-img-fall02.jpg') no-repeat center center fixed;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                    url('{{ slide_url }}'); 
             background-size: cover;
             font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Ajout pour éviter les barres de défilement */
         }
 
         .book-container {
@@ -32,8 +33,7 @@
         .cover {
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(47, 102, 87, 0.9), rgba(47, 102, 87, 0.95)),
-                      url('/static/images/slide-img-fall02.jpg') no-repeat center center;
+            background: linear-gradient(rgba(47, 102, 87, 0.9), rgba(47, 102, 87, 0.95));
             background-size: cover;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);

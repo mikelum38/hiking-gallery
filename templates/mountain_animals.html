@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body, html {
+    body, html {
             margin: 0;
             padding: 0;
             height: 100%;
@@ -528,208 +528,224 @@
     </div>
     {% endif %}
 
-    <script>
-        let currentAnimalId = null;
+<script>
+    let currentAnimalId = null;
+    const devMode = {{ dev_mode|tojson }};
 
-        function highlightThumbnail(animalId) {
-            const thumbnails = document.querySelectorAll('.animal-thumbnail');
-            thumbnails.forEach(thumb => thumb.classList.remove('active'));
-            const activeThumbnail = document.querySelector(`.animal-thumbnail[data-id="${animalId}"]`);
-            if (activeThumbnail) {
-                activeThumbnail.classList.add('active');
-                activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
+    function highlightThumbnail(animalId) {
+        const thumbnails = document.querySelectorAll('.animal-thumbnail');
+        thumbnails.forEach(thumb => thumb.classList.remove('active'));
+        const activeThumbnail = document.querySelector(`.animal-thumbnail[data-id="${animalId}"]`);
+        if (activeThumbnail) {
+            activeThumbnail.classList.add('active');
+            activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+    }
 
-        function showAnimal(animal) {
-            const display = document.getElementById('animal-display');
-            currentAnimalId = animal.id;
-            const animals = {{ animals|tojson|safe }};
-            const currentIndex = animals.findIndex(a => a.id === animal.id);
-            const isLastAnimal = currentIndex === animals.length - 1;
-            const isFirstAnimal = currentIndex === 0;
-
-            const content = `
-                <img src="${animal.image_url}" alt="${animal.name}" class="main-image">
-                <div class="animal-description">
-                    <h2>${animal.name}</h2>
-                    <p>${animal.description}</p>
-                    {% if dev_mode %}
-                    <div class="button-group">
-                        <button class="button secondary" onclick="showEditAnimalForm('${animal.id}')">
-                            <i class="fas fa-edit"></i> Modifier
-                        </button>
-                        <button class="button secondary" onclick="deleteAnimal('${animal.id}', event)">
-                            <i class="fas fa-trash"></i> Supprimer
-                        </button>
-                    </div>
-                    {% endif %}
-                </div>
-                ${!isFirstAnimal ? `
-                <a href="#" onclick="showPreviousAnimal(); return false;" class="prev-link">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-                ` : ''}
-                ${!isLastAnimal ? `
-                <a href="#" onclick="showNextAnimal(); return false;" class="next-link">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-                ` : ''}
-            `;
-
-            display.innerHTML = content;
-            highlightThumbnail(animal.id);
-        }
-
-        function showNextAnimal() {
-            const animals = {{ animals|tojson|safe }};
-            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
-            if (currentIndex < animals.length - 1) {
-                showAnimal(animals[currentIndex + 1]);
-            }
-        }
-
-        function showPreviousAnimal() {
-            const animals = {{ animals|tojson|safe }};
-            const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
-            if (currentIndex > 0) {
-                showAnimal(animals[currentIndex - 1]);
-            }
-        }
-
-        function showAddAnimalForm() {
-            document.getElementById('add-animal-modal').style.display = 'flex';
-        }
-
-        function hideAddAnimalForm() {
-            document.getElementById('add-animal-modal').style.display = 'none';
-        }
-
-        function showEditAnimalForm(animalId) {
-            const animals = {{ animals|tojson|safe }};
-            const animal = animals.find(a => a.id === animalId);
-            if (animal) {
-                document.getElementById('edit-id').value = animal.id;
-                document.getElementById('edit-name').value = animal.name;
-                document.getElementById('edit-image').value = animal.image_url;
-                document.getElementById('edit-description').value = animal.description;
-                document.getElementById('edit-animal-modal').style.display = 'flex';
-            }
-        }
-
-        function hideEditAnimalForm() {
-            document.getElementById('edit-animal-modal').style.display = 'none';
-        }
-
-        function deleteAnimal(animalId, event) {
-            event.stopPropagation();
-            if (confirm('Êtes-vous sûr de vouloir supprimer cet animal ?')) {
-                fetch(`/api/animals/${animalId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Erreur lors de la suppression de l\'animal');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Erreur lors de la suppression de l\'animal');
-                });
-            }
-        }
-
-        function createAnimalThumbnail(animal) {
-            return `
-                <div class="animal-thumbnail" data-id="${animal.id}" onclick="showAnimal(${JSON.stringify(animal).replace(/"/g, '&quot;')})">
-                    <img src="${animal.thumbnail_url || animal.image_url}" alt="${animal.name}">
-                </div>
-            `;
-        }
-
-        // Charger les animaux existants
+    function showAnimal(animalId) {
+        const display = document.getElementById('animal-display');
         const animals = {{ animals|tojson|safe }};
-        if (animals && animals.length > 0) {
-            const sidebar = document.querySelector('.sidebar');
-            animals.forEach(animal => {
-                sidebar.insertAdjacentHTML('beforeend', createAnimalThumbnail(animal));
-            });
-            showAnimal(animals[0]);
+        const animal = animals.find(a => a.id === animalId);
+
+        if (!animal) {
+            console.error(`Animal with ID ${animalId} not found.`);
+            return; // Exit if animal is not found
         }
+        
+        currentAnimalId = animal.id;
 
-        // Gérer le formulaire d'ajout
-        document.getElementById('add-animal-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
+        const currentIndex = animals.findIndex(a => a.id === animal.id);
+        const isLastAnimal = currentIndex === animals.length - 1;
+        const isFirstAnimal = currentIndex === 0;
 
-            fetch('/add_animal', {
-                method: 'POST',
-                body: formData
+        const mainImageUrl = `/cached_image?url=${encodeURIComponent(animal.optimized_image_url)}`;
+
+        const content = `
+            <img src="${mainImageUrl}" alt="${animal.name}" class="main-image">
+            <div class="animal-description">
+                <h2>${animal.name}</h2>
+                <p>${animal.description}</p>
+                ${devMode ? `
+                <div class="button-group">
+                    <button class="button secondary" onclick="showEditAnimalForm('${animal.id}')">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+                    <button class="button secondary" onclick="deleteAnimal('${animal.id}', event)">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+                ` : ''}
+            </div>
+            ${!isFirstAnimal ? `
+            <a href="#" onclick="showPreviousAnimal(); return false;" class="prev-link">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            ` : ''}
+            ${!isLastAnimal ? `
+            <a href="#" onclick="showNextAnimal(); return false;" class="next-link">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            ` : ''}
+        `;
+
+        display.innerHTML = content;
+        highlightThumbnail(animal.id);
+    }
+
+
+    function showNextAnimal() {
+        const animals = {{ animals|tojson|safe }};
+        const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+        if (currentIndex < animals.length - 1) {
+            showAnimal(animals[currentIndex + 1].id);
+        }
+    }
+
+    function showPreviousAnimal() {
+        const animals = {{ animals|tojson|safe }};
+        const currentIndex = animals.findIndex(a => a.id === currentAnimalId);
+        if (currentIndex > 0) {
+            showAnimal(animals[currentIndex - 1].id);
+        }
+    }
+
+    function showAddAnimalForm() {
+        document.getElementById('add-animal-modal').style.display = 'flex';
+    }
+
+    function hideAddAnimalForm() {
+        document.getElementById('add-animal-modal').style.display = 'none';
+    }
+
+    function showEditAnimalForm(animalId) {
+        const animals = {{ animals|tojson|safe }};
+        const animal = animals.find(a => a.id === animalId);
+        if (animal) {
+            document.getElementById('edit-id').value = animal.id;
+            document.getElementById('edit-name').value = animal.name;
+            document.getElementById('edit-image').value = animal.image_url;
+            document.getElementById('edit-description').value = animal.description;
+            document.getElementById('edit-animal-modal').style.display = 'flex';
+        }
+    }
+
+    function hideEditAnimalForm() {
+        document.getElementById('edit-animal-modal').style.display = 'none';
+    }
+
+    function deleteAnimal(animalId, event) {
+        event.stopPropagation();
+        if (confirm('Êtes-vous sûr de vouloir supprimer cet animal ?')) {
+            fetch(`/api/animals/${animalId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             })
             .then(response => response.json())
             .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
+                if (data.success) {
                     location.reload();
+                } else {
+                    alert('Erreur lors de la suppression de l\'animal');
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                alert('Erreur lors de l\'ajout de l\'animal');
+                alert('Erreur lors de la suppression de l\'animal');
             });
+        }
+    }
+
+    function createAnimalThumbnail(animal) {
+            const optimizedThumbnailUrl = `/cached_image?url=${encodeURIComponent(animal.optimized_url_thumbnail)}`;
+            return `
+            <div class="animal-thumbnail" data-id="${animal.id}" data-src="${optimizedThumbnailUrl}" onclick="showAnimal('${animal.id}')">
+                <img src="${optimizedThumbnailUrl}" alt="${animal.name}">
+            </div>
+            `;
+    }
+
+
+    // Charger les animaux existants
+    const animals = {{ animals|tojson|safe }};
+    if (animals && animals.length > 0) {
+        const sidebar = document.querySelector('.sidebar');
+        animals.forEach(animal => {
+            sidebar.insertAdjacentHTML('beforeend', createAnimalThumbnail(animal));
         });
+        showAnimal(animals[0].id);
+    }
 
-        // Gérer le formulaire d'édition
-        document.getElementById('edit-animal-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const animalId = document.getElementById('edit-id').value;
 
-            fetch(`/edit_animal/${animalId}`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur lors de la modification de l\'animal');
-            });
+    // Gérer le formulaire d'ajout
+    document.getElementById('add-animal-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('/add_animal', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'ajout de l\'animal');
         });
+    });
 
-        // Fermer les modals en cliquant en dehors
-        window.onclick = function(event) {
-            const addModal = document.getElementById('add-animal-modal');
-            const editModal = document.getElementById('edit-animal-modal');
-            if (event.target === addModal) {
-                hideAddAnimalForm();
-            }
-            if (event.target === editModal) {
-                hideEditAnimalForm();
-            }
-        };
+    // Gérer le formulaire d'édition
+    document.getElementById('edit-animal-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const animalId = document.getElementById('edit-id').value;
 
-        // Ajouter la navigation au clavier
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowRight') {
-                showNextAnimal();
-            } else if (e.key === 'ArrowLeft') {
-                showPreviousAnimal();
+        fetch(`/edit_animal/${animalId}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                location.reload();
             }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la modification de l\'animal');
         });
-    </script>
+    });
+
+    // Fermer les modals en cliquant en dehors
+    window.onclick = function(event) {
+        const addModal = document.getElementById('add-animal-modal');
+        const editModal = document.getElementById('edit-animal-modal');
+        if (event.target === addModal) {
+            hideAddAnimalForm();
+        }
+        if (event.target === editModal) {
+            hideEditAnimalForm();
+        }
+    };
+
+    // Ajouter la navigation au clavier
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight') {
+            showNextAnimal();
+        } else if (e.key === 'ArrowLeft') {
+            showPreviousAnimal();
+        }
+    });
+</script>
+
 </body>
 </html>
