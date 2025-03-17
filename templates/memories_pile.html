@@ -227,7 +227,7 @@
                 {% for photo in photos %}
                     {% if photo.year|string == year|string %}
                     <div class="photo-card">
-                        <img src="{{ url_for('serve_cached_image', url=photo.optimized_url) }}" alt="{{ photo.title }}">
+                        <img src="{{ photo.optimized_url }}" alt="{{ photo.title }}">
                         <div class="photo-info">
                             <h3>{{ photo.title }}</h3>
                             <p class="date">{{ photo.year }}</p>

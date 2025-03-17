@@ -340,15 +340,15 @@
 
     <div class="cork-board">
         {% for photo in photos %}
-        {% set transformations_grid = 'f_webp,q_auto,w_800' %}
+        {% set transformations_grid = 'f_auto,q_auto,w_800' %}
         {% set url_parts_grid = photo.url.split('/upload/') %}
         {% if url_parts_grid|length == 2 %}
             {% set optimized_url_grid = url_parts_grid[0] + '/upload/' + transformations_grid + '/' + url_parts_grid[1] %}
-            {% set transformations_lightbox = 'f_webp,q_auto,w_1600' %}
+            {% set transformations_lightbox = 'f_auto,q_auto,w_1600' %}
             {% set url_parts_lightbox = photo.url.split('/upload/') %}
             {% if url_parts_lightbox|length == 2 %}
                 {% set optimized_url_lightbox = url_parts_lightbox[0] + '/upload/' + transformations_lightbox + '/' + url_parts_lightbox[1] %}
-        <div class="photo-card" data-src="{{ url_for('serve_cached_image', url=optimized_url_lightbox) }}" onclick="showDetails(this)">
+        <div class="photo-card" data-src="{{ url=optimized_url_lightbox) }}" onclick="showDetails(this)">
             {% if dev_mode %}
             <div class="action-buttons" style="position: absolute; top: 10px; right: 10px; z-index: 10; display: flex; gap: 8px;">
                 <button class="edit-btn" onclick="event.stopPropagation(); showEditForm('{{ photo.id }}', '{{ photo.gallery_name }}', '{{ photo.date }}', '{{ photo.description }}', '{{ photo.url }}')">
@@ -362,7 +362,7 @@
                 </form>
             </div>
             {% endif %}
-            <img src="{{ url_for('serve_cached_image', url=optimized_url_grid) }}" alt="{{ photo.gallery_name }}">
+            <img src="{{ url=optimized_url_grid }}" alt="{{ photo.gallery_name }}">
             <div class="photo-info">
                 <div class="photo-title">{{ photo.gallery_name }}</div>
                 <div class="photo-date">{{ photo.formatted_date }}</div>

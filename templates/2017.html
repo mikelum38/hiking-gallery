@@ -331,7 +331,7 @@
                     {% if data.galleries|length > 0 and data.galleries[0].photos|length > 0 %}
                         {% set first_gallery = data.galleries[0] %}
                         {% set first_photo_url = first_gallery.photos[0].url %}
-                        {% set transformations = 'f_webp,q_auto,w_400,h_300,c_fill' %}
+                        {% set transformations = 'f_auto,q_auto,w_400,h_300,c_fill' %}
                         {% set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') %}
                         style="background-image: url('{{ optimized_cover_url }}')"
                     {% endif %}>

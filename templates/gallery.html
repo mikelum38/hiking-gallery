@@ -442,15 +442,10 @@
                         {% if url_parts|length == 2 %}
                             {% set base_url = url_parts[0] + '/upload/' %}
                             {% set image_name = url_parts[1] %}
-                            {% set transformations_thumb = 'f_webp,q_auto' %}
-                            {% if gr20_thumbnail_width > gr20_thumbnail_height %}
-                                {% set transformations_thumb = transformations_thumb + ',w_500,c_limit' %}
-                            {% else %}
-                                {% set transformations_thumb = transformations_thumb + ',h_400,c_limit' %}
-                            {% endif %}
+                            {% set transformations_thumb = 'f_auto,q_auto,w_500,h_400,c_limit' %}
                             {% set optimized_url_thumb = base_url + transformations_thumb + '/' + image_name %}
-                            <img src="{{ url_for('serve_cached_image', url=optimized_url_thumb) }}" alt="GR20 Corse" loading="lazy">
-                        {% endif %}
+                            <img src="{{ optimized_url_thumb }}" alt="GR20 Corse" loading="lazy">
+                            {% endif %}
                         <p>Cliquer sur la photo pour aller sur le site décrivant cette aventure</p>
                     </a>
                 </div>
@@ -495,7 +490,7 @@
                         {% set image_name = url_parts[1] %}
 
                         {# Déterminer l'orientation de l'image et appliquer la transformation appropriée #}
-                        {% set transformations_grid = 'f_webp,q_auto' %}
+                        {% set transformations_grid = 'f_auto,q_auto' %}
                         {% if photo.width > photo.height %}
                             {% set transformations_grid = transformations_grid + ',w_800,c_limit' %}
                         {% else %}
@@ -504,11 +499,11 @@
                         {% set optimized_url_grid = base_url + transformations_grid + '/' + image_name %}
 
                         {# Transformation pour la lightbox #}
-                        {% set transformations_lightbox = 'f_webp,q_auto,w_1600,c_limit' %}
+                        {% set transformations_lightbox = 'f_auto,q_auto,w_1600,c_limit' %}
                         {% set optimized_url_lightbox = base_url + transformations_lightbox + '/' + image_name %}
 
                         <div class="photo-item" data-src="{{ optimized_url_lightbox }}" onclick="openLightbox(this)">
-                            <img src="{{ url_for('serve_cached_image', url=optimized_url_grid) }}" alt="{{ photo.filename }}" loading="lazy">
+                            <img src="{{ optimized_url_grid }}" alt="{{ photo.filename }}" loading="lazy">
                             {% if dev_mode %}
                             <form action="{{ url_for('delete_photo', gallery_id=gallery.id, photo_index=loop.index0) }}" 
                                   method="post" 

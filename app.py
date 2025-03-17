@@ -8,9 +8,8 @@ import cloudinary.api
 from dotenv import load_dotenv
 import logging
 import uuid
-import re
-from functools import lru_cache
 import requests
+from functools import lru_cache
 import io
 from flask import send_file
 
@@ -79,14 +78,7 @@ def save_projects(projects):
     with open('projects.json', 'w', encoding='utf-8') as f:
         json.dump(projects, f, ensure_ascii=False, indent=4)
 
-def get_optimized_flower_url(image_url):
-    """Génère une URL Cloudinary optimisée pour l'image principale d'une fleur."""
-    transformations_main = 'f_webp,q_auto,w_800'
-    url_parts_main = image_url.split('/upload/')
-    if len(url_parts_main) == 2:
-        optimized_url_main = url_parts_main[0] + '/upload/' + transformations_main + '/' + url_parts_main[1]
-        return optimized_url_main
-    return image_url
+
 
 def load_flowers_data():
     """Charge les données des fleurs et optimise les URLs des images."""
@@ -108,21 +100,6 @@ def save_flowers_data(data):
     with open('mountain_flowers.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-def get_optimized_animal_url(image_url, type="main"):
-    """
-    Génère une URL Cloudinary optimisée pour l'image principale d'un animal ou pour une miniature.
-    """
-    transformations_main = 'f_webp,q_auto,w_800'
-    transformations_thumbnail = 'f_webp,q_auto,w_300,h_180,c_fill'
-    url_parts = image_url.split('/upload/')
-
-    if len(url_parts) == 2:
-        if type == "main":
-            optimized_url = url_parts[0] + '/upload/' + transformations_main + '/' + url_parts[1]
-        else:
-            optimized_url = url_parts[0] + '/upload/' + transformations_thumbnail + '/' + url_parts[1]
-        return optimized_url
-    return image_url
 
 def load_animals_data():
     """Charge les données des animaux et optimise les URLs des images."""
@@ -163,78 +140,8 @@ def sort_galleries_by_date(galleries):
     # Sort galleries by date
     return sorted(gallery_list, key=lambda x: x['date_obj'])
 
+#    Cache les fichiers statiques mp3 pour améliorer les performances.
 
-# optimisations images cloudinary 
-
-def get_optimized_cover_url(cover_image_url):
-    """
-    Génère une URL Cloudinary optimisée pour une image de couverture.
-    """
-    if not cover_image_url:
-        return None
-    
-    try:
-        # Extraire le public_id de l'URL
-        public_id = cover_image_url.split('/')[-1].split('.')[0]
-        
-        # Construire l'URL avec les transformations
-        transformations = 'f_webp,q_auto,w_400,h_300,c_fill'
-        optimized_cover_url = cover_image_url.replace('/upload/', '/upload/' + transformations + '/')
-        
-        return optimized_cover_url
-    except Exception as e:
-        app.logger.error(f"Erreur lors de l'optimisation de l'URL de couverture: {e}")
-        return None
-
-def get_image_dimensions(image_url):
-    """Récupère les dimensions d'une image à partir de son URL."""
-    try:
-        response = requests.get(image_url, stream=True)
-        response.raise_for_status()  # Lève une exception pour les erreurs HTTP
-
-        image = Image.open(io.BytesIO(response.content))
-        width, height = image.size
-        return width, height
-    except requests.exceptions.RequestException as e:
-        print(f"Erreur lors de la récupération de l'image : {e}")
-        return 0, 0  # Ou une autre valeur par défaut
-    except Exception as e:
-        print(f"Erreur lors du traitement de l'image : {e}")
-        return 0, 0
-
-
-#Simple In-Memory Cache
-@lru_cache(maxsize=128)  # Cache the last 128 results
-def get_cached_cloudinary_image(url, **options):
-    """
-    Fetches an image from Cloudinary, applying transformations if specified.
-    Caches the result to reduce bandwidth usage.
-    """
-    try:
-        # Fetch the image from Cloudinary
-        response = requests.get(url, stream=True)
-        response.raise_for_status()  # Raise an error for bad responses (4xx or 5xx)
-        
-        # Return the image content
-        return response.content
-    except requests.exceptions.RequestException as e:
-        app.logger.error(f"Error fetching image from Cloudinary: {e}")
-        return None
-
-@app.route('/cached_image')
-def serve_cached_image():
-    """
-    Serves a cached image with specified transformations.
-    """
-    url = request.args.get('url')
-    # Get the image content from the cache (or fetch it if not cached)
-    image_content = get_cached_cloudinary_image(url)
-    
-    if image_content:
-        return send_file(io.BytesIO(image_content), mimetype='image/jpg') # Change mimetype if needed
-    else:
-        abort(404)
-        
 @lru_cache(maxsize=128)
 def get_cached_static_file(filename):
     """
@@ -252,6 +159,30 @@ def cached_static(filename):
     content = get_cached_static_file(filename)
     return send_file(io.BytesIO(content), mimetype='audio/mp3')
 
+
+# optimisations images cloudinary 
+
+def get_optimized_cover_url(cover_image_url):
+    """
+    Génère une URL Cloudinary optimisée pour une image de couverture.
+    """
+    if not cover_image_url:
+        return None
+    
+    try:
+        # Extraire le public_id de l'URL
+        public_id = cover_image_url.split('/')[-1].split('.')[0]
+        
+        # Construire l'URL avec les transformations
+        transformations = 'f_auto,q_auto,w_400,h_300,c_fill'
+        optimized_cover_url = cover_image_url.replace('/upload/', '/upload/' + transformations + '/')
+        
+        return optimized_cover_url
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'optimisation de l'URL de couverture: {e}")
+        return None
+
+
 def get_cloudinary_background_url(image_name, page_type="others"):
     """
     Génère une URL Cloudinary optimisée pour une image de fond.
@@ -266,10 +197,10 @@ def get_cloudinary_background_url(image_name, page_type="others"):
 
         # Générer l'URL avec le public ID complet et les transformations
         if page_type == "years":
-            return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'webp'}, {'quality': '80'}, {'width': 2048, 'crop': 'limit'}], secure=True)
+            return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'auto'}, {'quality': 'auto'}, {'width': 2048, 'crop': 'limit'}], secure=True)
         else:
-            return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'webp'}, {'quality': '80'}, {'width': 1280, 'crop': 'limit'}], secure=True)
-       
+            return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'auto'}, {'quality': 'auto'}, {'width': 1280, 'crop': 'limit'}], secure=True)
+
     except Exception as e:
         app.logger.error(f"Erreur lors de la récupération des informations de l'image: {e}")
         app.logger.error(f"Erreur: {e}")
@@ -286,13 +217,13 @@ def get_optimized_memory_url(image_url, page_type="shuffle"):
 
         # Construire l'URL avec les transformations
         if page_type == "shuffle":
-            transformations = 'f_webp,q_80,w_800'
+            transformations = 'f_auto,q_auto,w_800'
         elif page_type == "pile":
-            transformations = 'f_webp,q_80,w_800'
+            transformations = 'f_auto,q_auto,w_800'
         elif page_type == "centuries":
-            transformations = 'f_webp,q_80,w_1200,c_fill'
+            transformations = 'f_auto,q_auto,w_1200,c_fill'
         else:
-            transformations = 'f_webp,q_80,w_1200'
+            transformations = 'f_auto,q_auto,w_1200'
 
         optimized_memory_url = image_url.replace('/upload/', '/upload/' + transformations + '/')
         app.logger.info(f"URL optimisée : {optimized_memory_url}")
@@ -315,12 +246,37 @@ def get_cloudinary_wheel_url(image_name):
         full_public_id = f"v{version}/{image_name}"
 
         # Générer l'URL avec le public ID complet et les transformations
-        return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'webp'}, {'quality': '80'}, {'width': 300, 'crop': 'limit'}], secure=True)
+        return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'auto'}, {'quality': 'auto'}, {'width': 300, 'crop': 'limit'}], secure=True)
     except Exception as e:
         app.logger.error(f"Erreur lors de la récupération des informations de l'image: {e}")
         app.logger.error(f"Erreur: {e}")
         return None
 
+def get_optimized_flower_url(image_url):
+    """Génère une URL Cloudinary optimisée pour l'image principale d'une fleur."""
+    transformations_main = 'f_auto,q_auto,w_800'
+    url_parts_main = image_url.split('/upload/')
+    if len(url_parts_main) == 2:
+        optimized_url_main = url_parts_main[0] + '/upload/' + transformations_main + '/' + url_parts_main[1]
+        return optimized_url_main
+    return image_url
+
+
+def get_optimized_animal_url(image_url, type="main"):
+    """
+    Génère une URL Cloudinary optimisée pour l'image principale d'un animal ou pour une miniature.
+    """
+    transformations_main = 'f_auto,q_auto,w_800'
+    transformations_thumbnail = 'f_auto,q_auto,w_300,h_180,c_fill'
+    url_parts = image_url.split('/upload/')
+
+    if len(url_parts) == 2:
+        if type == "main":
+            optimized_url = url_parts[0] + '/upload/' + transformations_main + '/' + url_parts[1]
+        else:
+            optimized_url = url_parts[0] + '/upload/' + transformations_thumbnail + '/' + url_parts[1]
+        return optimized_url
+    return image_url
 
 # gestiobn des pages web
 
@@ -549,17 +505,14 @@ def gallery(gallery_id):
         optimized_background_url = get_cloudinary_background_url("corse")
         # Get the image URL from Cloudinary
         gr20_thumbnail_url = cloudinary.CloudinaryImage("gr20_thumbnail").build_url(secure=True)
-        gr20_thumbnail_width, gr20_thumbnail_height = get_image_dimensions(gr20_thumbnail_url)
-        
+         
         return render_template('gallery.html', 
                             gallery=gallery,
                             dev_mode=app.config['DEV_MODE'],
                             format_date=format_date,
                             return_page=return_page,
                             optimized_background_url=optimized_background_url,
-                            gr20_thumbnail_url=gr20_thumbnail_url,
-                            gr20_thumbnail_width=gr20_thumbnail_width,
-                            gr20_thumbnail_height=gr20_thumbnail_height)
+                            gr20_thumbnail_url=gr20_thumbnail_url)
     else:
         optimized_background_url = None
         # Optimize the background image URL
@@ -1065,21 +1018,6 @@ def delete_flower(flower_id):
         return jsonify({'error': 'Failed to delete flower'}), 500
 
 
-def get_optimized_animal_url(image_url, type="main"):
-    """
-    Génère une URL Cloudinary optimisée pour l'image principale d'un animal ou pour une miniature.
-    """
-    transformations_main = 'f_webp,q_auto,w_800'
-    transformations_thumbnail = 'f_webp,q_auto,w_300,h_180,c_fill'
-    url_parts = image_url.split('/upload/')
-
-    if len(url_parts) == 2:
-        if type == "main":
-            optimized_url = url_parts[0] + '/upload/' + transformations_main + '/' + url_parts[1]
-        else:
-            optimized_url = url_parts[0] + '/upload/' + transformations_thumbnail + '/' + url_parts[1]
-        return optimized_url
-    return image_url
     
 @app.route('/mountain_animals')
 def mountain_animals():
