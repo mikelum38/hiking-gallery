@@ -594,17 +594,35 @@ def years():
 
 @app.route('/projets')
 def projets():
+    app.logger.info("Fonction projets appelée")
     try:
         # Charger les projets
+        app.logger.info("Tentative de chargement des projets")
         photos = load_projects()
-   
+        app.logger.info(f"Nombre de projets chargés : {len(photos)}")
+
         # Trier les projets par date
+        app.logger.info("Tentative de tri des projets")
         photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
-        
+        app.logger.info("Tri des projets réussi")
+
         return render_template('projets.html',
                              photos=photos,
                              dev_mode=app.config['DEV_MODE'])
+    except FileNotFoundError as e:
+        app.logger.error(f"Fichier projects.json non trouvé: {e}")
+        flash("Le fichier des projets est manquant.")
+        return redirect(url_for('year_2025'))
+    except json.JSONDecodeError as e:
+        app.logger.error(f"Erreur de décodage JSON dans projects.json: {e}")
+        flash("Erreur de format dans le fichier des projets.")
+        return redirect(url_for('year_2025'))
+    except ValueError as e:
+        app.logger.error(f"Erreur de format de date dans projects.json: {e}")
+        flash("Erreur de format de date dans le fichier des projets.")
+        return redirect(url_for('year_2025'))
     except Exception as e:
+        app.logger.error(f"Une erreur s'est produite lors du chargement des projets: {e}")
         flash("Une erreur s'est produite lors du chargement des projets")
         return redirect(url_for('year_2025'))
 
@@ -1022,11 +1040,6 @@ def delete_flower(flower_id):
 @app.route('/mountain_animals')
 def mountain_animals():
     animals = load_animals_data()
-    # Optimize image URLs for animals
-    for animal in animals:
-        animal['optimized_image_url'] = get_optimized_animal_url(animal['image_url'], type="main")
-        animal['optimized_url_thumbnail'] = get_optimized_animal_url(animal.get('thumbnail_url', animal['image_url']), type="thumbnail")
-    
     return render_template('mountain_animals.html', animals=animals, dev_mode=app.config['DEV_MODE'])
 
 
@@ -1660,7 +1673,7 @@ def inmy_landing():
     return render_template('inmy_cover.html', slide_url=global_slide_url )
 
 
-@app.route('/inmy/life')
+@app.route('/inmy_life')
 def inmy_life():
     global global_slide_url  # Déclarer la variable comme globale
     page = request.args.get('page', 1, type=int)

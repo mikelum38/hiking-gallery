@@ -559,7 +559,7 @@
         const isLastAnimal = currentIndex === animals.length - 1;
         const isFirstAnimal = currentIndex === 0;
 
-        const mainImageUrl = `/cached_image?url=${encodeURIComponent(animal.optimized_image_url)}`;
+        const mainImageUrl = animal.optimized_image_url; // Utiliser directement l'URL optimisée
 
         const content = `
             <img src="${mainImageUrl}" alt="${animal.name}" class="main-image">
@@ -659,7 +659,7 @@
     }
 
     function createAnimalThumbnail(animal) {
-            const optimizedThumbnailUrl = `/cached_image?url=${encodeURIComponent(animal.optimized_url_thumbnail)}`;
+        const optimizedThumbnailUrl = animal.optimized_url_thumbnail; // Utiliser directement l'URL optimisée
             return `
             <div class="animal-thumbnail" data-id="${animal.id}" data-src="${optimizedThumbnailUrl}" onclick="showAnimal('${animal.id}')">
                 <img src="${optimizedThumbnailUrl}" alt="${animal.name}">

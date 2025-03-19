@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-   <style>
+    <style>
         body {
             margin: 0;
             padding: 0;
@@ -163,37 +163,6 @@
         .gallery-count {
             font-size: 1.1rem;
             opacity: 0.9;
-        }
-
-        .nav-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-
-        .nav-button.prev {
-            left: 1rem;
-        }
-
-        .nav-button.next {
-            right: 1rem;
-        }
-
-        .nav-button:hover {
-            background: white;
-            transform: translateY(-50%) scale(1.1);
         }
 
         /* Styles pour le modal */
@@ -390,12 +359,7 @@
                 <a href="{{ url_for('dreams') }}" class="nav-btn">
                     <i class="fas fa-mountain"></i> Souvenirs
                 </a>
-                {% if dev_mode %}
-                <a href="#" class="nav-btn" onclick="showAddProjectForm()">
-                    <i class="fas fa-plus"></i> Ajouter un projet
-                </a>
-                {% endif %}
-            </div>
+           </div>
         </nav>
 
         <div class="hero-content">
@@ -407,14 +371,14 @@
             <div class="months-scroll">
                 {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
                 <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
-                        <div class="month-cover"
-                        {% if data.galleries|length > 0 and data.galleries[0].photos|length > 0 %}
-                            {% set first_gallery = data.galleries[0] %}
-                            {% set first_photo_url = first_gallery.photos[0].url %}
-                            {% set transformations = 'f_auto,q_auto,w_400,h_300,c_fill' %}
-                            {% set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') %}
-                            style="background-image: url('{{ optimized_cover_url }}')"
-                        {% endif %}>
+                    <div class="month-cover"
+                         {% if data.galleries|length > 0 and data.galleries[0].photos|length > 0 %}
+                             {% set first_gallery = data.galleries[0] %}
+                             {% set first_photo_url = first_gallery.photos[0].url %}
+                             {% set transformations = 'f_auto,q_auto,w_400,h_300,c_fill' %}
+                             {% set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') %}
+                             style="background-image: url('{{ optimized_cover_url }}')"
+                         {% endif %}>
                         <div class="month-overlay">
                             <h2 class="month-name">{{ month }}</h2>
                         </div>
@@ -424,69 +388,6 @@
             </div>
         </div>
     </div>
-
-    {% if dev_mode %}
-    <div id="addProjectModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="hideAddProjectForm()">&times;</span>
-            <h2 style="color: #ffd700; margin-top: 0;">Ajouter un projet</h2>
-            <form id="addProjectForm" method="POST" action="{{ url_for('create_gallery') }}" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="name">Titre :</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description :</label>
-                    <textarea id="description" name="description" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="date">Date prévue :</label>
-                    <input type="date" id="date" name="date" required>
-                </div>
-                <div class="form-group">
-                    <label for="cover_image">Image de couverture :</label>
-                    <input type="file" id="cover_image" name="cover_image" accept="image/*">
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="submit-button">Créer</button>
-                    <button type="button" class="cancel-button" onclick="hideAddProjectForm()">Annuler</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    {% endif %}
-
-    <script>
-        function scrollMonths(direction) {
-            const container = document.querySelector('.months-scroll');
-            const cardWidth = document.querySelector('.month-card').offsetWidth + 24; // 24px pour le gap
-            const scrollAmount = direction === 'next' ? cardWidth : -cardWidth;
-            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-
-        // Ajouter la gestion du défilement horizontal avec la molette
-        document.querySelector('.month-grid').addEventListener('wheel', (e) => {
-            if (e.deltaY !== 0) {
-                e.preventDefault();
-                const direction = e.deltaY > 0 ? 'next' : 'prev';
-                scrollMonths(direction);
-            }
-        }, { passive: false });
-
-        function showAddProjectForm() {
-            document.getElementById('addProjectModal').style.display = 'flex';
-        }
-
-        function hideAddProjectForm() {
-            document.getElementById('addProjectModal').style.display = 'none';
-        }
-
-        // Fermer le modal en cliquant en dehors
-        document.getElementById('addProjectModal')?.addEventListener('click', function(event) {
-            if (event.target === this) {
-                hideAddProjectForm();
-            }
-        });
-    </script>
+   
 </body>
 </html>
