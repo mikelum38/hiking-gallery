@@ -1677,7 +1677,7 @@ def inmy_landing():
 def inmy_life():
     global global_slide_url  # Déclarer la variable comme globale
     page = request.args.get('page', 1, type=int)
-    total_pages = 4
+    total_pages = 6
     
     # Load texts from JSON file
     try:
@@ -1685,6 +1685,11 @@ def inmy_life():
             texts = json.load(f)
     except FileNotFoundError:
         texts = {}
+
+    # Assurer que toutes les clés de texte existent
+    for i in range(1, total_pages + 1):
+        if str(i) not in texts:
+            texts[str(i)] = ""  # Initialiser avec une chaîne vide si la clé n'existe pas
     
     # Get text for current page
     text_key = str(page)
@@ -1695,7 +1700,12 @@ def inmy_life():
     next_url = url_for('inmy_life', page=page+1) if page < total_pages else None
     
       # Get image URLs from Cloudinary
-    page_image_url = get_cloudinary_background_url(f"page{page}") if page <= 3 else None
+    page_image_url = get_cloudinary_background_url(f"page{page}") if page <= 5 else None
+
+      # Préparer les variables de texte pour le template
+    text_vars = {}
+    for i in range(1, total_pages + 1):
+        text_vars[f'text{i}'] = texts.get(str(i), "")
 
     return render_template('inmy_life.html', 
                          page=page,
@@ -1705,7 +1715,7 @@ def inmy_life():
                          dev_mode=app.config['DEV_MODE'],
                          page_image_url=page_image_url,
                          slide_url=global_slide_url, # Utiliser la variable globale
-                         **{f'text{page}': page_text})
+                         **text_vars)
 
 @app.route('/save_inmy_life_text', methods=['POST'])
 def save_inmy_life_text():

@@ -110,25 +110,37 @@
 
         .page-layout {
             display: flex;
-            gap: 2rem;
             height: 100%;
-            align-items: center;
-            justify-content: center;
+            width: 100%;
+            align-items: flex-start; /* Aligner les éléments en haut */
+            justify-content: flex-start; /* Aligner les éléments à gauche */
+            gap: 2rem;
+            flex-wrap: wrap; /* Permettre au texte de passer en dessous */
+            position: relative; /* Pour positionner le texte en dessous */
         }
 
         .page-image {
-            width: 300px;
-            height: 400px;
-            object-fit: cover;
+            max-width: 40%; /* L'image prendra au maximum 40% de la largeur */
+            max-height: 100%; /* L'image prendra au maximum 100% de la hauteur */
+            object-fit: contain; /* L'image conserve ses proportions */
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             flex-shrink: 0;
+            display: block; /* Pour éviter les espaces blancs en bas de l'image */
+            margin: 0; /* Supprimer les marges */
+        }
+
+        .page-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1; /* Le texte prendra tout l'espace disponible */
+            overflow-y: auto;
+            padding-right: 1rem;
+            width: 100%; /* Le conteneur de texte prend toute la largeur disponible */
         }
 
         .page-text-container {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 1rem;
+            width: 100%; /* Le conteneur de texte prend toute la largeur disponible */
         }
 
         .page-text {
@@ -136,13 +148,9 @@
             line-height: 1.6;
             color: white;
             outline: none;
+            width: 100%; /* Le texte prend toute la largeur disponible */
         }
 
-        .page-text[contenteditable="true"] {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
 
         .back-cover {
             text-align: center;
@@ -297,19 +305,21 @@
                 <div class="page-content {% if turn %}turn{% endif %}">
                     <div class="page-fold"></div>
                     <div class="page-layout">
-                        {% if page <= 3 %}
+                        {% if page <= 5 %}
                         <img src="{{ page_image_url }}" alt="Page {{ page }}" class="page-image">
-                        <div class="page-text-container">
-                            <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
-                                {{ text1 | safe if page == 1 else text2 | safe if page == 2 else text3 | safe }}
+                        <div class="page-content-wrapper">
+                            <div class="page-text-container">
+                                <div class="page-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
+                                    {{ text1 | safe if page == 1 else text2 | safe if page == 2 else text3 | safe  if page == 3 else text4 | safe if page == 4 else text5 | safe  }}
+                                </div>
                             </div>
                         </div>
-                        {% elif page == 4 %}
+                        {% elif page == 6 %}
                         <div class="back-cover">
                             <div>
                                 <h2 class="back-cover-title">À bientôt pour de nouvelles aventures</h2>
                                 <div class="back-cover-text" contenteditable="{{ 'true' if dev_mode else 'false' }}" id="pageText">
-                                    {{ text4 | safe }}
+                                    {{ text6 | safe }}
                                 </div>
                             </div>
                             <div class="back-cover-quote">
