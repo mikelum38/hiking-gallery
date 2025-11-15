@@ -143,13 +143,18 @@
         .months-scroll {
             display: flex;
             overflow-x: auto;
-            scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            gap: 1rem;
+            gap: 1.5rem;
             padding: 1rem 0;
-            scrollbar-width: none; /* Pour Firefox */
-            -ms-overflow-style: none; /* Pour IE et Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            position: relative;
+            cursor: grab;
+        }
+        
+        .months-scroll:active {
+            cursor: grabbing;
         }
 
         .months-scroll::-webkit-scrollbar {
@@ -487,6 +492,60 @@
             const scrollAmount = direction === 'next' ? cardWidth : -cardWidth;
             container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
+
+        // Gestion du défilement à la souris
+        document.addEventListener('DOMContentLoaded', () => {
+            const monthsScroll = document.querySelector('.months-scroll');
+            
+            // Gestion du défilement avec la molette
+            monthsScroll.addEventListener('wheel', (e) => {
+                // Vérifie si le défilement est principalement vertical
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                    e.preventDefault();
+                    monthsScroll.scrollLeft += e.deltaY * 0.8;
+                }
+            }, { passive: false });
+
+            // Gestion du glisser-déposer
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            monthsScroll.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - monthsScroll.offsetLeft;
+                scrollLeft = monthsScroll.scrollLeft;
+                monthsScroll.style.cursor = 'grabbing';
+                monthsScroll.style.userSelect = 'none';
+            });
+
+            monthsScroll.addEventListener('mouseleave', () => {
+                isDown = false;
+                monthsScroll.style.cursor = 'grab';
+                monthsScroll.style.removeProperty('user-select');
+            });
+
+            monthsScroll.addEventListener('mouseup', () => {
+                isDown = false;
+                monthsScroll.style.cursor = 'grab';
+                monthsScroll.style.removeProperty('user-select');
+            });
+
+            monthsScroll.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - monthsScroll.offsetLeft;
+                const walk = (x - startX) * 2; // Multiplicateur pour une meilleure réactivité
+                monthsScroll.scrollLeft = scrollLeft - walk;
+            });
+
+            // Désactive le comportement de sélection de texte pendant le glisser
+            document.addEventListener('selectstart', (e) => {
+                if (isDown) {
+                    e.preventDefault();
+                }
+            });
+        });
 
         function toggleCreateGallery() {
             const form = document.getElementById('createGalleryForm');

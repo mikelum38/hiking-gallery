@@ -578,6 +578,9 @@ def month_galleries(year, month):
         except Exception as e:
             app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
 
+    # Trier les galeries par date
+    month_galleries_data.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
+    
     return render_template('month.html',
                            galleries=month_galleries_data,
                            optimized_background_url=optimized_background_url, 
