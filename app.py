@@ -601,16 +601,23 @@ def projets():
     try:
         # Charger les projets
         app.logger.info("Tentative de chargement des projets")
-        photos = load_projects()
+        all_projects = load_projects()
+        
+        # Filtrer pour ne garder que les projets de 2025 ou sans année spécifiée
+        photos = [p for p in all_projects if p.get('year', 2025) != 2026]
         app.logger.info(f"Nombre de projets chargés : {len(photos)}")
 
-        # Trier les projets par date
+        # Trier les projets par date (du plus récent au plus ancien)
         app.logger.info("Tentative de tri des projets")
-        photos.sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
+        photos_sorted = sorted(
+            photos,
+            key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'),
+            reverse=True
+        )
         app.logger.info("Tri des projets réussi")
 
         return render_template('projets.html',
-                             photos=photos,
+                             photos=photos_sorted,
                              dev_mode=app.config['DEV_MODE'])
     except FileNotFoundError as e:
         app.logger.error(f"Fichier projects.json non trouvé: {e}")
@@ -630,7 +637,8 @@ def projets():
         return redirect(url_for('year_2025'))
 
 @app.route('/add_project', methods=['POST'])
-def add_project():
+@app.route('/add_project/<int:year>', methods=['POST'])
+def add_project(year=None):
     if not app.config['DEV_MODE']:
         return abort(403)
     
@@ -642,20 +650,35 @@ def add_project():
             upload_result = cloudinary.uploader.upload(file)
             image_url = upload_result['secure_url']
             
+            # Si l'année n'est pas spécifiée dans l'URL, on la déduit de la date
+            if year is None:
+                # Essayer d'extraire l'année de la date fournie
+                try:
+                    date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
+                    year = date_obj.year
+                except (ValueError, KeyError):
+                    # Si la date est invalide ou absente, on utilise l'année courante
+                    year = datetime.now().year
+            
             new_project = {
                 'id': str(uuid.uuid4()),
                 'url': image_url,
                 'gallery_name': data['title'],
                 'date': data['date'],
                 'formatted_date': format_date(data['date']),
-                'description': data['description']
+                'description': data['description'],
+                'year': year  # Ajout de l'année au projet
             }
             
             projects = load_projects()
             projects.append(new_project)
             save_projects(projects)
             
-        return redirect(url_for('projets'))
+        # Rediriger vers la page appropriée en fonction de l'année
+        if year == 2026:
+            return redirect(url_for('projets_2026'))
+        else:
+            return redirect(url_for('projets'))
         
     except Exception as e:
         app.logger.error(f"Erreur lors de l'ajout du projet: {str(e)}")
@@ -1775,6 +1798,85 @@ def delete_photo(gallery_id, photo_index):
     
     flash('Photo supprimée avec succès')
     return redirect(url_for('gallery', gallery_id=gallery_id))
+
+@app.route('/2026')
+def year_2026():
+    galleries = load_gallery_data()
+    galleries_by_month = {}    
+
+    today = datetime.now()
+    
+    for gallery_id, gallery in galleries.items():
+        try:
+            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+            if date.year == 2026:
+                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
+                month_num = date.strftime('%m')
+                year = date.strftime('%Y')
+                
+                if month_key not in galleries_by_month:
+                    galleries_by_month[month_key] = {
+                        'galleries': [],
+                        'month': int(month_num),
+                        'year': int(year),
+                        'cover': None,
+                        'is_future': date > today  # Ajouter un indicateur pour les dates futures
+                    }
+                
+                gallery['id'] = gallery_id
+                galleries_by_month[month_key]['galleries'].append(gallery)
+                
+                # Mettre à jour l'image de couverture si c'est la première galerie du mois
+                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
+                        galleries_by_month[month_key]['cover'] = gallery['cover_image']
+                        # Optimize the cover image URL
+                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
+                        galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
+                        app.logger.info(f"Galerie ajoutée pour 2026: {gallery['name']}")
+        except Exception as e:
+                    app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
+            
+    # Trouver la première image de couverture disponible
+    background_url = None
+    if galleries_by_month:     
+        app.logger.info("Recherche de l'image de fond")
+        for month_data in galleries_by_month.values():
+            if month_data['cover']:
+                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
+                if background_url: #si on a trouvé une image on sort de la boucle
+                    break
+
+    return render_template('2026.html', 
+                        galleries_by_month=galleries_by_month,
+                        background_url=background_url,
+                        dev_mode=app.config['DEV_MODE'])
+
+@app.route('/projets-2026')
+def projets_2026():
+    """Affiche la page des projets pour l'année 2026."""
+    try:
+        # Charger les projets existants depuis le fichier JSON
+        projects = load_projects()
+        
+        # Filtrer les projets pour ne garder que ceux de l'année 2026
+        # Si le projet n'a pas d'année spécifiée, on le considère comme 2025 pour la rétrocompatibilité
+        year_projects = [p for p in projects if p.get('year', 2025) == 2026]
+        
+        # Trier les projets par date (du plus récent au plus ancien)
+        year_projects_sorted = sorted(
+            year_projects,
+            key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'),
+            reverse=True
+        )
+        
+        return render_template(
+            'projets-2026.html',
+            photos=year_projects_sorted,  # Utilisation de 'photos' pour la cohérence avec le template
+            dev_mode=app.config['DEV_MODE']
+        )
+    except Exception as e:
+        app.logger.error(f"Erreur lors du chargement des projets 2026: {str(e)}")
+        return render_template('error.html', error_message="Une erreur est survenue lors du chargement des projets 2026.")
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 : L'Année de tous les Sentiers - Escapades en altitude</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #1a1a1a;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+
+        .page-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('{{ url_for('static', filename='images/2026.JPG') }}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            position: relative;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 1.6rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .hero-content {
+            text-align: center;
+            padding: 8rem 1rem 0;
+            margin-bottom: 2rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-content h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.8rem;
+            font-weight: 500;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+opacity: 1;
+            transform: translateY(0);
+            color: white;
+        }
+
+        .hero-content p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 300;
+            margin: 1rem auto 3rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            letter-spacing: 0.5px;
+            opacity: 1;
+            transform: translateY(0);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .months-container {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0.5rem;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .months-scroll {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 0;
+            scroll-behavior: smooth;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .months-scroll::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .month-card {
+            flex: 0 0 auto;
+            aspect-ratio: 16/10;
+            margin: 0 15px;
+            border-radius: 15px;
+            background: #2a2a2a;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            scroll-snap-align: center;
+            border: 2px solid #333;
+        }
+
+        .month-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .month-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .month-content {
+            padding: 20px;
+            color: white;
+        }
+
+        .month-title {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            color: #4facfe;
+        }
+
+        .month-desc {
+            font-size: 14px;
+            color: #bbb;
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+        }
+
+        .month-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .month-link {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .month-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+            border: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-arrow:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .scroll-left {
+            left: 10px;
+        }
+
+        .scroll-right {
+            right: 10px;
+        }
+
+        .add-hike-btn {
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            color: #2c3e50;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .add-hike-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: #f8f9fa;
+        }
+
+        .create-gallery-form {
+            display: none;
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 99;
+            width: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #333;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #444;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .page-container {
+                height: 100%;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .top-nav {
+                position: fixed;
+                padding: 1.5rem 1rem;
+                background: rgba(0, 0, 0, 0.5);
+            }
+
+            .nav-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .right-buttons {
+                gap: 0.3rem;
+                max-width: 70%;
+            }
+
+            .hero-content {
+                padding-top: 6rem;
+                margin-bottom: 1rem;
+                flex: 0 0 auto;
+            }
+
+            .months-container {
+                margin-top: 2rem;
+                padding: 0.5rem;
+            }
+
+            .months-scroll {
+                gap: 0.75rem;
+                padding-bottom: 0;
+                margin: auto;
+            }
+
+            .month-card {
+                aspect-ratio: 16/10;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="page-container" style="position: relative; z-index: 1;">
+        <nav class="top-nav">
+            <a href="{{ url_for('years') }}" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <div class="right-buttons">
+                <a href="{{ url_for('projets_2026') }}" class="nav-btn">
+                    <i class="fas fa-images"></i> Projets
+                </a>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <h1>2026 : L'Année de tous les Sentiers</h1>
+            <p>De la simple échappée à l'expédition inoubliable</p>
+            {% if dev_mode %}
+            <button class="add-hike-btn" onclick="toggleCreateGallery()">
+                <i class="fas fa-plus"></i> Ajouter une randonnée
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="months-container">
+            <button class="nav-button prev" onclick="scrollMonths('prev')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                </svg>
+            </button>
+            <button class="nav-button next" onclick="scrollMonths('next')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+                </svg>
+            </button>
+            <div class="months-scroll">
+                {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
+                <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
+                    <div class="month-cover"
+                        {%- if data.galleries|length > 0 and data.galleries[0].photos|length > 0 -%}
+                            {%- set first_gallery = data.galleries[0] -%}
+                            {%- set first_photo_url = first_gallery.photos[0].url -%}
+                            {%- set transformations = 'f_auto,q_auto,w_400,h_300,c_fill' -%}
+                            {%- set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') -%}
+                            style="background-image: url('{{ optimized_cover_url }}')"
+                        {%- endif -%}>
+                        <div class="month-overlay">
+                            <h2 class="month-name">{{ month }}</h2>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if dev_mode %}
+    <button class="create-gallery-btn" onclick="toggleCreateGallery()" style="display: block;">
+        <i class="fas fa-plus"></i>
+    </button>
+    {% endif %}
+
+    <div class="create-gallery-form" id="createGalleryForm">
+        <h3 style="color: white; margin-top: 0;">Nouvelle galerie</h3>
+        <form id="galleryForm">
+            <div class="form-group">
+                <label for="galleryMonth">Mois</label>
+                <select id="galleryMonth" class="form-control" required>
+                    <option value="">Sélectionner un mois</option>
+                    <option value="janvier">Janvier</option>
+                    <option value="fevrier">Février</option>
+                    <option value="mars">Mars</option>
+                    <option value="avril">Avril</option>
+                    <option value="mai">Mai</option>
+                    <option value="juin">Juin</option>
+                    <option value="juillet">Juillet</option>
+                    <option value="aout">Août</option>
+                    <option value="septembre">Septembre</option>
+                    <option value="octobre">Octobre</option>
+                    <option value="novembre">Novembre</option>
+                    <option value="decembre">Décembre</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="galleryTitle">Titre</label>
+                <input type="text" id="galleryTitle" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="galleryDescription">Description</label>
+                <textarea id="galleryDescription" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="toggleCreateGallery()">Annuler</button>
+                <button type="submit" class="btn btn-primary">Créer</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function scrollMonths(direction) {
+            const container = document.querySelector('.months-scroll');
+            const cardWidth = document.querySelector('.month-card').offsetWidth + 24; // 24px pour le gap
+            const scrollAmount = direction === 'next' ? cardWidth : -cardWidth;
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+
+        // Gestion du défilement à la souris
+        document.addEventListener('DOMContentLoaded', () => {
+            const monthsScroll = document.querySelector('.months-scroll');
+            
+            monthsScroll.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                monthsScroll.scrollLeft += e.deltaY * 0.8; // Réduit la sensibilité du défilement
+            });
+
+            // Désactive le défilement horizontal avec la molette si l'utilisateur fait défiler horizontalement
+            let isScrolling = false;
+            monthsScroll.addEventListener('scroll', () => {
+                isScrolling = true;
+                clearTimeout(monthsScroll.scrollTimer);
+                monthsScroll.scrollTimer = setTimeout(() => {
+                    isScrolling = false;
+                }, 100);
+            });
+
+            // Empêche le défilement de la page quand la molette est sur le conteneur des mois
+            monthsScroll.addEventListener('wheel', (e) => {
+                if (e.deltaY !== 0 && Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+                    e.preventDefault();
+                    monthsScroll.scrollLeft += e.deltaY;
+                }
+            });
+        });
+
+        // Gestion du formulaire de création de galerie
+        function toggleCreateGallery() {
+            const form = document.getElementById('createGalleryForm');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Gestion de la soumission du formulaire
+        document.getElementById('galleryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Ici, vous pouvez ajouter le code pour créer une nouvelle galerie
+            alert('Nouvelle galerie créée !');
+            toggleCreateGallery();
+        });
+    </script>
+</body>
+</html>

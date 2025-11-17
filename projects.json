@@ -11,25 +11,28 @@
         "id": "f3bbb718-5fd1-4ed3-97ab-614bbab51c04",
         "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736419907/ikv31ihmhrtc2rfxdupa.jpg",
         "gallery_name": "Rocciamelone (3538 m)",
-        "date": "2025-10-01",
-        "formatted_date": "1 Octobre 2025",
-        "description": "Rocciamelone (3538 m) △ Alpes Grées, Val de Suse, Piémont - Italie - voie normale par la face Sud, depuis la Riposa "
+        "date": "2025-09-23",
+        "formatted_date": "23 Septembre 2025",
+        "description": "Rocciamelone (3538 m) △ Alpes Grées, Val de Suse, Piémont - Italie - voie normale par la face Sud, depuis la Riposa ",
+        "status": "réalisé"
     },
     {
         "id": "ca898f88-214f-4730-bb68-4e7f9be4e906",
         "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736420317/bnndh2z06q0or6m6mqjb.jpg",
         "gallery_name": "Corsica 2025",
-        "date": "2025-06-27",
-        "formatted_date": "27 Juin 2025",
-        "description": "La suite des aventures en corse , avec ascensions de sommets cette fois ci , et variantes alpines ."
+        "date": "2025-06-24",
+        "formatted_date": "24 Juin au 6 Juillet 2025",
+        "description": "La suite des aventures en corse , avec ascensions de sommets cette fois ci , et variantes alpines .",
+        "status": "réalisé"
     },
     {
         "id": "d8e87fe9-2420-455b-96b3-a0e696eee992",
         "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1736530246/kmwbjkv2p1tjry8axqz2.jpg",
         "gallery_name": "Madère , l'île aux fleurs",
-        "date": "2025-05-17",
-        "formatted_date": "17 Mai 2025",
-        "description": "découverte de l'île , en randonnée"
+        "date": "2025-05-31",
+        "formatted_date": "31 Mai au 7 Juin 2025",
+        "description": "découverte de l'île , en randonnée",
+        "status": "réalisé"
     },
     {
         "id": "c822f0c1-440d-4e5e-a6d2-045005342e4c",
@@ -51,8 +54,18 @@
         "id": "609fb53c-619c-4051-b258-f18e3130a9c3",
         "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1740663818/o6jtamcpuywwoil0zwpv.jpg",
         "gallery_name": "Tour du Queyras",
-        "date": "2025-08-03",
-        "formatted_date": "3 Août 2025",
-        "description": "5 étapes depuis Ceillac jusqu'à fonds de cervières , ville Vieille , en petite équipe ( 6 participants ) "
+        "date": "2025-08-02",
+        "formatted_date": "2 au 9 Août 2025",
+        "description": "5 étapes depuis Ceillac jusqu'à fonds de cervières , ville Vieille , en petite équipe ( 6 participants ) ",
+        "status": "réalisé"
+    },
+    {
+        "id": "8f7ea9a1-968c-478c-a69c-26908b09d9dd",
+        "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1763392509/rri69vq64k6jpkspetmj.jpg",
+        "gallery_name": "GR®57 Tour du Mont Thabor (Hautes-Alpes)",
+        "date": "2026-08-15",
+        "formatted_date": "15 Août 2026",
+        "description": "Les ingrédients d’un tour des Cerces, en été, mélangent bien des superlatifs de la marche dans les Hautes-Alpes… Des airs de petites Dolomites entrelacées entre Écrins, Vanoise et Italie. Des mondes de verticales de calcaire, préservées et constellées de lacs. Plus un « 3 000 » en guise de haut pèlerinage…\r\n\r\n",
+        "year": 2026
     }
 ]

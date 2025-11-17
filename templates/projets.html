@@ -366,7 +366,7 @@
             <img src="{{ optimized_url_grid }}" alt="{{ photo.gallery_name }}">
             <div class="photo-info">
                 <div class="photo-title">{{ photo.gallery_name }}</div>
-                <div class="photo-date">{{ photo.formatted_date }}</div>
+                <div class="photo-date">{{ photo.formatted_date }} {% if photo.status == 'réalisé' %}<span style="color: green;">✓ réalisé</span>{% endif %}</div>
             </div>
             <div class="hidden-data" style="display: none;">
                 <h3>{{ photo.gallery_name }}</h3>
@@ -477,7 +477,14 @@
             
             modalImage.src = src;
             modalTitle.textContent = title.textContent;
-            modalDescription.textContent = description.textContent;
+            // Afficher uniquement le texte après le tiret dans la description
+            let descText = description.textContent;
+            // Vérifier si la description contient un tiret et ne garder que ce qui suit
+            const dashIndex = descText.indexOf(' - ');
+            if (dashIndex !== -1) {
+                descText = descText.substring(dashIndex + 3);
+            }
+            modalDescription.textContent = descText.trim();
             
             modal.style.display = 'flex';
         }
