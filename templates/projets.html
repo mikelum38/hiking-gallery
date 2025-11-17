@@ -68,6 +68,7 @@
             flex-direction: column;
             align-items: center;
             margin-top: 10px;
+            overflow: visible; /* Permet aux boutons de déborder si nécessaire */
         }
 
         .photo-card::before {
@@ -236,6 +237,13 @@
         }
 
         .action-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -351,7 +359,7 @@
                 {% set optimized_url_lightbox = url_parts_lightbox[0] + '/upload/' + transformations_lightbox + '/' + url_parts_lightbox[1] %}
         <div class="photo-card" data-src="{{ optimized_url_lightbox }}" onclick="showDetails(this)">
             {% if dev_mode %}
-            <div class="action-buttons" style="position: absolute; top: 10px; right: 10px; z-index: 10; display: flex; gap: 8px;">
+            <div class="action-buttons">
                 <button class="edit-btn" onclick="event.stopPropagation(); showEditForm('{{ photo.id }}', '{{ photo.gallery_name }}', '{{ photo.date }}', '{{ photo.description }}', '{{ photo.url }}')">
                     <i class="fas fa-edit"></i>
                 </button>

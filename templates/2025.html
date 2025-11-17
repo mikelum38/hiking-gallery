@@ -35,24 +35,34 @@
             right: 0;
             padding: 1rem;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: flex-start;
             z-index: 100;
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
         }
 
         .right-buttons {
+            position: fixed;
+            top: 80px; /* Position sous la barre de navigation */
+            right: 20px;
             display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            justify-content: flex-end;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem 0.8rem;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
         }
 
         .nav-btn {
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 0.8rem 1.6rem;
+            padding: 0.8rem;
             border-radius: 30px;
             text-decoration: none;
             font-size: 1rem;
@@ -60,13 +70,33 @@
             backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
             white-space: nowrap;
+            width: 40px;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .nav-btn:hover {
+            width: auto;
+            padding: 0.8rem 1.6rem;
+        }
+
+        .nav-btn span {
+            opacity: 0;
+            width: 0;
+            transition: opacity 0.3s ease, width 0.3s ease;
+        }
+
+        .nav-btn:hover span {
+            opacity: 1;
+            width: auto;
         }
 
         .nav-btn:hover {
             background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
 
         .hero-content {
@@ -429,23 +459,29 @@
                 <i class="fas fa-arrow-left"></i> Retour
             </a>
             <div class="right-buttons">
-                <a href="{{ url_for('wheel_of_fortune') }}" class="nav-btn">
-                    <i class="fas fa-dharmachakra"></i> Roue de la Fortune
+                <a href="{{ url_for('wheel_of_fortune') }}" class="nav-btn" title="Roue de la Fortune">
+                    <i class="fas fa-dharmachakra"></i>
+                    <span>Roue de la Fortune</span>
                 </a>
-                <a href="{{ url_for('inmy_landing') }}" class="nav-btn">
-                    <i class="fas fa-book"></i> In My Life
+                <a href="{{ url_for('inmy_landing') }}" class="nav-btn" title="In My Life">
+                    <i class="fas fa-book"></i>
+                    <span>In My Life</span>
                 </a>
-                <a href="{{ url_for('mountain_flowers') }}" class="nav-btn">
-                    <i class="fas fa-seedling"></i> Fleurs
+                <a href="{{ url_for('mountain_flowers') }}" class="nav-btn" title="Fleurs">
+                    <i class="fas fa-seedling"></i>
+                    <span>Fleurs</span>
                 </a>
-                <a href="{{ url_for('mountain_animals') }}" class="nav-btn">
-                    <i class="fas fa-paw"></i> Animaux
+                <a href="{{ url_for('mountain_animals') }}" class="nav-btn" title="Animaux">
+                    <i class="fas fa-paw"></i>
+                    <span>Animaux</span>
                 </a>
-                <a href="{{ url_for('projets') }}" class="nav-btn">
-                    <i class="fas fa-images"></i> Projets
+                <a href="{{ url_for('projets') }}" class="nav-btn" title="Projets">
+                    <i class="fas fa-images"></i>
+                    <span>Projets</span>
                 </a>
-                <a href="{{ url_for('dreams') }}" class="nav-btn">
-                    <i class="fas fa-mountain"></i> Souvenirs
+                <a href="{{ url_for('dreams') }}" class="nav-btn" title="Souvenirs">
+                    <i class="fas fa-mountain"></i>
+                    <span>Souvenirs</span>
                 </a>
            </div>
         </nav>

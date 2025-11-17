@@ -355,14 +355,23 @@ def delete_gallery(gallery_id):
         
     galleries = load_gallery_data()
     if gallery_id in galleries:
+        # Récupérer l'année de la galerie avant suppression
+        try:
+            gallery_date = datetime.strptime(galleries[gallery_id]['date'], '%Y-%m-%d')
+            year = gallery_date.year
+        except (ValueError, KeyError):
+            year = 2025  # Valeur par défaut en cas d'erreur
+            
         # Supprimer la galerie des données
         del galleries[gallery_id]
         save_gallery_data(galleries)
         flash('Galerie supprimée avec succès', 'success')
+        
+        # Rediriger vers la page de l'année appropriée
+        return redirect(url_for(f'year_{year}'))
     else:
         flash('Galerie non trouvée', 'error')
-    
-    return redirect(url_for('2024'))
+        return redirect(url_for('year_2025'))  # Redirection par défaut si la galerie n'est pas trouvée
 
 @app.route('/create_gallery', methods=['POST'])
 def create_gallery():
