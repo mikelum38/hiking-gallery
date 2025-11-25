@@ -11,6 +11,7 @@ import uuid
 import requests
 from functools import lru_cache
 import io
+import traceback
 from flask import send_file
 
 
@@ -128,6 +129,20 @@ def save_animals_data(animals):
 def format_date(date_str):
     date = datetime.strptime(date_str, '%Y-%m-%d')
     return f"{date.day} {MOIS_FR[date.month-1]} {date.year}"
+
+def count_hikes_by_month(galleries, year=2025):
+    """Compte le nombre de sorties par mois pour une année donnée."""
+    monthly_counts = {month: 0 for month in range(1, 13)}  # Initialisation des compteurs à 0 pour chaque mois
+    
+    for gallery in galleries.values():
+        try:
+            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+            if date.year == year:
+                monthly_counts[date.month] += 1
+        except (ValueError, KeyError):
+            continue
+            
+    return monthly_counts
 
 def sort_galleries_by_date(galleries):
     # Convert galleries dict to list and add date object for sorting
@@ -475,6 +490,10 @@ def gallery(gallery_id):
     gallery = galleries.get(gallery_id)
     if not gallery:
         return "Gallery not found", 404
+        
+    # S'assurer que formatted_date est défini
+    if 'date' in gallery and 'formatted_date' not in gallery:
+        gallery['formatted_date'] = format_date(gallery['date'])
     
     # Déterminer la page de retour en fonction de l'année
     date = datetime.strptime(gallery['date'], '%Y-%m-%d')
@@ -1642,9 +1661,10 @@ def year_2024():
 def year_2025():
     galleries = load_gallery_data()
     galleries_by_month = {}    
-   # background_url = get_cloudinary_background_url("aulp")
-
     today = datetime.now()
+    
+    # Compter les sorties par mois
+    monthly_hikes = count_hikes_by_month(galleries, year=2025)
     
     for gallery_id, gallery in galleries.items():
         try:
@@ -1660,7 +1680,8 @@ def year_2025():
                         'month': int(month_num),
                         'year': int(year),
                         'cover': None,
-                        'is_future': date > today  # Ajouter un indicateur pour les dates futures
+                        'is_future': date > today,  # Ajouter un indicateur pour les dates futures
+                        'hikes_count': monthly_hikes[int(month_num)]  # Ajout du compteur de sorties
                     }
                 
                 gallery['id'] = gallery_id
@@ -1668,15 +1689,24 @@ def year_2025():
                 
                 # Mettre à jour l'image de couverture si c'est la première galerie du mois
                 if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                        galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                        # Optimize the cover image URL
-                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                        galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                        app.logger.info(f"Galerie ajoutée pour 2025: {gallery['name']}")
+                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
+                    # Optimize the cover image URL
+                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
+                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
+                    app.logger.info(f"Galerie ajoutée pour 2025: {gallery['name']}")
         except Exception as e:
-                    app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
+            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
             
-    # Trouver la première image de couverture disponible
+    # Trier les galeries par date décroissante dans chaque mois
+    for month_data in galleries_by_month.values():
+        month_data['galleries'].sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'), reverse=True)
+    
+    # Trier les mois par ordre décroissant
+    galleries_by_month = dict(sorted(galleries_by_month.items(), 
+                                   key=lambda x: (x[1]['year'], x[1]['month']), 
+                                   reverse=True))
+    
+    # Trouver une image de fond pour la page
     background_url = None
     if galleries_by_month:     
         app.logger.info("Recherche de l'image de fond")
@@ -1687,9 +1717,10 @@ def year_2025():
                     break
 
     return render_template('2025.html', 
-                        galleries_by_month=galleries_by_month,
-                        background_url=background_url,
-                        dev_mode=app.config['DEV_MODE'])
+                         galleries_by_month=galleries_by_month,
+                         background_url=background_url,
+                         monthly_hikes=monthly_hikes,  # Ajout du compteur de sorties
+                         dev_mode=app.config['DEV_MODE'])
 
 
 @app.route('/wheel-of-fortune')
@@ -1807,6 +1838,81 @@ def delete_photo(gallery_id, photo_index):
     
     flash('Photo supprimée avec succès')
     return redirect(url_for('gallery', gallery_id=gallery_id))
+
+@app.route('/gallery/<gallery_id>/update_order', methods=['POST'])
+def update_photo_order(gallery_id):
+    if not app.config['DEV_MODE']:
+        return jsonify({'status': 'error', 'message': 'Non autorisé'}), 403
+    
+    data = request.get_json()
+    if not data or 'order' not in data:
+        return jsonify({'status': 'error', 'message': 'Données invalides'}), 400
+    
+    try:
+        galleries = load_gallery_data()
+        if gallery_id not in galleries:
+            return jsonify({'status': 'error', 'message': 'Galerie non trouvée'}), 404
+        
+        gallery = galleries[gallery_id]
+        if 'photos' not in gallery:
+            return jsonify({'status': 'error', 'message': 'Aucune photo dans la galerie'}), 400
+        
+        # Créer un dictionnaire pour accéder rapidement aux photos par leur URL
+        photos_by_url = {}
+        for photo in gallery['photos']:
+            if 'url' in photo and isinstance(photo['url'], str):
+                # Utiliser l'URL complète comme clé
+                photos_by_url[photo['url']] = photo
+                
+                # Ajouter également une entrée avec le nom de fichier comme clé
+                filename = photo['url'].split('/')[-1].split('?')[0]
+                photos_by_url[filename] = photo
+        
+        new_photos_order = []
+        missing_photos = []
+        
+        # Reconstruire l'ordre des photos selon l'ordre reçu
+        for item in data['order']:
+            if 'url' in item:
+                url = item['url']
+                # Essayer de trouver la photo par URL complète d'abord
+                if url in photos_by_url:
+                    new_photos_order.append(photos_by_url[url])
+                else:
+                    # Sinon, essayer avec le nom de fichier
+                    filename = url.split('/')[-1].split('?')[0]
+                    if filename in photos_by_url:
+                        new_photos_order.append(photos_by_url[filename])
+                    else:
+                        missing_photos.append(url)
+        
+        # Vérifier si toutes les photos ont été trouvées
+        if missing_photos:
+            return jsonify({
+                'status': 'error', 
+                'message': 'Certaines photos n\'ont pas été trouvées',
+                'missing_photos': missing_photos
+            }), 400
+        
+        # Mettre à jour la galerie avec le nouvel ordre
+        gallery['photos'] = new_photos_order
+        
+        # Sauvegarder les modifications
+        save_gallery_data(galleries)
+        
+        return jsonify({
+            'status': 'success', 
+            'message': 'Ordre des photos mis à jour avec succès',
+            'new_order': [{'url': p.get('url'), 'filename': p.get('filename')} for p in new_photos_order]
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la mise à jour de l'ordre des photos: {str(e)}")
+        return jsonify({
+            'status': 'error', 
+            'message': f'Erreur serveur: {str(e)}'
+        }), 500
+
 
 @app.route('/2026')
 def year_2026():

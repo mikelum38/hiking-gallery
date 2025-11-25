@@ -197,8 +197,39 @@
             opacity: 1;
         }
 
+        .photo-item.dragging {
+            opacity: 0.5;
+            border: 2px dashed #4CAF50;
+        }
+
+        .photo-item.drag-over {
+            border: 2px solid #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
         .delete-photo-btn:hover {
             background: rgba(255, 0, 0, 0.9);
+        }
+
+        /* Styles pour le formulaire d'upload */
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #45a049;
         }
 
         /* Style de la lightbox */
@@ -460,7 +491,7 @@
                     </div>
                     
                     <div class="gallery-meta">
-                        {{ gallery.formatted_date if gallery.formatted_date else format_date(gallery.date) }}
+                        {{ gallery.formatted_date }}
                     </div>
                     
                     {% if gallery.description %}
@@ -476,11 +507,31 @@
                 </div>
 
                 {% if dev_mode %}
-                <form action="{{ url_for('upload_photos', gallery_id=gallery.id) }}" method="post" enctype="multipart/form-data" class="upload-form">
-                    <input type="file" name="photos" multiple accept="image/*">
-                    <button type="submit">Ajouter des photos</button>
+                <form action="{{ url_for('upload_photos', gallery_id=gallery.id) }}" method="post" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+                    <div class="form-group">
+                        <label for="fileInput" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> <span id="fileLabel"></span>Sélectionner des photos</span>
+                        </label>
+                        <input type="file" name="photos" id="fileInput" multiple accept="image/*" style="display: none;" onchange="updateFileCount(this)">
+                        <button type="submit" id="uploadButton" style="display: none;">Téléverser les photos</button>
+                    </div>
                 </form>
                 {% endif %}
+                
+                <script>
+                function updateFileCount(input) {
+                    const fileLabel = document.getElementById('fileLabel');
+                    const uploadButton = document.getElementById('uploadButton');
+                    
+                    if (input.files.length > 0) {
+                        fileLabel.textContent = input.files.length + ' photo(s) sélectionnée(s)';
+                        uploadButton.style.display = 'inline-block';
+                    } else {
+                        fileLabel.textContent = 'Sélectionner des photos';
+                        uploadButton.style.display = 'none';
+                    }
+                }
+                </script>
 
                 <div class="photo-grid">
                     {% for photo in gallery.photos %}
@@ -502,7 +553,16 @@
                         {% set transformations_lightbox = 'f_auto,q_auto,w_1600,c_limit' %}
                         {% set optimized_url_lightbox = base_url + transformations_lightbox + '/' + image_name %}
 
-                        <div class="photo-item" data-src="{{ optimized_url_lightbox }}" onclick="openLightbox(this)">
+                        <div class="photo-item" 
+                             data-src="{{ optimized_url_lightbox }}" 
+                             onclick="openLightbox(this)"
+                             draggable="true"
+                             data-index="{{ loop.index0 }}"
+                             ondragstart="dragStart(event)"
+                             ondragover="dragOver(event)"
+                             ondrop="drop(event)"
+                             ondragenter="dragEnter(event)"
+                             ondragleave="dragLeave(event)">
                             <img src="{{ optimized_url_grid }}" alt="{{ photo.filename }}" loading="lazy">
                             {% if dev_mode %}
                             <form action="{{ url_for('delete_photo', gallery_id=gallery.id, photo_index=loop.index0) }}" 
@@ -516,6 +576,9 @@
                                     <i class="fas fa-times"></i>
                                 </button>
                             </form>
+                            <div class="drag-handle" title="Déplacer cette photo" style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: move;">
+                                <i class="fas fa-arrows-alt"></i>
+                            </div>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -828,6 +891,147 @@
                 const modal = document.getElementById('editModal');
                 if (event.target == modal) {
                     hideEditModal();
+                }
+            }
+        </script>
+
+        <script>
+            // Variables globales pour le glisser-déposer
+            let draggedItem = null;
+            let draggedIndex = -1;
+
+            // Gestion du glisser-déposer pour réorganiser les photos
+            function dragStart(e) {
+                // Ne pas démarrer le glisser-déposer si on clique sur le bouton de suppression
+                if (e.target.closest('.delete-photo-btn') || e.target.closest('.drag-handle')) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                draggedItem = e.currentTarget;
+                draggedIndex = parseInt(draggedItem.getAttribute('data-index'));
+                e.currentTarget.classList.add('dragging');
+                
+                // Définir l'effet de déplacement
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', ''); // Nécessaire pour Firefox
+            }
+
+            function dragOver(e) {
+                if (!draggedItem) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                const target = e.currentTarget;
+                const targetIndex = parseInt(target.getAttribute('data-index'));
+                
+                // Ne rien faire si on est sur l'élément en cours de déplacement
+                if (targetIndex === draggedIndex) return;
+                
+                const photoGrid = document.querySelector('.photo-grid');
+                const items = Array.from(photoGrid.children);
+                
+                // Déterminer la position d'insertion
+                const targetRect = target.getBoundingClientRect();
+                const targetMiddleY = targetRect.top + targetRect.height / 2;
+                const shouldInsertBefore = e.clientY < targetMiddleY;
+                
+                // Insérer avant ou après la cible selon la position de la souris
+                if (shouldInsertBefore) {
+                    photoGrid.insertBefore(draggedItem, target);
+                } else {
+                    photoGrid.insertBefore(draggedItem, target.nextSibling);
+                }
+                
+                // Mettre à jour les indices des éléments
+                updatePhotoIndices();
+            }
+
+            function dragEnter(e) {
+                if (!draggedItem) return;
+                e.preventDefault();
+                const target = e.currentTarget;
+                const targetIndex = parseInt(target.getAttribute('data-index'));
+                
+                if (targetIndex !== draggedIndex) {
+                    target.classList.add('drag-over');
+                }
+            }
+
+            function dragLeave(e) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+
+            function drop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (!draggedItem) return;
+                
+                // Supprimer les classes de style
+                const items = document.querySelectorAll('.photo-item');
+                items.forEach(item => {
+                    item.classList.remove('drag-over');
+                    item.classList.remove('dragging');
+                });
+                
+                // Mettre à jour l'ordre sur le serveur
+                updatePhotoOrder();
+                
+                draggedItem = null;
+                draggedIndex = -1;
+            }
+
+            function updatePhotoIndices() {
+                const items = document.querySelectorAll('.photo-item');
+                items.forEach((item, index) => {
+                    item.setAttribute('data-index', index);
+                });
+            }
+
+            async function updatePhotoOrder() {
+                const photoGrid = document.querySelector('.photo-grid');
+                const photoItems = Array.from(photoGrid.children);
+                const newOrder = [];
+                
+                // Parcourir les éléments de la grille pour construire le nouvel ordre
+                for (const item of photoItems) {
+                    const img = item.querySelector('img');
+                    if (img) {
+                        // Utiliser directement l'attribut src de l'image
+                        newOrder.push({
+                            url: img.src,
+                            index: parseInt(item.getAttribute('data-index'))
+                        });
+                    }
+                }
+
+                try {
+                    const response = await fetch('{{ url_for("update_photo_order", gallery_id=gallery.id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ order: newOrder })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Erreur lors de la mise à jour de l\'ordre des photos');
+                    }
+                    
+                    // Mettre à jour les indices après la réponse du serveur
+                    updatePhotoIndices();
+                    
+                    // Afficher un message de succès
+                    alert('L\'ordre des photos a été mis à jour avec succès !');
+                    
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour de l\'ordre:', error);
+                    alert('Une erreur est survenue lors de la mise à jour de l\'ordre des photos');
+                    // Recharger la page pour récupérer l'ordre précédent
+                    window.location.reload();
                 }
             }
         </script>
