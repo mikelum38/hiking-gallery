@@ -270,6 +270,95 @@
                 margin-bottom: 1rem;
             }
         }
+        /* Styles pour les appareils mobiles */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+            }
+
+            .cork-board {
+                height: auto;
+                min-height: calc(100vh - 60px);
+                padding: 1rem;
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-top: 50px;
+                border: 10px solid #8b5e2e;
+            }
+
+            .back-link {
+                top: 10px;
+                left: 10px;
+                font-size: 0.9rem;
+                padding: 6px 12px;
+            }
+
+            .add-project-btn {
+                top: 10px;
+                right: 10px;
+                font-size: 0.9rem;
+                padding: 6px 12px;
+            }
+
+            .photo-card {
+                height: auto;
+                margin-bottom: 1rem;
+            }
+
+            .photo-card img {
+                height: 180px;
+            }
+
+            .photo-info {
+                padding: 0.8rem;
+            }
+
+            .project-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .project-date {
+                font-size: 0.8rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .project-desc {
+                font-size: 0.85rem;
+                line-height: 1.3;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 1.2rem;
+                max-height: 85vh;
+            }
+
+            .form-group {
+                margin-bottom: 0.8rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-group input[type="text"],
+            .form-group input[type="date"],
+            .form-group textarea {
+                font-size: 0.9rem;
+                padding: 0.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .button-group button {
+                width: 100%;
+                margin: 0;
+            }
+        }
     </style>
 </head>
 <body>
