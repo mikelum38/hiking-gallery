@@ -613,7 +613,7 @@
                              style="background-image: url('{{ optimized_cover_url }}')"
                          {% endif %}>
                         <div class="month-overlay">
-                            <h2 class="month-name">{{ month }}</h2>
+                            <h2 class="month-name">{{ month.split(' ')[0] }}</h2>
                             {% if data.hikes_count > 0 %}
                             <span class="hike-count">{{ data.hikes_count }} sortie{{ 's' if data.hikes_count > 1 else '' }}</span>
                             {% endif %}
