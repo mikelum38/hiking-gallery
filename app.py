@@ -1578,13 +1578,6 @@ def update_photo_order(gallery_id):
             'message': f'Erreur serveur: {str(e)}'
         })
 
-@app.route('/test-sentry')
-def test_sentry():
-    """Route de test pour vérifier Sentry"""
-    # Cette erreur sera capturée par Sentry
-    division_by_zero = 1 / 0
-    return "Cette ligne ne s'exécutera jamais"
-
 @app.route('/2026')
 def year_2026():
     """Route spécifique pour 2026 avec logique future intégrée"""
