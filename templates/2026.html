@@ -112,22 +112,22 @@ opacity: 1;
             bottom: 2rem;
             left: 0;
             right: 0;
-            padding: 0.5rem;
+            padding: 0 4rem;
             z-index: 2;
             overflow: hidden;
         }
 
         .months-scroll {
             display: flex;
-            gap: 0.75rem;
+            gap: 1.5rem;
             overflow-x: auto;
             scrollbar-width: none;
             padding-bottom: 0;
             scroll-behavior: smooth;
             position: relative;
             -webkit-overflow-scrolling: touch;
-            gap: 0.75rem;
-            padding: 0.5rem 0;
+            gap: 1rem;
+            padding: 1rem 0;
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
@@ -138,7 +138,8 @@ opacity: 1;
 
         .month-card {
             flex: 0 0 auto;
-            aspect-ratio: 16/10;
+            width: 200px;
+            height: 150px;
             margin: 0 15px;
             border-radius: 15px;
             background: #2a2a2a;
@@ -148,11 +149,76 @@ opacity: 1;
             transition: all 0.3s ease;
             scroll-snap-align: center;
             border: 2px solid #333;
+            aspect-ratio: auto;
+            height: 200px;
+            position: relative;
         }
 
         .month-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .month-cover {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-color: #333;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .month-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .month-name {
+            color: white;
+            font-size: 1.4rem;
+            margin: 0;
+            font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-button.prev {
+            left: 10px;
+        }
+
+        .nav-button.next {
+            right: 10px;
+        }
+
+        .nav-button svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
         }
 
         .month-image {
@@ -259,70 +325,72 @@ opacity: 1;
             background-color: #f8f9fa;
         }
 
-        .create-gallery-form {
+        /* Styles pour le modal */
+        .modal {
             display: none;
             position: fixed;
-            bottom: 110px;
-            right: 30px;
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            z-index: 99;
-            width: 300px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #2a2a2a;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            color: white;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: white;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #ccc;
-            font-size: 14px;
+            margin-bottom: 0.5rem;
+            color: #ddd;
         }
 
-        .form-group input,
+        .form-group input[type="text"],
+        .form-group input[type="date"],
         .form-group textarea {
             width: 100%;
-            padding: 10px;
+            padding: 0.5rem;
             border: 1px solid #444;
             border-radius: 5px;
-            background: #333;
+            background-color: #333;
             color: white;
-            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
         }
 
         .form-actions {
             display: flex;
+            gap: 1rem;
             justify-content: flex-end;
-            gap: 10px;
+            margin-top: 2rem;
         }
 
-        .btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
+        .nav-btn.primary {
             background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
             color: white;
-        }
-
-        .btn-secondary {
-            background: #444;
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         @media (max-width: 768px) {
@@ -367,7 +435,20 @@ opacity: 1;
             }
 
             .month-card {
-                aspect-ratio: 16/10;
+                width: 100%;
+                height: 150px;
+                border-radius: 10px;
+                overflow: hidden;
+                position: relative;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                aspect-ratio: 1.5;
+            }
+
+            .month-name {
+                font-size: 1.3rem;
+                margin: 0;
+                font-weight: 500;
             }
         }
         
@@ -419,7 +500,7 @@ opacity: 1;
                             style="background-image: url('{{ optimized_cover_url }}')"
                         {%- endif -%}>
                         <div class="month-overlay">
-                            <h2 class="month-name">{{ month }}</h2>
+                            <h2 class="month-name">{{ month.split(' ')[0] }}</h2>
                         </div>
                     </div>
                 </a>
@@ -429,46 +510,34 @@ opacity: 1;
     </div>
 
     {% if dev_mode %}
-    <button class="create-gallery-btn" onclick="toggleCreateGallery()" style="display: block;">
-        <i class="fas fa-plus"></i>
-    </button>
-    {% endif %}
-
-    <div class="create-gallery-form" id="createGalleryForm">
-        <h3 style="color: white; margin-top: 0;">Nouvelle galerie</h3>
-        <form id="galleryForm">
-            <div class="form-group">
-                <label for="galleryMonth">Mois</label>
-                <select id="galleryMonth" class="form-control" required>
-                    <option value="">Sélectionner un mois</option>
-                    <option value="janvier">Janvier</option>
-                    <option value="fevrier">Février</option>
-                    <option value="mars">Mars</option>
-                    <option value="avril">Avril</option>
-                    <option value="mai">Mai</option>
-                    <option value="juin">Juin</option>
-                    <option value="juillet">Juillet</option>
-                    <option value="aout">Août</option>
-                    <option value="septembre">Septembre</option>
-                    <option value="octobre">Octobre</option>
-                    <option value="novembre">Novembre</option>
-                    <option value="decembre">Décembre</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="galleryTitle">Titre</label>
-                <input type="text" id="galleryTitle" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="galleryDescription">Description</label>
-                <textarea id="galleryDescription" class="form-control" rows="3"></textarea>
-            </div>
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="toggleCreateGallery()">Annuler</button>
-                <button type="submit" class="btn btn-primary">Créer</button>
-            </div>
-        </form>
+    <div id="createGalleryForm" class="modal" style="display: none;">
+        <div class="modal-content">
+            <form action="{{ url_for('create_gallery') }}" method="post" enctype="multipart/form-data">
+                <h2>Nouvelle randonnée</h2>
+                <div class="form-group">
+                    <label for="name">Nom de la randonnée :</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date :</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description :</label>
+                    <textarea id="description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="cover_image">Image de couverture :</label>
+                    <input type="file" id="cover_image" name="cover_image" accept="image/*" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="nav-btn" onclick="toggleCreateGallery()">Annuler</button>
+                    <button type="submit" class="nav-btn primary">Créer</button>
+                </div>
+            </form>
+        </div>
     </div>
+    {% endif %}
 
     <script>
         function scrollMonths(direction) {
@@ -481,6 +550,25 @@ opacity: 1;
         // Gestion du défilement à la souris
         document.addEventListener('DOMContentLoaded', () => {
             const monthsScroll = document.querySelector('.months-scroll');
+            const prevButton = document.querySelector('.nav-button.prev');
+            const nextButton = document.querySelector('.nav-button.next');
+            
+            // Fonction pour vérifier si le défilement est nécessaire et masquer/afficher les flèches
+            function checkScrollNeeded() {
+                const isOverflowing = monthsScroll.scrollWidth > monthsScroll.clientWidth;
+                
+                if (isOverflowing) {
+                    prevButton.style.display = 'flex';
+                    nextButton.style.display = 'flex';
+                } else {
+                    prevButton.style.display = 'none';
+                    nextButton.style.display = 'none';
+                }
+            }
+            
+            // Vérifier au chargement et au redimensionnement
+            checkScrollNeeded();
+            window.addEventListener('resize', checkScrollNeeded);
             
             monthsScroll.addEventListener('wheel', (e) => {
                 e.preventDefault();

@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+
+# Environment
+.env
+.venv
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+app.log
+
+# Cache
+photo_dimensions_cache.json
+
+# Tests
+tests/
+.coverage
+htmlcov/
+
+# Documentation
+README.md
+IMPROVEMENTS.md
+*.md

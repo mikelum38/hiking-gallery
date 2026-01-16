@@ -288,12 +288,12 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         font-size: 24px;
         z-index: 1000;">
-        💬
+        <i class="fas fa-comments"></i>
     </button>
 
     <!-- Iframe du chatbot -->
     <iframe id="chatbot-iframe" 
-            src="https://chatbot-jitt.onrender.com" 
+            src="{{ config.CHATBOT_URL }}" 
             style="
                 display: none;
                 position: fixed;
@@ -315,7 +315,7 @@
         opener.addEventListener('click', () => {
             const isVisible = iframe.style.display === 'block';
             iframe.style.display = isVisible ? 'none' : 'block';
-            opener.textContent = isVisible ? '💬' : '✕';
+            opener.innerHTML = isVisible ? '<i class="fas fa-times"></i>' : '<i class="fas fa-comments"></i>';
         });
     </script>
 </body>

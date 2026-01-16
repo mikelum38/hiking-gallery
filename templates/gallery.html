@@ -456,9 +456,9 @@
                 <source src="{{ url_for('static', filename='audio/Askthemountains.mp3') }}" type="audio/mp3">
             {% endif %}
         </audio>
-        <a href="{{ url_for(return_page) }}" class="back-link">
+        <a href="{{ url_for('month_galleries', year=gallery.date[:4], month=gallery.date[5:7].lstrip('0')) }}" class="back-link">
             <i class="fas fa-arrow-left"></i>
-            Retour aux galeries
+            Retour
         </a>
         {% if gallery.id == "20240905_gr20" %}
             <div class="hero-content">

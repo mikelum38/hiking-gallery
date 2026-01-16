@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
+# -*- coding: utf-8 -*-
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify, session
 import json
 from datetime import datetime
 import cloudinary
@@ -13,6 +14,16 @@ from functools import lru_cache
 import io
 import traceback
 from flask import send_file
+from config import config, Config
+
+# Initialiser Sentry si activé
+if Config.ENABLE_SENTRY and Config.SENTRY_DSN:
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn=Config.SENTRY_DSN,
+        traces_sample_rate=1.0,
+        environment=os.environ.get('FLASK_ENV', 'production')
+    )
 
 
 load_dotenv()  # Chargement des variables d'environnement depuis .env
@@ -25,10 +36,35 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
+
+# Configuration de l'application
+env = os.environ.get('FLASK_ENV', 'default')
+app.config.from_object(config[env])
+
+# Initialiser Flask-Sentry si activé
+if Config.ENABLE_SENTRY and Config.SENTRY_DSN:
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    sentry_sdk.init(
+        dsn=Config.SENTRY_DSN,
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=1.0,
+        environment=os.environ.get('FLASK_ENV', 'production')
+    )
+
+# Validation de la configuration
+try:
+    Config.validate_config()
+except ValueError as e:
+    app.logger.error(f"Erreur de configuration: {e}")
+    raise
+
 # Configuration du mode développement
-app.config['DEV_MODE'] = os.environ.get('DEV_MODE', 'false').lower() == 'true'
-app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'votre_clé_secrète_ici')
+app.config['DEV_MODE'] = app.config.get('DEV_MODE', False)
+
+# Clé secrète obligatoire
+app.secret_key = app.config['SECRET_KEY']
+if not app.secret_key:
+    raise ValueError("FLASK_SECRET_KEY doit être définie dans les variables d'environnement")
 app.logger.setLevel(logging.INFO)
 
 # Log du mode de l'application au démarrage
@@ -36,9 +72,9 @@ app.logger.info(f"Application running in {'DEVELOPMENT' if app.config['DEV_MODE'
 
 # Configuration Cloudinary
 cloudinary.config(
-    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    api_key = os.environ.get('CLOUDINARY_API_KEY'),
-    api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+    cloud_name = app.config['CLOUDINARY_CLOUD_NAME'],
+    api_key = app.config['CLOUDINARY_API_KEY'],
+    api_secret = app.config['CLOUDINARY_API_SECRET']
 )
 
 # Liste des mois en français
@@ -47,11 +83,92 @@ MOIS_FR = [
     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
 ]
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+# Cache persistant pour les dimensions des photos
+PHOTO_DIMENSIONS_CACHE_FILE = 'photo_dimensions_cache.json'
 
-# Variable globale pour stocker l'URL de l'image de fond
-global_slide_url = None
+def load_photo_dimensions_cache():
+    """Charger le cache des dimensions de photos"""
+    try:
+        with open(PHOTO_DIMENSIONS_CACHE_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
 
+def save_photo_dimensions_cache(cache):
+    """Sauvegarder le cache des dimensions de photos"""
+    try:
+        with open(PHOTO_DIMENSIONS_CACHE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde du cache des dimensions: {e}")
+
+def get_photo_dimensions(photo_id):
+    """Obtenir les dimensions d'une photo avec cache persistant"""
+    cache = load_photo_dimensions_cache()
+    
+    if photo_id in cache:
+        cached_data = cache[photo_id]
+        # Vérifier si le cache n'est pas trop vieux (7 jours)
+        cache_date = cached_data.get('cached_at')
+        if cache_date:
+            try:
+                cache_datetime = datetime.strptime(cache_date, '%Y-%m-%d')
+                if (datetime.now() - cache_datetime).days < 7:
+                    return {
+                        'width': cached_data['width'],
+                        'height': cached_data['height']
+                    }
+            except ValueError:
+                pass
+    
+    # Si pas en cache ou cache trop vieux, appeler l'API
+    try:
+        result = cloudinary.api.resource(photo_id)
+        dimensions = {
+            'width': result['width'],
+            'height': result['height'],
+            'cached_at': datetime.now().strftime('%Y-%m-%d')
+        }
+        
+        # Mettre à jour le cache
+        cache[photo_id] = dimensions
+        save_photo_dimensions_cache(cache)
+        
+        return dimensions
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la récupération des dimensions de {photo_id}: {e}")
+        return {'width': 0, 'height': 0}
+
+
+from werkzeug.utils import secure_filename
+
+def validate_upload(file, max_size_mb=50):
+    """Validation complète des fichiers uploadés"""
+    if not file or not file.filename:
+        return False, "Aucun fichier sélectionné", None
+    
+    # Taille maximale (50MB par défaut pour supporter 45 photos)
+    file.seek(0, os.SEEK_END)
+    size = file.tell()
+    file.seek(0)
+    if size > max_size_mb * 1024 * 1024:
+        return False, f"Fichier trop volumineux (max {max_size_mb}MB)", None
+    
+    # Sécurisation du nom de fichier
+    filename = secure_filename(file.filename)
+    if not filename:
+        return False, "Nom de fichier invalide", None
+    
+    # Validation de l'extension
+    if not allowed_file(filename):
+        return False, "Type de fichier non autorisé", None
+    
+    # Validation du type MIME
+    allowed_mimes = ['image/jpeg', 'image/png', 'image/gif']
+    if file.content_type not in allowed_mimes:
+        return False, f"Type MIME {file.content_type} non autorisé", None
+    
+    return True, filename, file
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -61,12 +178,17 @@ def save_gallery_data(data):
     with open('galleries.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
+@lru_cache(maxsize=1)
 def load_gallery_data():
     try:
         with open('galleries.json', 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
+
+def clear_gallery_cache():
+    """Invalider le cache des galeries après modifications"""
+    load_gallery_data.cache_clear()
 
 def load_projects():
     try:
@@ -78,7 +200,6 @@ def load_projects():
 def save_projects(projects):
     with open('projects.json', 'w', encoding='utf-8') as f:
         json.dump(projects, f, ensure_ascii=False, indent=4)
-
 
 
 def load_flowers_data():
@@ -348,13 +469,13 @@ def upload_photos(gallery_id):
                 })
             except Exception as e:
                 app.logger.error(f"Erreur lors de l'upload de {file.filename}: {str(e)}")
-                import traceback
-                app.logger.error(traceback.format_exc())
+                app.logger.error(f"Traceback complet: {traceback.format_exc()}")
                 flash(f'Erreur lors du téléchargement de {file.filename}: {str(e)}')
                 continue
     
     try:
         save_gallery_data(galleries)
+        clear_gallery_cache()
         app.logger.info("Données sauvegardées avec succès")
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
@@ -380,13 +501,14 @@ def delete_gallery(gallery_id):
         # Supprimer la galerie des données
         del galleries[gallery_id]
         save_gallery_data(galleries)
+        clear_gallery_cache()
         flash('Galerie supprimée avec succès', 'success')
         
         # Rediriger vers la page de l'année appropriée
-        return redirect(url_for(f'year_{year}'))
+        return redirect(url_for('year_view', year=year))
     else:
         flash('Galerie non trouvée', 'error')
-        return redirect(url_for('year_2025'))  # Redirection par défaut si la galerie n'est pas trouvée
+        return redirect(url_for('year_view', year=2025))
 
 @app.route('/create_gallery', methods=['POST'])
 def create_gallery():
@@ -407,8 +529,12 @@ def create_gallery():
         return_route = 'year_2022'
     elif year == 2023:
         return_route = 'year_2023'
+    elif year == 2024:
+        return_route = 'year_2024'
     elif year == 2025:
         return_route = 'year_2025'
+    elif year == 2026:
+        return_route = 'year_2026'
     elif year == 2020:
         return_route = 'year_2020'
     elif year == 2019:
@@ -445,11 +571,19 @@ def create_gallery():
                 new_gallery['cover_image'] = upload_result['secure_url']
             except Exception as e:
                 app.logger.error(f"Erreur lors de l'upload Cloudinary: {str(e)}")
+                app.logger.error(f"Traceback complet: {traceback.format_exc()}")
                 flash("Erreur lors de l'upload de l'image de couverture", 'error')
     
     # Ajout de la nouvelle galerie
-    galleries[gallery_id] = new_gallery
-    save_gallery_data(galleries)
+    try:
+        galleries[gallery_id] = new_gallery
+        save_gallery_data(galleries)
+        clear_gallery_cache()
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
+        app.logger.error(f"Traceback complet: {traceback.format_exc()}")
+        flash('Erreur lors de la sauvegarde des données')
+        return redirect(url_for(return_route))
     
     flash('Galerie créée avec succès', 'success')
     return redirect(url_for(return_route))
@@ -462,7 +596,7 @@ def edit_gallery(gallery_id):
     galleries = load_gallery_data()
     if gallery_id not in galleries:
         flash('Galerie non trouvée')
-        return redirect(url_for('2024'))
+        return redirect(url_for('year_view', year=2024))
     
     gallery = galleries[gallery_id]
     gallery['name'] = request.form.get('name', gallery['name']).strip()
@@ -476,9 +610,11 @@ def edit_gallery(gallery_id):
     
     try:
         save_gallery_data(galleries)
+        clear_gallery_cache()
         flash('Galerie mise à jour avec succès')
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde: {str(e)}")
+        app.logger.error(f"Traceback complet: {traceback.format_exc()}")
         flash('Erreur lors de la sauvegarde des modifications')
     
     return redirect(url_for('gallery', gallery_id=gallery_id))
@@ -486,47 +622,53 @@ def edit_gallery(gallery_id):
 
 @app.route('/gallery/<gallery_id>')
 def gallery(gallery_id):
+    page = request.args.get('page', 1, type=int)
+    per_page = app.config['PHOTOS_PER_PAGE']
+    
     galleries = load_gallery_data()
     gallery = galleries.get(gallery_id)
     if not gallery:
         return "Gallery not found", 404
+    
+    # Créer une copie pour éviter de modifier l'original
+    gallery_copy = gallery.copy()
         
     # S'assurer que formatted_date est défini
-    if 'date' in gallery and 'formatted_date' not in gallery:
-        gallery['formatted_date'] = format_date(gallery['date'])
+    if 'date' in gallery_copy and 'formatted_date' not in gallery_copy:
+        gallery_copy['formatted_date'] = format_date(gallery_copy['date'])
+    
+    # Pagination des photos
+    total_photos = len(gallery_copy.get('photos', []))
+    total_pages = (total_photos + per_page - 1) // per_page  # Arrondi supérieur
+    
+    start = (page - 1) * per_page
+    end = start + per_page
+    
+    photos = gallery_copy.get('photos', [])
+    gallery_copy['photos_paginated'] = photos[start:end]
+    gallery_copy['pagination'] = {
+        'current_page': page,
+        'total_pages': total_pages,
+        'total_photos': total_photos,
+        'has_prev': page > 1,
+        'has_next': page < total_pages,
+        'prev_page': page - 1 if page > 1 else None,
+        'next_page': page + 1 if page < total_pages else None
+    }
     
     # Déterminer la page de retour en fonction de l'année
-    date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+    date = datetime.strptime(gallery_copy['date'], '%Y-%m-%d')
     year = date.year
-    if year == 2025:
-        return_page = 'year_2025'
-    elif year == 2016:
-        return_page = 'year_2016'
-    elif year == 2017:
-        return_page = 'year_2017'
-    elif year == 2018:
-        return_page = 'year_2018'
-    elif year == 2019:
-        return_page = 'year_2019'
-    elif year == 2020:
-        return_page = 'year_2020'
-    elif year == 2021:
-        return_page = 'year_2021'
-    elif year == 2022:
-        return_page = 'year_2022'
-    elif year == 2023:
-        return_page = 'year_2023'
-    else:
-        return_page = 'year_2024'
+    return_page = f'year_view'  # Utiliser la route dynamique
     
-    # Ajouter l'ID à l'objet gallery
-    gallery['id'] = gallery_id
+    # Ajouter l'ID à l'objet gallery_copy
+    gallery_copy['id'] = gallery_id
     
     # Ajouter formatted_date s'il n'existe pas
-    if 'formatted_date' not in gallery:
-        date_obj = datetime.strptime(gallery['date'], '%Y-%m-%d')
+    if 'formatted_date' not in gallery_copy:
+        date_obj = datetime.strptime(gallery_copy['date'], '%Y-%m-%d')
         day = str(date_obj.day).lstrip('0')  # Enlever le zéro initial
-        gallery['formatted_date'] = f"{day} {date_obj.strftime('%B %Y')}"
+        gallery_copy['formatted_date'] = f"{day} {date_obj.strftime('%B %Y')}"
 
     # Special case for GR20 gallery
     if gallery_id == "20240905_gr20":
@@ -535,7 +677,7 @@ def gallery(gallery_id):
         gr20_thumbnail_url = cloudinary.CloudinaryImage("gr20_thumbnail").build_url(secure=True)
          
         return render_template('gallery.html', 
-                            gallery=gallery,
+                            gallery=gallery_copy,
                             dev_mode=app.config['DEV_MODE'],
                             format_date=format_date,
                             return_page=return_page,
@@ -544,28 +686,30 @@ def gallery(gallery_id):
     else:
         optimized_background_url = None
         # Optimize the background image URL
-        if gallery.get('cover_image'):
-            image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-            gallery['optimized_background_url'] = get_cloudinary_background_url(image_name)
-            gallery['cover_image'] = None # Remove the original image
+        if gallery_copy.get('cover_image'):
+            image_name = gallery_copy['cover_image'].split('/')[-1].split('.')[0]
+            gallery_copy['optimized_background_url'] = get_cloudinary_background_url(image_name)
+            gallery_copy['cover_image'] = None # Remove the original image
         else:
-            gallery['optimized_background_url'] = None
+            gallery_copy['optimized_background_url'] = None
  
         # Définir l'image de fond
-        optimized_background_url = gallery['optimized_background_url']
-        # Get the width and height of the photos
-        for photo in gallery['photos']:
-            try:
-                result = cloudinary.api.resource(photo['url'].split('/')[-1].split('.')[0])
-                photo['width'] = result['width']
-                photo['height'] = result['height']
-            except Exception as e:
-                app.logger.error(f"Erreur lors de la récupération des informations de l'image: {e}")
-                photo['width'] = 0
-                photo['height'] = 0
+        optimized_background_url = gallery_copy['optimized_background_url']
+        # Optimiser la récupération des dimensions des photos avec cache persistant
+        for photo in gallery_copy['photos']:
+            photo_id = photo['url'].split('/')[-1].split('.')[0]
+            
+            # Vérifier si les dimensions sont déjà dans la photo
+            if 'width' in photo and 'height' in photo:
+                continue
+                
+            # Utiliser le cache persistant
+            dimensions = get_photo_dimensions(photo_id)
+            photo['width'] = dimensions['width']
+            photo['height'] = dimensions['height']
 
         return render_template('gallery.html', 
-                            gallery=gallery, 
+                            gallery=gallery_copy, 
                             dev_mode=app.config['DEV_MODE'],
                             format_date=format_date,
                             return_page=return_page,
@@ -592,13 +736,17 @@ def month_galleries(year, month):
                 else:
                     # Définir l'image de fond si elle n'est pas déjà définie
                     if not optimized_background_url and gallery.get('cover_image'):
-                        optimized_background_url = get_cloudinary_background_url(gallery['cover_image'].split('/')[-1].split('.')[0]) # Changed variable name here
+                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
+                        optimized_background_url = get_cloudinary_background_url(image_name)
 
-                    # Optimiser l'image de couverture pour la vignette
+                    # Optimiser l'image de couverture pour la vignette (même logique que year_view)
                     if gallery.get('cover_image'):
-                        gallery['optimized_cover_url'] = get_optimized_cover_url(gallery['cover_image'])
+                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
+                        gallery['optimized_cover_url'] = get_cloudinary_background_url(image_name)
+                        app.logger.info(f"Vignette optimisée pour {gallery_id}: {gallery['optimized_cover_url']}")
                     else:
                         gallery['optimized_cover_url'] = None
+                        app.logger.warning(f"Pas d'image de couverture pour {gallery_id}")
                 month_galleries_data.append(gallery)
                 app.logger.info(f"Galerie ajoutée pour {MOIS_FR[month-1]} {year}: {gallery['name']}")
 
@@ -613,6 +761,7 @@ def month_galleries(year, month):
                            galleries=month_galleries_data,
                            optimized_background_url=optimized_background_url, 
                            month=f"{MOIS_FR[month-1]} {year}",
+                           year=year,
                            dev_mode=app.config['DEV_MODE'])
 
 
@@ -650,19 +799,19 @@ def projets():
     except FileNotFoundError as e:
         app.logger.error(f"Fichier projects.json non trouvé: {e}")
         flash("Le fichier des projets est manquant.")
-        return redirect(url_for('year_2025'))
+        return redirect(url_for('year_view', year=2025))
     except json.JSONDecodeError as e:
         app.logger.error(f"Erreur de décodage JSON dans projects.json: {e}")
         flash("Erreur de format dans le fichier des projets.")
-        return redirect(url_for('year_2025'))
+        return redirect(url_for('year_view', year=2025))
     except ValueError as e:
         app.logger.error(f"Erreur de format de date dans projects.json: {e}")
         flash("Erreur de format de date dans le fichier des projets.")
-        return redirect(url_for('year_2025'))
+        return redirect(url_for('year_view', year=2025))
     except Exception as e:
         app.logger.error(f"Une erreur s'est produite lors du chargement des projets: {e}")
         flash("Une erreur s'est produite lors du chargement des projets")
-        return redirect(url_for('year_2025'))
+        return redirect(url_for('year_view', year=2025))
 
 @app.route('/add_project', methods=['POST'])
 @app.route('/add_project/<int:year>', methods=['POST'])
@@ -872,38 +1021,6 @@ def edit_century_memory(memory_id):
         flash("Erreur lors de la modification du souvenir")
         return redirect(url_for('memories_of_centuries'))
 
-
-    if not app.config['DEV_MODE']:
-        return abort(403)
-    
-    try:
-        with open('century_memories.json', 'r', encoding='utf-8') as f:
-            memories = json.load(f)
-        
-        # Trouver et mettre à jour le souvenir
-        for year in memories.values():
-            for memory in year:
-                if memory['id'] == memory_id:
-                    memory['title'] = request.form['title']
-                    memory['year'] = request.form['year']
-                    memory['description'] = request.form['description']
-                    
-                    if 'photo' in request.files and request.files['photo'].filename:
-                        file = request.files['photo']
-                        upload_result = cloudinary.uploader.upload(file)
-                        memory['url'] = upload_result['secure_url']
-                    
-                    break
-        
-        with open('century_memories.json', 'w', encoding='utf-8') as f:
-            json.dump(memories, f, ensure_ascii=False, indent=4)
-            
-        return redirect(url_for('memories_of_centuries'))
-        
-    except Exception as e:
-        app.logger.error(f"Erreur lors de la modification du souvenir: {str(e)}")
-        flash("Erreur lors de la modification du souvenir")
-        return redirect(url_for('memories_of_centuries'))
 
 @app.route('/delete-century-memory/<memory_id>', methods=['POST'])
 def delete_century_memory(memory_id):
@@ -1208,37 +1325,46 @@ def delete_animal(animal_id):
 
 # les années :
 
-@app.route('/2016')
-def year_2016():
+@app.route('/<int:year>')
+def year_view(year):
+    # Validation de l'année
+    if year < 2016 or year > 2026:
+        abort(404)
+    
     galleries = load_gallery_data()
     galleries_by_month = {}
+    today = datetime.now()  # Ajouter pour détecter les dates futures
     
     for gallery_id, gallery in galleries.items():
         try:
             date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2016:
+            if date.year == year:
                 month_key = f"{MOIS_FR[date.month-1]} {date.year}"
                 month_num = date.strftime('%m')
-                year = date.strftime('%Y')
+                year_str = date.strftime('%Y')
                 
                 if month_key not in galleries_by_month:
                     galleries_by_month[month_key] = {
                         'galleries': [],
                         'month': int(month_num),
-                        'year': int(year),
+                        'year': year_str,
                         'cover': None
                     }
+                
+                # Ajouter l'indicateur is_future pour 2026
+                if year == 2026:
+                    galleries_by_month[month_key]['is_future'] = date > today
                 
                 gallery['id'] = gallery_id
                 galleries_by_month[month_key]['galleries'].append(gallery)
                 
-               # Mettre à jour l'image de couverture si c'est la première galerie du mois
+                # Mettre à jour l'image de couverture si c'est la première galerie du mois
                 if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
                     galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
+                    # Optimize cover image URL
                     image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
                     galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2017: {gallery['name']}")
+                    app.logger.info(f"Galerie ajoutée pour {year}: {gallery['name']}")
         except Exception as e:
             app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
     
@@ -1252,476 +1378,16 @@ def year_2016():
                 if background_url: #si on a trouvé une image on sort de la boucle
                     break
 
-    return render_template('2016.html', 
+    # Calculer les statistiques de sorties pour chaque mois
+    for month_key, month_data in galleries_by_month.items():
+        month_data['hikes_count'] = len(month_data['galleries'])
+        # Calculer le total de photos pour le mois
+        month_data['photos_count'] = sum(len(gallery.get('photos', [])) for gallery in month_data['galleries'])
+    
+    return render_template(f'{year}.html', 
                         galleries_by_month=galleries_by_month,
                         background_url=background_url,
                         dev_mode=app.config['DEV_MODE'])
-
- 
-
-@app.route('/2017')
-def year_2017():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2017:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-               # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2017: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-    
-    # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-
-    return render_template('2017.html', 
-                        galleries_by_month=galleries_by_month,
-                        background_url=background_url,
-                        dev_mode=app.config['DEV_MODE'])
-
-@app.route('/2018')
-def year_2018():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2018:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                 # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2018: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-    
-    # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-    
-    return render_template('2018.html', 
-                         galleries_by_month=galleries_by_month,
-                         background_url=background_url,
-                         dev_mode=app.config['DEV_MODE'])
-
-@app.route('/2019')
-def year_2019():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2019:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-               # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2019: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-    
-   # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-   
-    
-    return render_template('2019.html', 
-                         galleries_by_month=galleries_by_month,
-                         background_url=background_url,
-                         dev_mode=app.config['DEV_MODE'])
-
-@app.route('/2020')
-def year_2020():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2020:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2020: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-    
-   # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
- 
-    return render_template('2020.html', 
-                         galleries_by_month=galleries_by_month,
-                         background_url=background_url,
-                         dev_mode=app.config['DEV_MODE'])
-
-@app.route('/2021')
-def year_2021():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2021:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2021: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-    
-   # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
- 
-    
-    return render_template('2021.html', 
-                         galleries_by_month=galleries_by_month,
-                         background_url=background_url,
-                         dev_mode=app.config['DEV_MODE'])
-
-
-@app.route('/2022')
-def year_2022():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2022:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2022: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-    
-    # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-
-    return render_template('2022.html', 
-                        galleries_by_month=galleries_by_month,
-                        background_url=background_url,
-                        dev_mode=app.config['DEV_MODE'])
-
-@app.route('/2023')
-def year_2023():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2023:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2023: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-        
-    # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-
-           
-        return render_template('2023.html', 
-                            galleries_by_month=galleries_by_month,
-                            background_url=background_url,
-                            dev_mode=app.config['DEV_MODE'])
-
-
-@app.route('/2024')
-def year_2024():
-    galleries = load_gallery_data()
-    galleries_by_month = {}
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2024:  # Filtrer uniquement les galeries de 2024
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-            if month_key not in galleries_by_month:
-                galleries_by_month[month_key] = {
-                    'galleries': [],
-                    'month': int(month_num),
-                    'year': int(year),
-                    'cover': None
-                }
-            
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                        galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                        # Optimize the cover image URL
-                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                        galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                        app.logger.info(f"Galerie ajoutée pour 2024: {gallery['name']}")
-        except Exception as e:
-                app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-        
-    # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-
-    return render_template('2024.html', 
-                        galleries_by_month=galleries_by_month,
-                        background_url=background_url,
-                        dev_mode=app.config['DEV_MODE'])
-
-
-@app.route('/2025')
-def year_2025():
-    galleries = load_gallery_data()
-    galleries_by_month = {}    
-    today = datetime.now()
-    
-    # Compter les sorties par mois
-    monthly_hikes = count_hikes_by_month(galleries, year=2025)
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2025:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None,
-                        'is_future': date > today,  # Ajouter un indicateur pour les dates futures
-                        'hikes_count': monthly_hikes[int(month_num)]  # Ajout du compteur de sorties
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                    galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                    # Optimize the cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                    app.logger.info(f"Galerie ajoutée pour 2025: {gallery['name']}")
-        except Exception as e:
-            app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-            
-    # Trier les galeries par date décroissante dans chaque mois
-    for month_data in galleries_by_month.values():
-        month_data['galleries'].sort(key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'), reverse=True)
-    
-    # Trier les mois par ordre décroissant
-    galleries_by_month = dict(sorted(galleries_by_month.items(), 
-                                   key=lambda x: (x[1]['year'], x[1]['month']), 
-                                   reverse=True))
-    
-    # Trouver une image de fond pour la page
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-
-    return render_template('2025.html', 
-                         galleries_by_month=galleries_by_month,
-                         background_url=background_url,
-                         monthly_hikes=monthly_hikes,  # Ajout du compteur de sorties
-                         dev_mode=app.config['DEV_MODE'])
-
 
 @app.route('/wheel-of-fortune')
 def wheel_of_fortune():
@@ -1732,16 +1398,14 @@ def wheel_of_fortune():
 
 @app.route('/inmy')
 def inmy_landing():
-    global global_slide_url  # Déclarer la variable comme globale
     if request.args.get('back') == 'true':
         return redirect(url_for('years'))
-    global_slide_url  = get_cloudinary_background_url("slide-img-fall")
-    return render_template('inmy_cover.html', slide_url=global_slide_url )
+    session['slide_url'] = get_cloudinary_background_url("slide-img-fall")
+    return render_template('inmy_cover.html', slide_url=session['slide_url'])
 
 
 @app.route('/inmy_life')
 def inmy_life():
-    global global_slide_url  # Déclarer la variable comme globale
     page = request.args.get('page', 1, type=int)
     total_pages = 6
     
@@ -1780,7 +1444,7 @@ def inmy_life():
                          next_url=next_url,
                          dev_mode=app.config['DEV_MODE'],
                          page_image_url=page_image_url,
-                         slide_url=global_slide_url, # Utiliser la variable globale
+                         slide_url=session.get('slide_url', get_cloudinary_background_url("slide-img-fall")),
                          **text_vars)
 
 @app.route('/save_inmy_life_text', methods=['POST'])
@@ -1899,6 +1563,7 @@ def update_photo_order(gallery_id):
         
         # Sauvegarder les modifications
         save_gallery_data(galleries)
+        clear_gallery_cache()
         
         return jsonify({
             'status': 'success', 
@@ -1911,60 +1576,12 @@ def update_photo_order(gallery_id):
         return jsonify({
             'status': 'error', 
             'message': f'Erreur serveur: {str(e)}'
-        }), 500
-
+        })
 
 @app.route('/2026')
 def year_2026():
-    galleries = load_gallery_data()
-    galleries_by_month = {}    
-
-    today = datetime.now()
-    
-    for gallery_id, gallery in galleries.items():
-        try:
-            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
-            if date.year == 2026:
-                month_key = f"{MOIS_FR[date.month-1]} {date.year}"
-                month_num = date.strftime('%m')
-                year = date.strftime('%Y')
-                
-                if month_key not in galleries_by_month:
-                    galleries_by_month[month_key] = {
-                        'galleries': [],
-                        'month': int(month_num),
-                        'year': int(year),
-                        'cover': None,
-                        'is_future': date > today  # Ajouter un indicateur pour les dates futures
-                    }
-                
-                gallery['id'] = gallery_id
-                galleries_by_month[month_key]['galleries'].append(gallery)
-                
-                # Mettre à jour l'image de couverture si c'est la première galerie du mois
-                if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
-                        galleries_by_month[month_key]['cover'] = gallery['cover_image']
-                        # Optimize the cover image URL
-                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                        galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
-                        app.logger.info(f"Galerie ajoutée pour 2026: {gallery['name']}")
-        except Exception as e:
-                    app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
-            
-    # Trouver la première image de couverture disponible
-    background_url = None
-    if galleries_by_month:     
-        app.logger.info("Recherche de l'image de fond")
-        for month_data in galleries_by_month.values():
-            if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
-                if background_url: #si on a trouvé une image on sort de la boucle
-                    break
-
-    return render_template('2026.html', 
-                        galleries_by_month=galleries_by_month,
-                        background_url=background_url,
-                        dev_mode=app.config['DEV_MODE'])
+    """Route spécifique pour 2026 avec logique future intégrée"""
+    return year_view(2026)
 
 @app.route('/projets-2026')
 def projets_2026():
