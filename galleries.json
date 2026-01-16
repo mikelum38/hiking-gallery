@@ -32764,12 +32764,163 @@
         "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1764400295/u75fkrvetxvaab31xpcs.jpg",
         "formatted_date": "29 Novembre 2025"
     },
-    "60a5d3ff-0916-40da-b468-af29560bef9a": {
-        "name": "pic st Michel ( 1996m )",
-        "date": "2025-02-14",
-        "description": "Par lans en Vercors , revisite avec neige gelée .",
-        "photos": [],
-        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492613/lmw0p0havump9xv777ok.jpg"
+    "ac971f18-9a5d-4f69-9b2f-0f43c4a711cc": {
+        "name": "Pic st Michel ( 1996m )",
+        "date": "2025-12-14",
+        "description": "Par lans en Vercors , en neige gelée ",
+        "photos": [
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492954/vchql7vg3vkmy6o1insq.jpg",
+                "filename": "IMG_20251214_130128.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492940/we7vebfxze4ehp9ost4b.jpg",
+                "filename": "IMG_20251214_113140.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492948/fwtjxswva3xguvfpd0em.jpg",
+                "filename": "IMG_20251214_113144.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492961/vubuxiy4l8zjefjxafxs.jpg",
+                "filename": "IMG_20251214_130311.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492966/kkxvdglb3vsg6ztupr6t.jpg",
+                "filename": "IMG_20251214_130422.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492971/cuncd8i1bnzxluizyjpw.jpg",
+                "filename": "IMG_20251214_130428.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492978/awcf3uf2qk4qhzhnci6f.jpg",
+                "filename": "IMG_20251214_130434.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492982/nd47v3pndwlg06vfzczn.jpg",
+                "filename": "IMG_20251214_130544.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492987/nvscediwq0snhoz0xq2i.jpg",
+                "filename": "IMG_20251214_130843.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492990/qex0e08fkod4azwyifzq.jpg",
+                "filename": "IMG_20251214_130849.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492997/bdu2wmyajr1x9oibhvkc.jpg",
+                "filename": "IMG_20251214_140310.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493003/p7h54inh2ib6yirqvv7p.jpg",
+                "filename": "IMG_20251214_140719.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493010/xu2ihkqmm4mauv5qfpyd.jpg",
+                "filename": "IMG_20251214_140721.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493012/l00mzmdo9wqmj1blelur.jpg",
+                "filename": "IMG_20251214_140846.jpg",
+                "width": 720,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493017/lrm1rm1k2pwkoz18sp45.jpg",
+                "filename": "IMG_20251214_140953.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493021/z8bmi13dy7iwp3ho1pc3.jpg",
+                "filename": "IMG_20251214_140957.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493028/cczv3tfdktxjlglfq529.jpg",
+                "filename": "IMG_20251214_144157.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493038/jhg6tcoaz1kac6oehftq.jpg",
+                "filename": "IMG_20251214_145130.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493046/zrucqkqn8typoiwvolpr.jpg",
+                "filename": "IMG_20251214_151004.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493056/uqz6qg8iublrjzdlivfx.jpg",
+                "filename": "IMG_20251214_152429.jpg",
+                "width": 2276,
+                "height": 1280
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493060/xwr4epurf7zzafuh8c0s.jpg",
+                "filename": "WhatsApp Image 2025-12-14 at 20.00.49 (1).jpeg",
+                "width": 2000,
+                "height": 1500
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493065/jernoruotqffllbow76c.jpg",
+                "filename": "WhatsApp Image 2025-12-14 at 20.00.49 (2).jpeg",
+                "width": 2000,
+                "height": 1500
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493069/pw0dgvkokt5lxzjxmmfk.jpg",
+                "filename": "WhatsApp Image 2025-12-14 at 20.00.54.jpeg",
+                "width": 1500,
+                "height": 2000
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493074/uausbergsiom6g0s9f0r.jpg",
+                "filename": "WhatsApp Image 2025-12-14 at 20.00.56 (1).jpeg",
+                "width": 1864,
+                "height": 1120
+            },
+            {
+                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493079/dzol3cb4jfpf6v9wypwc.jpg",
+                "filename": "WhatsApp Image 2025-12-14 at 20.00.58.jpeg",
+                "width": 2048,
+                "height": 1536
+            }
+        ],
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492868/waq5xsuk2nypfwmhjlqz.jpg"
     },
     "a70b5416-e1e1-42a2-95c2-6b1b67de9a00": {
         "name": "Cirque d'Archiane",
@@ -32953,115 +33104,7 @@
                 "filename": "PXL_20251220_143300583.jpg"
             }
         ],
-        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492725/qsmmgtzt3qpcityzudx9.jpg"
-    },
-    "ac971f18-9a5d-4f69-9b2f-0f43c4a711cc": {
-        "name": "Pic st Michel ( 1996m )",
-        "date": "2025-12-14",
-        "description": "Par lans en Vercors , en neige gelée ",
-        "photos": [
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492940/we7vebfxze4ehp9ost4b.jpg",
-                "filename": "IMG_20251214_113140.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492948/fwtjxswva3xguvfpd0em.jpg",
-                "filename": "IMG_20251214_113144.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492954/vchql7vg3vkmy6o1insq.jpg",
-                "filename": "IMG_20251214_130128.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492961/vubuxiy4l8zjefjxafxs.jpg",
-                "filename": "IMG_20251214_130311.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492966/kkxvdglb3vsg6ztupr6t.jpg",
-                "filename": "IMG_20251214_130422.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492971/cuncd8i1bnzxluizyjpw.jpg",
-                "filename": "IMG_20251214_130428.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492978/awcf3uf2qk4qhzhnci6f.jpg",
-                "filename": "IMG_20251214_130434.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492982/nd47v3pndwlg06vfzczn.jpg",
-                "filename": "IMG_20251214_130544.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492987/nvscediwq0snhoz0xq2i.jpg",
-                "filename": "IMG_20251214_130843.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492990/qex0e08fkod4azwyifzq.jpg",
-                "filename": "IMG_20251214_130849.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492997/bdu2wmyajr1x9oibhvkc.jpg",
-                "filename": "IMG_20251214_140310.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493003/p7h54inh2ib6yirqvv7p.jpg",
-                "filename": "IMG_20251214_140719.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493010/xu2ihkqmm4mauv5qfpyd.jpg",
-                "filename": "IMG_20251214_140721.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493012/l00mzmdo9wqmj1blelur.jpg",
-                "filename": "IMG_20251214_140846.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493017/lrm1rm1k2pwkoz18sp45.jpg",
-                "filename": "IMG_20251214_140953.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493021/z8bmi13dy7iwp3ho1pc3.jpg",
-                "filename": "IMG_20251214_140957.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493028/cczv3tfdktxjlglfq529.jpg",
-                "filename": "IMG_20251214_144157.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493038/jhg6tcoaz1kac6oehftq.jpg",
-                "filename": "IMG_20251214_145130.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493046/zrucqkqn8typoiwvolpr.jpg",
-                "filename": "IMG_20251214_151004.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493056/uqz6qg8iublrjzdlivfx.jpg",
-                "filename": "IMG_20251214_152429.jpg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493060/xwr4epurf7zzafuh8c0s.jpg",
-                "filename": "WhatsApp Image 2025-12-14 at 20.00.49 (1).jpeg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493065/jernoruotqffllbow76c.jpg",
-                "filename": "WhatsApp Image 2025-12-14 at 20.00.49 (2).jpeg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493069/pw0dgvkokt5lxzjxmmfk.jpg",
-                "filename": "WhatsApp Image 2025-12-14 at 20.00.54.jpeg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493074/uausbergsiom6g0s9f0r.jpg",
-                "filename": "WhatsApp Image 2025-12-14 at 20.00.56 (1).jpeg"
-            },
-            {
-                "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766493079/dzol3cb4jfpf6v9wypwc.jpg",
-                "filename": "WhatsApp Image 2025-12-14 at 20.00.58.jpeg"
-            }
-        ],
-        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492868/waq5xsuk2nypfwmhjlqz.jpg"
+        "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768416374/uz3xzp67rsedmos5hsib.jpg"
     },
     "c9bb143c-ac8b-4ed6-bfbd-671be313a6cb": {
         "name": "Saut de la Drôme - le Claps",
