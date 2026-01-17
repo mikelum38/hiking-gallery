@@ -369,6 +369,28 @@
                 height: 2.5rem;
             }
         }
+        
+        .search-floating-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            z-index: 999;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .search-floating-btn:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -393,6 +415,10 @@
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
+
+        <a href="/search" class="search-floating-btn" title="Rechercher (Ctrl+K)">
+            <i class="fas fa-search"></i>
+        </a>
     </div>
 
     <script>

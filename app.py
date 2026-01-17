@@ -15,6 +15,7 @@ import io
 import traceback
 from flask import send_file
 from config import config, Config
+from search import SearchEngine, setup_search_routes
 
 # Initialiser Sentry si activé
 if Config.ENABLE_SENTRY and Config.SENTRY_DSN:
@@ -40,6 +41,12 @@ app = Flask(__name__)
 # Configuration de l'application
 env = os.environ.get('FLASK_ENV', 'default')
 app.config.from_object(config[env])
+
+# Initialiser le moteur de recherche
+search_engine = SearchEngine('galleries.json')
+app.logger.info(f"Moteur de recherche initialisé : {search_engine.get_stats()['total_galleries']} galeries indexées")
+# Configuration des routes de recherche
+setup_search_routes(app, search_engine)
 
 # Initialiser Flask-Sentry si activé
 if Config.ENABLE_SENTRY and Config.SENTRY_DSN:
@@ -177,6 +184,10 @@ def allowed_file(filename):
 def save_gallery_data(data):
     with open('galleries.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+    # Mettre à jour l'index de recherche
+    global search_engine
+    search_engine = SearchEngine('galleries.json')
+    app.logger.info("Index de recherche mis à jour")
 
 @lru_cache(maxsize=1)
 def load_gallery_data():

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche - Rêves de Montagne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 18px 60px 18px 25px;
+            font-size: 1.1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .search-btn:hover {
+            background: #5568d3;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .suggestions.active {
+            display: block;
+        }
+        
+        .suggestion-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .suggestion-item i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .filter-group select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .results {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .results h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .results-count {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .result-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .result-content {
+            padding: 20px;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .result-date {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .result-description {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.5;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .no-results {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .no-results i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .no-results h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/years" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour
+        </a>
+        
+        <div class="header">
+            <h1><i class="fas fa-search"></i> Recherche</h1>
+            <p>Trouvez vos randonnées en un instant</p>
+        </div>
+        
+        <div class="search-box">
+            <form action="/search" method="get">
+                <div class="search-input-wrapper">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        class="search-input" 
+                        placeholder="Rechercher une randonnée, un lieu, une date..."
+                        value="{{ query }}"
+                        autocomplete="off"
+                        id="searchInput"
+                    >
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <div class="suggestions" id="suggestions"></div>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <label><i class="fas fa-calendar-alt"></i> Année</label>
+                        <select name="year" onchange="this.form.submit()">
+                            <option value="">Toutes les années</option>
+                            {% for year in stats.years %}
+                            <option value="{{ year }}" {% if year_filter == year|string %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label><i class="fas fa-calendar"></i> Mois</label>
+                        <select name="month" onchange="this.form.submit()">
+                            <option value="">Tous les mois</option>
+                            <option value="1" {% if month_filter == '1' %}selected{% endif %}>Janvier</option>
+                            <option value="2" {% if month_filter == '2' %}selected{% endif %}>Février</option>
+                            <option value="3" {% if month_filter == '3' %}selected{% endif %}>Mars</option>
+                            <option value="4" {% if month_filter == '4' %}selected{% endif %}>Avril</option>
+                            <option value="5" {% if month_filter == '5' %}selected{% endif %}>Mai</option>
+                            <option value="6" {% if month_filter == '6' %}selected{% endif %}>Juin</option>
+                            <option value="7" {% if month_filter == '7' %}selected{% endif %}>Juillet</option>
+                            <option value="8" {% if month_filter == '8' %}selected{% endif %}>Août</option>
+                            <option value="9" {% if month_filter == '9' %}selected{% endif %}>Septembre</option>
+                            <option value="10" {% if month_filter == '10' %}selected{% endif %}>Octobre</option>
+                            <option value="11" {% if month_filter == '11' %}selected{% endif %}>Novembre</option>
+                            <option value="12" {% if month_filter == '12' %}selected{% endif %}>Décembre</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ stats.total_galleries }}</div>
+                        <div class="stat-label">Randonnées</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ stats.years|length }}</div>
+                        <div class="stat-label">Années</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ stats.months_with_hikes }}</div>
+                        <div class="stat-label">Mois actifs</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        {% if query %}
+        <div class="results">
+            <h2>Résultats</h2>
+            <p class="results-count">
+                {{ results|length }} randonnée{% if results|length > 1 %}s{% endif %} trouvée{% if results|length > 1 %}s{% endif %}
+                {% if query %}pour "{{ query }}"{% endif %}
+            </p>
+        </div>
+        
+        {% if results %}
+        <div class="results-grid">
+            {% for result in results %}
+            <a href="/gallery/{{ result.id }}" class="result-card">
+                {% if result.cover_image %}
+                <img src="{{ result.cover_image }}" alt="{{ result.name }}" class="result-image">
+                {% else %}
+                <div class="result-image"></div>
+                {% endif %}
+                
+                <div class="result-content">
+                    <h3 class="result-title">{{ result.name }}</h3>
+                    <div class="result-date">
+                        <i class="fas fa-calendar"></i>
+                        {{ result.formatted_date or result.date }}
+                    </div>
+                    {% if result.description %}
+                    <p class="result-description">{{ result.description }}</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h3>Aucun résultat trouvé</h3>
+            <p>Essayez avec d'autres mots-clés ou modifiez les filtres</p>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+    
+    <script>
+        // Auto-complétion
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsDiv = document.getElementById('suggestions');
+        let debounceTimer;
+        
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                suggestionsDiv.classList.remove('active');
+                return;
+            }
+            
+            debounceTimer = setTimeout(() => {
+                fetch(`/api/search/suggest?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.suggestions && data.suggestions.length > 0) {
+                            suggestionsDiv.innerHTML = data.suggestions
+                                .map(s => `<div class="suggestion-item" onclick="selectSuggestion('${s}')">
+                                    <i class="fas fa-search"></i>${s}
+                                </div>`)
+                                .join('');
+                            suggestionsDiv.classList.add('active');
+                        } else {
+                            suggestionsDiv.classList.remove('active');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Erreur auto-complétion:', err);
+                    });
+            }, 300);
+        });
+        
+        function selectSuggestion(text) {
+            searchInput.value = text;
+            suggestionsDiv.classList.remove('active');
+            searchInput.form.submit();
+        }
+        
+        // Fermer suggestions en cliquant ailleurs
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.classList.remove('active');
+            }
+        });
+        
+        // Focus automatique sur l'input
+        if (!searchInput.value) {
+            searchInput.focus();
+        }
+    </script>
+</body>
+</html>
