@@ -203,6 +203,37 @@
             border-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
+        
+        /* Style pour l'élément central */
+        .year-card.central {
+            transform: scale(1.15) translateZ(200px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            pointer-events: auto;
+        }
+        
+        /* Désactiver les clics sur les éléments non centraux */
+        .year-link:not(.central) {
+            pointer-events: none;
+        }
+        
+        /* Activer les clics uniquement sur l'élément central */
+        .year-link.central {
+            pointer-events: auto;
+            z-index: 1000;
+        }
+        
+        .year-card.central h2 {
+            font-size: 3.2rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        .year-card.central p {
+            font-size: 1.6rem;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+        }
 
         .year-card h2 {
             font-size: 2.8rem;
@@ -382,7 +413,13 @@
 
         const wheel = document.getElementById('wheel');
         let currentRotation = 0;
+        let currentCentralIndex = 9; // Index de 2026
         const anglePerItem = 360 / years.length;
+        
+        // Rotation initiale pour centrer 2026
+        const initialRotation = -currentCentralIndex * anglePerItem;
+        currentRotation = initialRotation;
+        wheel.style.transform = `rotateY(${currentRotation}deg)`;
 
         // Créer les blocs d'années
         years.forEach((yearData, index) => {
@@ -390,7 +427,7 @@
             block.className = 'year-link';
             block.style.setProperty('--i', index);
             block.innerHTML = `
-                <div class="year-card">
+                <div class="year-card" data-index="${index}">
                     <h2>${yearData.year}</h2>
                     <p>${yearData.desc}</p>
                 </div>
@@ -409,6 +446,11 @@
             
             wheel.appendChild(block);
         });
+        
+        // Sélectionner 2026 au démarrage
+        setTimeout(() => {
+            selectCentral(currentCentralIndex);
+        }, 100);
 
         let isRotating = false;
         let touchStartX = 0;
@@ -418,12 +460,38 @@
             if (isRotating) return;
             isRotating = true;
             
-            currentRotation += direction * 45;
+            // Rotation visuelle
+            currentRotation += direction * anglePerItem;
             wheel.style.transform = `rotateY(${currentRotation}deg)`;
             
+            // Mise à jour de l'index central
+            currentCentralIndex = (currentCentralIndex - direction + years.length) % years.length;
+            
+            // Mise à jour visuelle après la transition
             setTimeout(() => {
+                selectCentral(currentCentralIndex);
                 isRotating = false;
-            }, 800); // Synchronisé avec la durée de transition CSS
+            }, 800);
+        }
+        
+        function selectCentral(index) {
+            // Réinitialiser tous les éléments
+            document.querySelectorAll('.year-link').forEach(link => {
+                link.classList.remove('central');
+            });
+            document.querySelectorAll('.year-card').forEach(card => {
+                card.classList.remove('central');
+            });
+            
+            // Sélectionner l'élément central
+            const centralLink = document.querySelector(`.year-link:nth-child(${index + 1})`);
+            const centralCard = document.querySelector(`.year-card[data-index="${index}"]`);
+            
+            if (centralLink && centralCard) {
+                centralLink.classList.add('central');
+                centralCard.classList.add('central');
+                console.log('Central element:', years[index].year);
+            }
         }
 
         document.addEventListener('wheel', (e) => {
