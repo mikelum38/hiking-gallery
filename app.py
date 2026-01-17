@@ -781,8 +781,6 @@ def years():
     background_url = get_cloudinary_background_url("granier",page_type="years")
     return render_template('years.html', dev_mode=app.config['DEV_MODE'], background_url=background_url)
 
-
-
 @app.route('/projets')
 def projets():
     app.logger.info("Fonction projets appelée")
@@ -1621,5 +1619,172 @@ def projets_2026():
         app.logger.error(f"Erreur lors du chargement des projets 2026: {str(e)}")
         return render_template('error.html', error_message="Une erreur est survenue lors du chargement des projets 2026.")
 
+# À ajouter dans app.py après les autres routes
+
+@app.route('/map')
+def interactive_map():
+    """Route pour la carte interactive des randonnées"""
+    galleries = load_gallery_data()
+    
+    # Convertir les galeries en format pour la carte
+    hikes = []
+    for gallery_id, gallery in galleries.items():
+        # Vérifier si la galerie a des coordonnées GPS
+        if 'lat' in gallery and 'lon' in gallery:
+            hike_data = {
+                'id': gallery_id,
+                'name': gallery.get('name', 'Sans nom'),
+                'lat': gallery['lat'],
+                'lon': gallery['lon'],
+                'date': gallery.get('date', ''),
+                'description': gallery.get('description', ''),
+                'photos_count': len(gallery.get('photos', [])),
+                'cover_image': get_optimized_cover_url(gallery.get('cover_image')) if gallery.get('cover_image') else None,
+                'distance': gallery.get('distance', None),
+                'denivele': gallery.get('denivele', None),
+                'difficulty': gallery.get('difficulty', 'moyen'),
+                'duration': gallery.get('duration', None)
+            }
+            hikes.append(hike_data)
+    
+    # Trier par date (plus récent en premier)
+    hikes.sort(key=lambda x: x['date'], reverse=True)
+    
+    # Convertir en JSON pour le template
+    hikes_json = json.dumps(hikes)
+    
+    return render_template('map.html', hikes_json=hikes_json)
+
+
+@app.route('/api/hikes')
+def get_hikes_api():
+    """API pour récupérer les données des randonnées"""
+    galleries = load_gallery_data()
+    
+    hikes = []
+    for gallery_id, gallery in galleries.items():
+        if 'lat' in gallery and 'lon' in gallery:
+            hike_data = {
+                'id': gallery_id,
+                'name': gallery.get('name', 'Sans nom'),
+                'lat': gallery['lat'],
+                'lon': gallery['lon'],
+                'date': gallery.get('date', ''),
+                'description': gallery.get('description', ''),
+                'photos_count': len(gallery.get('photos', [])),
+                'cover_image': get_optimized_cover_url(gallery.get('cover_image')) if gallery.get('cover_image') else None,
+                'distance': gallery.get('distance'),
+                'denivele': gallery.get('denivele'),
+                'difficulty': gallery.get('difficulty', 'moyen'),
+                'duration': gallery.get('duration')
+            }
+            hikes.append(hike_data)
+    
+    return jsonify({'hikes': hikes, 'count': len(hikes)})
+
+
+@app.route('/api/hike/<gallery_id>/gpx')
+def get_hike_gpx(gallery_id):
+    """Récupérer le fichier GPX d'une randonnée"""
+    galleries = load_gallery_data()
+    
+    if gallery_id not in galleries:
+        return jsonify({'error': 'Randonnée non trouvée'}), 404
+    
+    gallery = galleries[gallery_id]
+    
+    if 'gpx_file' not in gallery:
+        return jsonify({'error': 'Pas de fichier GPX pour cette randonnée'}), 404
+    
+    # Retourner le chemin du fichier GPX
+    return jsonify({'gpx_url': gallery['gpx_file']})
+
+
+@app.route('/upload_gpx/<gallery_id>', methods=['POST'])
+def upload_gpx(gallery_id):
+    """Upload d'un fichier GPX pour une randonnée"""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé en production'}), 403
+    
+    if 'gpx_file' not in request.files:
+        return jsonify({'error': 'Pas de fichier GPX'}), 400
+    
+    file = request.files['gpx_file']
+    if file.filename == '':
+        return jsonify({'error': 'Nom de fichier vide'}), 400
+    
+    # Vérifier l'extension
+    if not file.filename.endswith('.gpx'):
+        return jsonify({'error': 'Le fichier doit être au format GPX'}), 400
+    
+    try:
+        # Créer le dossier GPX s'il n'existe pas
+        gpx_folder = os.path.join(app.static_folder, 'gpx')
+        os.makedirs(gpx_folder, exist_ok=True)
+        
+        # Sauvegarder le fichier
+        filename = secure_filename(f"{gallery_id}.gpx")
+        filepath = os.path.join(gpx_folder, filename)
+        file.save(filepath)
+        
+        # Mettre à jour la galerie
+        galleries = load_gallery_data()
+        if gallery_id in galleries:
+            galleries[gallery_id]['gpx_file'] = f'/static/gpx/{filename}'
+            save_gallery_data(galleries)
+            clear_gallery_cache()
+            
+            return jsonify({
+                'success': True,
+                'gpx_url': f'/static/gpx/{filename}'
+            })
+        else:
+            return jsonify({'error': 'Galerie non trouvée'}), 404
+            
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'upload du GPX: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/edit_gallery/<gallery_id>/location', methods=['POST'])
+def edit_gallery_location(gallery_id):
+    """Mettre à jour les coordonnées GPS d'une galerie"""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé en production'}), 403
+    
+    data = request.get_json()
+    
+    if 'lat' not in data or 'lon' not in data:
+        return jsonify({'error': 'Coordonnées manquantes'}), 400
+    
+    try:
+        galleries = load_gallery_data()
+        
+        if gallery_id not in galleries:
+            return jsonify({'error': 'Galerie non trouvée'}), 404
+        
+        # Mettre à jour les coordonnées
+        galleries[gallery_id]['lat'] = float(data['lat'])
+        galleries[gallery_id]['lon'] = float(data['lon'])
+        
+        # Mettre à jour les autres informations optionnelles
+        if 'distance' in data:
+            galleries[gallery_id]['distance'] = float(data['distance'])
+        if 'denivele' in data:
+            galleries[gallery_id]['denivele'] = int(data['denivele'])
+        if 'difficulty' in data:
+            galleries[gallery_id]['difficulty'] = data['difficulty']
+        if 'duration' in data:
+            galleries[gallery_id]['duration'] = data['duration']
+        
+        save_gallery_data(galleries)
+        clear_gallery_cache()
+        
+        return jsonify({'success': True, 'message': 'Coordonnées mises à jour'})
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la mise à jour des coordonnées: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+        
 if __name__ == '__main__':
     app.run(debug=True)

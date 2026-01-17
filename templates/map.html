@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Interactive des Randonnées</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 350px;
+            background: #2a2a2a;
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-section {
+            background: #333;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: #667eea;
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Hike List */
+        .hike-item {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .hike-item:hover {
+            background: #3a3a3a;
+            transform: translateX(5px);
+        }
+
+        .hike-item.active {
+            border-color: #667eea;
+            background: #3a3a3a;
+        }
+
+        .hike-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .hike-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .hike-info {
+            flex: 1;
+        }
+
+        .hike-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+
+        .hike-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        /* Map Container */
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Popup Customization */
+        .leaflet-popup-content-wrapper {
+            background: #2a2a2a;
+            color: white;
+            border-radius: 10px;
+            padding: 0;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            min-width: 300px;
+        }
+
+        .popup-content {
+            padding: 1rem;
+        }
+
+        .popup-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .popup-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .popup-description {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .popup-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .popup-stat {
+            background: #333;
+            padding: 0.6rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .popup-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .popup-stat-label {
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 0.2rem;
+        }
+
+        .popup-button {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .popup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Stats Banner */
+        .stats-banner {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(42, 42, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            display: flex;
+            gap: 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 0.2rem;
+        }
+
+        /* View Controls */
+        .view-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(42, 42, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 10px;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+        .view-btn {
+            padding: 0.6rem 1rem;
+            background: transparent;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .view-btn:hover {
+            background: #3a3a3a;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            background: rgba(0,0,0,0.8);
+            padding: 2rem;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -350px;
+                z-index: 1001;
+                transition: left 0.3s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .stats-banner {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.8rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🗺️ Carte Interactive des Randonnées</h1>
+            <div class="header-buttons">
+                <a href="/years" class="btn btn-secondary">← Retour</a>
+                <button class="btn btn-primary" onclick="uploadGPX()">📤 Importer GPX</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <!-- Filters -->
+                <div class="sidebar-section">
+                    <h3>🔍 Filtres</h3>
+                    <div class="filter-group">
+                        <label>Année</label>
+                        <select id="yearFilter" onchange="applyFilters()">
+                            <option value="all">Toutes les années</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Difficulté</label>
+                        <select id="difficultyFilter" onchange="applyFilters()">
+                            <option value="all">Toutes</option>
+                            <option value="facile">Facile</option>
+                            <option value="moyen">Moyen</option>
+                            <option value="difficile">Difficile</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hikes List -->
+                <div class="sidebar-section">
+                    <h3>📍 Randonnées (<span id="hikeCount">0</span>)</h3>
+                    <div id="hikesList"></div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="map-container">
+                <!-- Stats Banner -->
+                <div class="stats-banner">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalHikes">0</div>
+                        <div class="stat-label">Randonnées</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalPhotos">0</div>
+                        <div class="stat-label">Photos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalDistance">0</div>
+                        <div class="stat-label">km parcourus</div>
+                    </div>
+                </div>
+
+                <!-- View Controls -->
+                <div class="view-controls">
+                    <button class="view-btn active" onclick="setView('markers')" id="markersBtn">📍 Markers</button>
+                    <button class="view-btn" onclick="setView('heatmap')" id="heatmapBtn">🔥 Heatmap</button>
+                    <button class="view-btn" onclick="setView('clusters')" id="clustersBtn">📊 Clusters</button>
+                </div>
+
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+    <script>
+        // Données des randonnées depuis Flask
+        const hikesData = {{ hikes_json | safe }};
+        
+        let map;
+        let markersLayer;
+        let heatmapLayer;
+        let clustersLayer;
+        let currentView = 'markers';
+        let filteredHikes = hikesData;
+
+        // Initialiser la carte
+        function initMap() {
+            // Centre sur les Alpes françaises
+            map = L.map('map').setView([45.2, 5.9], 10);
+
+            // Fond de carte
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            // Initialiser les couches
+            markersLayer = L.layerGroup().addTo(map);
+            heatmapLayer = L.layerGroup();
+            clustersLayer = L.markerClusterGroup();
+
+            // Charger les données
+            loadHikes();
+        }
+
+        // Charger et afficher les randonnées
+        function loadHikes() {
+            filteredHikes = hikesData;
+            updateStats();
+            updateHikesList();
+            displayMarkers();
+        }
+
+        // Afficher les markers
+        function displayMarkers() {
+            markersLayer.clearLayers();
+
+            filteredHikes.forEach(hike => {
+                if (hike.lat && hike.lon) {
+                    const marker = L.marker([hike.lat, hike.lon], {
+                        icon: createCustomIcon(hike.difficulty)
+                    });
+
+                    marker.bindPopup(createPopupContent(hike));
+                    marker.on('click', () => selectHike(hike.id));
+                    
+                    markersLayer.addLayer(marker);
+                }
+            });
+        }
+
+        // Créer une icône personnalisée
+        function createCustomIcon(difficulty) {
+            const colors = {
+                'facile': '#10b981',
+                'moyen': '#f59e0b',
+                'difficile': '#ef4444'
+            };
+
+            return L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="
+                    background: ${colors[difficulty] || '#667eea'};
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50% 50% 50% 0;
+                    transform: rotate(-45deg);
+                    border: 3px solid white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                "></div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+        }
+
+        // Créer le contenu du popup
+        function createPopupContent(hike) {
+            return `
+                <div class="popup-content">
+                    ${hike.cover_image ? `<img src="${hike.cover_image}" class="popup-image" alt="${hike.name}">` : ''}
+                    <h3 class="popup-title">${hike.name}</h3>
+                    <p class="popup-description">${hike.description || 'Aucune description'}</p>
+                    <div class="popup-stats">
+                        <div class="popup-stat">
+                            <div class="popup-stat-value">${hike.distance || '?'}</div>
+                            <div class="popup-stat-label">km</div>
+                        </div>
+                        <div class="popup-stat">
+                            <div class="popup-stat-value">${hike.denivele || '?'}</div>
+                            <div class="popup-stat-label">D+ (m)</div>
+                        </div>
+                        <div class="popup-stat">
+                            <div class="popup-stat-value">${hike.photos_count || 0}</div>
+                            <div class="popup-stat-label">Photos</div>
+                        </div>
+                        <div class="popup-stat">
+                            <div class="popup-stat-value">${hike.date}</div>
+                            <div class="popup-stat-label">Date</div>
+                        </div>
+                    </div>
+                    <button class="popup-button" onclick="window.location.href='/gallery/${hike.id}'">
+                        Voir la galerie →
+                    </button>
+                </div>
+            `;
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats() {
+            document.getElementById('totalHikes').textContent = filteredHikes.length;
+            
+            const totalPhotos = filteredHikes.reduce((sum, h) => sum + (h.photos_count || 0), 0);
+            document.getElementById('totalPhotos').textContent = totalPhotos;
+            
+            const totalDistance = filteredHikes.reduce((sum, h) => sum + (parseFloat(h.distance) || 0), 0);
+            document.getElementById('totalDistance').textContent = totalDistance.toFixed(1);
+        }
+
+        // Mettre à jour la liste des randonnées
+        function updateHikesList() {
+            const list = document.getElementById('hikesList');
+            document.getElementById('hikeCount').textContent = filteredHikes.length;
+            
+            list.innerHTML = filteredHikes.map(hike => `
+                <div class="hike-item" onclick="selectHike('${hike.id}')" id="hike-${hike.id}">
+                    <div class="hike-header">
+                        ${hike.cover_image ? `<img src="${hike.cover_image}" class="hike-image" alt="${hike.name}">` : ''}
+                        <div class="hike-info">
+                            <div class="hike-name">${hike.name}</div>
+                            <div class="hike-stats">
+                                <div>📅 ${hike.date}</div>
+                                <div>📸 ${hike.photos_count || 0} photos</div>
+                                <div>📏 ${hike.distance || '?'} km</div>
+                                <div>⛰️ ${hike.denivele || '?'} m D+</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Sélectionner une randonnée
+        function selectHike(hikeId) {
+            // Retirer la classe active
+            document.querySelectorAll('.hike-item').forEach(el => el.classList.remove('active'));
+            
+            // Ajouter la classe active
+            const hikeElement = document.getElementById(`hike-${hikeId}`);
+            if (hikeElement) hikeElement.classList.add('active');
+            
+            // Centrer la carte sur la randonnée
+            const hike = filteredHikes.find(h => h.id === hikeId);
+            if (hike && hike.lat && hike.lon) {
+                map.setView([hike.lat, hike.lon], 13);
+            }
+        }
+
+        // Appliquer les filtres
+        function applyFilters() {
+            const year = document.getElementById('yearFilter').value;
+            const difficulty = document.getElementById('difficultyFilter').value;
+            
+            filteredHikes = hikesData.filter(hike => {
+                if (year !== 'all' && !hike.date.startsWith(year)) return false;
+                if (difficulty !== 'all' && hike.difficulty !== difficulty) return false;
+                return true;
+            });
+            
+            updateStats();
+            updateHikesList();
+            displayMarkers();
+        }
+
+        // Changer la vue
+        function setView(viewType) {
+            // Mettre à jour les boutons
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(viewType + 'Btn').classList.add('active');
+            
+            currentView = viewType;
+            
+            // Masquer toutes les couches
+            map.removeLayer(markersLayer);
+            map.removeLayer(heatmapLayer);
+            map.removeLayer(clustersLayer);
+            
+            // Afficher la couche sélectionnée
+            switch(viewType) {
+                case 'markers':
+                    map.addLayer(markersLayer);
+                    break;
+                case 'heatmap':
+                    createHeatmap();
+                    map.addLayer(heatmapLayer);
+                    break;
+                case 'clusters':
+                    createClusters();
+                    map.addLayer(clustersLayer);
+                    break;
+            }
+        }
+
+        // Créer la heatmap
+        function createHeatmap() {
+            heatmapLayer.clearLayers();
+            
+            const heatData = filteredHikes
+                .filter(h => h.lat && h.lon)
+                .map(h => [h.lat, h.lon, 0.8]);
+            
+            L.heatLayer(heatData, {
+                radius: 25,
+                blur: 15,
+                maxZoom: 13,
+                gradient: {
+                    0.0: 'blue',
+                    0.5: 'lime',
+                    0.7: 'yellow',
+                    1.0: 'red'
+                }
+            }).addTo(heatmapLayer);
+        }
+
+        // Créer les clusters
+        function createClusters() {
+            clustersLayer.clearLayers();
+            
+            filteredHikes.forEach(hike => {
+                if (hike.lat && hike.lon) {
+                    const marker = L.marker([hike.lat, hike.lon], {
+                        icon: createCustomIcon(hike.difficulty)
+                    });
+                    
+                    marker.bindPopup(createPopupContent(hike));
+                    marker.on('click', () => selectHike(hike.id));
+                    
+                    clustersLayer.addLayer(marker);
+                }
+            });
+        }
+
+        // Upload GPX (placeholder)
+        function uploadGPX() {
+            alert('Fonctionnalité d\'import GPX à venir !');
+        }
+
+        // Initialiser au chargement
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>

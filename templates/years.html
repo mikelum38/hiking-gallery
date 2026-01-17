@@ -391,12 +391,41 @@
         .search-floating-btn:hover {
             transform: scale(1.1);
         }
+        
+        .nav-btn {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 1.6rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <div class="main-container">
         <a href="/" class="back-link">
             <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        
+        <a href="/map" class="nav-btn">
+            <i class="fas fa-map"></i> Carte Interactive
         </a>
 
         <h1 class="main-title">La roue du temps</h1>
