@@ -103,7 +103,7 @@
                         Taille: {{ file.size | filesizeformat }}
                     </div>
                 </div>
-                <a href="{{ url_for('download_json', filename=file.name) }}" class="download-btn">
+                <a href="{{ url_for('download_json', filename=file.name) }}" class="download-btn" target="_blank">
                     ⬇️ Télécharger
                 </a>
             </li>
@@ -118,13 +118,14 @@
 
     <script>
         function downloadAll() {
-            const files = {{ files | tojson }};
+            const fileData = {{ files | tojson }};
             
-            files.forEach((file, index) => {
+            fileData.forEach((file, index) => {
                 setTimeout(() => {
                     const link = document.createElement('a');
                     link.href = `/admin/download-json/${file.name}`;
                     link.download = file.name;
+                    link.target = '_blank';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);

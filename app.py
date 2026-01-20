@@ -90,97 +90,8 @@ MOIS_FR = [
     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
 ]
 
-# Cache persistant pour les dimensions des photos
-PHOTO_DIMENSIONS_CACHE_FILE = 'photo_dimensions_cache.json'
 
-def load_photo_dimensions_cache():
-    """Charger le cache des dimensions de photos"""
-    try:
-        with open(PHOTO_DIMENSIONS_CACHE_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
 
-def save_photo_dimensions_cache(cache):
-    """Sauvegarder le cache des dimensions de photos"""
-    try:
-        with open(PHOTO_DIMENSIONS_CACHE_FILE, 'w', encoding='utf-8') as f:
-            json.dump(cache, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        app.logger.error(f"Erreur lors de la sauvegarde du cache des dimensions: {e}")
-
-def save_photo_dimensions_to_gallery(gallery_id, photo_id, width, height):
-    """
-    Sauvegarde les dimensions d'une photo dans le JSON de la galerie.
-    Approche lazy loading : sauvegarde uniquement lors de la visualisation.
-    Version optimisée et directe : modification ciblée du fichier.
-    """
-    try:
-        # Déterminer l'année pour le fichier en utilisant la galerie directement
-        # Pas besoin de charger toutes les galeries !
-        year_file = None
-        year_galleries = {}
-        
-        # Chercher dans quel fichier se trouve la galerie
-        for year in range(2015, 2030):
-            test_file = f"galleries_{year}.json"
-            if os.path.exists(test_file):
-                try:
-                    with open(test_file, 'r', encoding='utf-8') as f:
-                        test_galleries = json.load(f)
-                        if gallery_id in test_galleries:
-                            year_file = test_file
-                            year_galleries = test_galleries
-                            break
-                except:
-                    continue
-        
-        if not year_file:
-            app.logger.error(f"Galerie {gallery_id} non trouvée dans aucun fichier")
-            return
-        
-        # Mettre à jour la galerie dans ce fichier
-        if gallery_id in year_galleries:
-            # Trouver la photo et mettre à jour ses dimensions
-            for photo in year_galleries[gallery_id].get('photos', []):
-                current_photo_id = photo['url'].split('/')[-1].split('.')[0]
-                if current_photo_id == photo_id:
-                    photo['width'] = width
-                    photo['height'] = height
-                    break
-            
-            # Sauvegarder uniquement ce fichier
-            with open(year_file, 'w', encoding='utf-8') as f:
-                json.dump(year_galleries, f, ensure_ascii=False, indent=2)
-            
-            app.logger.info(f"✅ Dimensions sauvegardées pour {photo_id}: {width}x{height} dans {year_file}")
-            
-            # Plus besoin de vider le cache - les données sont toujours fraîches
-        else:
-            app.logger.error(f"Galerie {gallery_id} non trouvée dans {year_file}")
-            
-    except Exception as e:
-        app.logger.error(f"Erreur lors de la sauvegarde des dimensions pour {photo_id}: {e}")
-        import traceback
-        app.logger.error(f"Traceback: {traceback.format_exc()}")
-
-def get_photo_dimensions(photo_id):
-    """
-    Obtenir les dimensions d'une photo.
-    OPTIMISATION: Les dimensions sont maintenant stockées directement dans galleries_YYYY.json
-    Cette fonction n'est appelée que pour les photos sans dimensions (legacy).
-    """
-    try:
-        # Appeler l'API Cloudinary (seulement pour les photos legacy)
-        result = cloudinary.api.resource(photo_id)
-        app.logger.info(f"Dimensions récupérées via API pour {photo_id}: {result['width']}x{result['height']}")
-        return {
-            'width': result['width'],
-            'height': result['height']
-        }
-    except Exception as e:
-        app.logger.error(f"Erreur lors de la récupération des dimensions de {photo_id}: {e}")
-        return {'width': 0, 'height': 0}
 
 
 from werkzeug.utils import secure_filename
@@ -586,30 +497,35 @@ def get_optimized_cover_url(cover_image_url):
         return None
 
 
-@lru_cache(maxsize=500)
-def get_cloudinary_background_url(image_name, page_type="others"):
+def get_cloudinary_background_url(image_url, page_type="others"):
     """
     Génère une URL Cloudinary optimisée pour une image de fond.
-    Cache les résultats pour éviter les appels API répétés.
+    Plus d'appels API - simple transformation d'URL.
     """
     try:
-        # Récupérer les informations de l'image depuis Cloudinary
-        result = cloudinary.api.resource(image_name)
-        version = result['version']
-
-        # Construire le public ID avec le numéro de version
-        full_public_id = f"v{version}/{image_name}"
-
-        # Générer l'URL avec le public ID complet et les transformations
+        if not image_url or 'cloudinary.com' not in image_url:
+            return image_url
+        
+        # Extraire le nom de l'image depuis l'URL
+        url_parts = image_url.split('/upload/')
+        if len(url_parts) != 2:
+            return image_url
+        
+        # Définir les transformations selon le type de page
         if page_type == "years":
-            return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'auto'}, {'quality': 'auto'}, {'width': 2048, 'crop': 'limit'}], secure=True)
+            transformations = 'f_auto,q_auto,w_2048,c_limit'
         else:
-            return cloudinary.CloudinaryImage(full_public_id).build_url(transformation=[{'fetch_format': 'auto'}, {'quality': 'auto'}, {'width': 1280, 'crop': 'limit'}], secure=True)
-
+            transformations = 'f_auto,q_auto,w_1280,c_limit'
+        
+        # Construire l'URL optimisée
+        base_url = url_parts[0] + '/upload/'
+        image_name = url_parts[1]
+        
+        return f"{base_url}{transformations}/{image_name}"
+        
     except Exception as e:
-        app.logger.error(f"Erreur lors de la récupération des informations de l'image: {e}")
-        app.logger.error(f"Erreur: {e}")
-        return None
+        app.logger.error(f"Erreur lors de l'optimisation de l'URL de fond: {e}")
+        return image_url
 
 def get_optimized_memory_url(image_url, page_type="shuffle"):
     """
@@ -735,13 +651,14 @@ def get_responsive_photo_urls(image_url, width, height):
 
 @app.route('/')
 def home():    
-    carousel_images = [get_cloudinary_background_url(f"mountain{i}") for i in range(1, 11)]
+    carousel_images = [get_cloudinary_background_url(f"https://res.cloudinary.com/dfuzvu8c5/image/upload/mountain{i}") for i in range(1, 11)]
     return render_template('home.html', carousel_images=carousel_images)
 
 
 @app.route('/dreams')
 def dreams():
-   optimized_url = get_cloudinary_background_url("loup")
+   loup_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/loup"
+   optimized_url = get_cloudinary_background_url(loup_url)
    return render_template('dreams.html', dev_mode=app.config['DEV_MODE'], optimized_url=optimized_url)
 
 
@@ -780,14 +697,10 @@ def upload_photos(gallery_id):
                 result = cloudinary.uploader.upload(file)
                 app.logger.info(f"Upload réussi: {result['secure_url']}")
                 
-                # OPTIMISATION: Stocker les dimensions directement
+                # Ajouter la photo à la galerie
                 gallery['photos'].append({
-                    'url': result['secure_url'],
-                    'filename': file.filename,
-                    'width': result.get('width', 0),
-                    'height': result.get('height', 0)
+                    'url': result['secure_url']
                 })
-                app.logger.info(f"Dimensions stockées: {result.get('width')}x{result.get('height')}")
             except Exception as e:
                 app.logger.error(f"Erreur lors de l'upload de {file.filename}: {str(e)}")
                 app.logger.error(f"Traceback complet: {traceback.format_exc()}")
@@ -1015,8 +928,9 @@ def gallery(gallery_id):
 
     # Special case for GR20 gallery
     if gallery_id == "20240905_gr20":
-        optimized_background_url = get_cloudinary_background_url("corse")
-        # Get the image URL from Cloudinary
+        corse_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/corse"
+        optimized_background_url = get_cloudinary_background_url(corse_url)
+        # Get image URL from Cloudinary
         gr20_thumbnail_url = cloudinary.CloudinaryImage("gr20_thumbnail").build_url(secure=True)
          
         return render_template('gallery.html', 
@@ -1027,40 +941,15 @@ def gallery(gallery_id):
                             optimized_background_url=optimized_background_url,
                             gr20_thumbnail_url=gr20_thumbnail_url)
     else:
-        optimized_background_url = None
-        # Optimize the background image URL
+        # Optimize background image URL
         if gallery_copy.get('cover_image'):
-            image_name = gallery_copy['cover_image'].split('/')[-1].split('.')[0]
-            gallery_copy['optimized_background_url'] = get_cloudinary_background_url(image_name)
+            gallery_copy['optimized_background_url'] = get_cloudinary_background_url(gallery_copy['cover_image'])
             gallery_copy['cover_image'] = None # Remove the original image
         else:
             gallery_copy['optimized_background_url'] = None
  
-        # Définir l'image de fond
-        optimized_background_url = gallery_copy['optimized_background_url']
-        # Optimiser la récupération des dimensions des photos avec cache persistant
-        # Les dimensions sont déjà dans gallery_copy si elles existent dans le JSON
-        dimensions_updated = False
+        # Optimisation des URLs Cloudinary
         for photo in gallery_copy['photos']:
-            photo_id = photo['url'].split('/')[-1].split('.')[0]
-            
-            # Vérifier si les dimensions sont déjà dans la photo (elles viennent du JSON)
-            if 'width' in photo and 'height' in photo and photo['width'] > 0 and photo['height'] > 0:
-                # Les dimensions sont déjà en cache, pas d'appel API
-                pass
-            else:
-                # Utiliser le cache persistant ET sauvegarder pour les prochaines fois
-                app.logger.info(f"Dimensions manquantes pour {photo_id}, appel API...")
-                dimensions = get_photo_dimensions(photo_id)
-                if dimensions['width'] > 0 and dimensions['height'] > 0:
-                    photo['width'] = dimensions['width']
-                    photo['height'] = dimensions['height']
-                    # Sauvegarder les dimensions dans le JSON pour les prochaines visualisations
-                    save_photo_dimensions_to_gallery(gallery_id, photo_id, dimensions['width'], dimensions['height'])
-                    dimensions_updated = True
-                else:
-                    app.logger.warning(f"Impossible de récupérer les dimensions pour {photo_id}")
-            
             # OPTIMISATION: Optimisation simple des URLs Cloudinary
             if photo['url'] and 'cloudinary.com' in photo['url']:
                 # Ajouter une optimisation basique pour réduire la taille
@@ -1077,7 +966,7 @@ def gallery(gallery_id):
                             dev_mode=app.config['DEV_MODE'],
                             format_date=format_date,
                             return_page=return_page,
-                            optimized_background_url=optimized_background_url)
+                            optimized_background_url=gallery_copy.get('optimized_background_url'))
    
 
 
@@ -1097,17 +986,17 @@ def month_galleries(year, month):
                 
               # Traitement spécifique pour la galerie GR20
                 if gallery_id == "20240905_gr20":
-                    gallery['optimized_cover_url'] = get_cloudinary_background_url("gr20_thumbnail")
+                    # Construire l'URL complète pour gr20_thumbnail
+                    gr20_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/gr20_thumbnail"
+                    gallery['optimized_cover_url'] = get_cloudinary_background_url(gr20_url)
                 else:
                     # Définir l'image de fond si elle n'est pas déjà définie
                     if not optimized_background_url and gallery.get('cover_image'):
-                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                        optimized_background_url = get_cloudinary_background_url(image_name)
+                        optimized_background_url = get_cloudinary_background_url(gallery['cover_image'])
 
                     # Optimiser l'image de couverture pour la vignette (même logique que year_view)
                     if gallery.get('cover_image'):
-                        image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                        gallery['optimized_cover_url'] = get_cloudinary_background_url(image_name)
+                        gallery['optimized_cover_url'] = get_cloudinary_background_url(gallery['cover_image'])
                         app.logger.info(f"Vignette optimisée pour {gallery_id}: {gallery['optimized_cover_url']}")
                     else:
                         gallery['optimized_cover_url'] = None
@@ -1132,7 +1021,8 @@ def month_galleries(year, month):
 
 @app.route('/years')
 def years():
-    background_url = get_cloudinary_background_url("granier",page_type="years")
+    granier_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/granier"
+    background_url = get_cloudinary_background_url(granier_url, page_type="years")
     return render_template('years.html', dev_mode=app.config['DEV_MODE'], background_url=background_url)
 
 @app.route('/projets')
@@ -1595,8 +1485,35 @@ def download_json(filename):
         return "Fichier non trouvé", 404
     
     # Envoyer le fichier
-    from flask import send_file
-    return send_file(file_path, as_attachment=True, download_name=filename)
+    from flask import send_file, Response
+    try:
+        response = send_file(file_path, as_attachment=True, download_name=filename)
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    except Exception as e:
+        app.logger.error(f"Erreur lors du téléchargement de {filename}: {e}")
+        return f"Erreur de téléchargement: {e}", 500
+
+@app.route('/admin/logs')
+def view_logs():
+    """Affiche les logs récents de l'application (uniquement en dev)"""
+    if not app.config.get('DEV_MODE', False):
+        return "Non autorisé en production", 403
+    
+    try:
+        # Lire les derniers logs depuis le fichier de logs
+        log_file = 'app.log'
+        if os.path.exists(log_file):
+            with open(log_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                # Prendre les 50 dernières lignes
+                recent_logs = lines[-50:]
+                return '<pre>' + ''.join(recent_logs) + '</pre>'
+        else:
+            return "Fichier de logs non trouvé", 404
+    except Exception as e:
+        return f"Erreur de lecture des logs: {e}", 500
 
 @app.route('/admin/sync-all-json')
 def sync_all_json():
@@ -1765,8 +1682,7 @@ def year_view(year):
                 if not galleries_by_month[month_key]['cover'] and gallery.get('cover_image'):
                     galleries_by_month[month_key]['cover'] = gallery['cover_image']
                     # Optimize cover image URL
-                    image_name = gallery['cover_image'].split('/')[-1].split('.')[0]
-                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(image_name)
+                    galleries_by_month[month_key]['optimized_cover'] = get_cloudinary_background_url(gallery['cover_image'])
                     app.logger.info(f"Galerie ajoutée pour {year}: {gallery['name']}")
         except Exception as e:
             app.logger.error(f"Erreur lors du traitement de la galerie {gallery_id}: {str(e)}")
@@ -1777,7 +1693,7 @@ def year_view(year):
         app.logger.info("Recherche de l'image de fond")
         for month_data in galleries_by_month.values():
             if month_data['cover']:
-                background_url = get_cloudinary_background_url(month_data['cover'].split('/')[-1].split('.')[0]) if month_data['cover'] else None
+                background_url = get_cloudinary_background_url(month_data['cover']) if month_data['cover'] else None
                 if background_url: #si on a trouvé une image on sort de la boucle
                     break
 
@@ -1794,7 +1710,8 @@ def year_view(year):
 
 @app.route('/wheel-of-fortune')
 def wheel_of_fortune():
-    background_url = get_cloudinary_background_url("roue")
+    roue_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/roue"
+    background_url = get_cloudinary_background_url(roue_url)
     wheel_images = [get_cloudinary_wheel_url(f"roue{i}") for i in range(1, 13)]
     return render_template('wheel_of_fortune.html', dev_mode=app.config['DEV_MODE'], wheel_images=wheel_images, background_url=background_url)
 
@@ -1803,7 +1720,8 @@ def wheel_of_fortune():
 def inmy_landing():
     if request.args.get('back') == 'true':
         return redirect(url_for('years'))
-    session['slide_url'] = get_cloudinary_background_url("slide-img-fall")
+    slide_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/slide-img-fall"
+    session['slide_url'] = get_cloudinary_background_url(slide_url)
     return render_template('inmy_cover.html', slide_url=session['slide_url'])
 
 
@@ -1833,7 +1751,7 @@ def inmy_life():
     next_url = url_for('inmy_life', page=page+1) if page < total_pages else None
     
       # Get image URLs from Cloudinary
-    page_image_url = get_cloudinary_background_url(f"page{page}") if page <= 5 else None
+    page_image_url = get_cloudinary_background_url(f"https://res.cloudinary.com/dfuzvu8c5/image/upload/page{page}") if page <= 5 else None
 
       # Préparer les variables de texte pour le template
     text_vars = {}
@@ -1847,7 +1765,7 @@ def inmy_life():
                          next_url=next_url,
                          dev_mode=app.config['DEV_MODE'],
                          page_image_url=page_image_url,
-                         slide_url=session.get('slide_url', get_cloudinary_background_url("slide-img-fall")),
+                         slide_url=session.get('slide_url', get_cloudinary_background_url("https://res.cloudinary.com/dfuzvu8c5/image/upload/slide-img-fall")),
                          **text_vars)
 
 @app.route('/save_inmy_life_text', methods=['POST'])
