@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- OPTIMISATION CLOUDINARY : Preconnect pour réduire la latence -->
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="dns-prefetch" href="https://res.cloudinary.com">
+    
     <title>{{ gallery.name }} - Galerie de Randonnées</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lightbox.css') }}">
@@ -64,7 +69,7 @@
         .back-link i {
             font-size: 1.1rem;
         }
-
+        
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -447,7 +452,7 @@
     <div class="background-image"></div>
     
     <div class="gallery-page">
-        <audio id="slideshowAudio" loop>
+        <audio id="slideshowAudio" loop preload="none">
             {% if gallery.id == "c80475cc-0faf-425f-b4d6-10e3d78118a9" %}
                 <source src="{{ url_for('static', filename='audio/Lapetitefille.mp3') }}" type="audio/mp3">
             {% elif gallery.date == "2025-01-22" %}
@@ -475,7 +480,7 @@
                             {% set image_name = url_parts[1] %}
                             {% set transformations_thumb = 'f_auto,q_auto,w_500,h_400,c_limit' %}
                             {% set optimized_url_thumb = base_url + transformations_thumb + '/' + image_name %}
-                            <img src="{{ optimized_url_thumb }}" alt="GR20 Corse" loading="lazy">
+                            <img src="{{ optimized_url_thumb }}" alt="GR20 Corse" fetchpriority="high" loading="eager">
                             {% endif %}
                         <p>Cliquer sur la photo pour aller sur le site décrivant cette aventure</p>
                     </a>
@@ -535,53 +540,36 @@
 
                 <div class="photo-grid">
                     {% for photo in gallery.photos %}
-                    {% set url_parts = photo.url.split('/upload/') %}
-                    {% if url_parts|length == 2 %}
-                        {% set base_url = url_parts[0] + '/upload/' %}
-                        {% set image_name = url_parts[1] %}
-
-                        {# Déterminer l'orientation de l'image et appliquer la transformation appropriée #}
-                        {% set transformations_grid = 'f_auto,q_auto' %}
-                        {% if photo.width > photo.height %}
-                            {% set transformations_grid = transformations_grid + ',w_800,c_limit' %}
+                    <div class="photo-item" 
+                         onclick="openLightbox(this)"
+                         draggable="true"
+                         data-index="{{ loop.index0 }}"
+                         ondragstart="dragStart(event)"
+                         ondragover="dragOver(event)"
+                         ondrop="drop(event)"
+                         ondragenter="dragEnter(event)"
+                         ondragleave="dragLeave(event)">
+                        {% if loop.index0 < 6 %}
+                        <img src="{{ photo.url }}" 
+                             alt="{{ photo.filename }}" 
+                             loading="eager"
+                             fetchpriority="high">
                         {% else %}
-                            {% set transformations_grid = transformations_grid + ',h_800,c_limit' %}
+                        <img src="{{ photo.url }}" 
+                             alt="{{ photo.filename }}" 
+                             loading="lazy">
                         {% endif %}
-                        {% set optimized_url_grid = base_url + transformations_grid + '/' + image_name %}
-
-                        {# Transformation pour la lightbox #}
-                        {% set transformations_lightbox = 'f_auto,q_auto,w_1600,c_limit' %}
-                        {% set optimized_url_lightbox = base_url + transformations_lightbox + '/' + image_name %}
-
-                        <div class="photo-item" 
-                             data-src="{{ optimized_url_lightbox }}" 
-                             onclick="openLightbox(this)"
-                             draggable="true"
-                             data-index="{{ loop.index0 }}"
-                             ondragstart="dragStart(event)"
-                             ondragover="dragOver(event)"
-                             ondrop="drop(event)"
-                             ondragenter="dragEnter(event)"
-                             ondragleave="dragLeave(event)">
-                            <img src="{{ optimized_url_grid }}" alt="{{ photo.filename }}" loading="lazy">
-                            {% if dev_mode %}
-                            <form action="{{ url_for('delete_photo', gallery_id=gallery.id, photo_index=loop.index0) }}" 
-                                  method="post" 
-                                  style="position: absolute; top: 0; right: 0;"
-                                  onclick="event.stopPropagation();">
-                                <button type="submit" 
-                                        class="delete-photo-btn" 
-                                        onclick="return confirm('Voulez-vous vraiment supprimer cette photo ?');"
-                                        title="Supprimer cette photo">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
-                            <div class="drag-handle" title="Déplacer cette photo" style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: move;">
-                                <i class="fas fa-arrows-alt"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
+                        {% if dev_mode %}
+                        <form action="{{ url_for('delete_photo', gallery_id=gallery.id, photo_index=loop.index0) }}" 
+                              method="post" 
+                              style="position: absolute; top: 0; right: 0;"
+                              onclick="event.stopPropagation();">
+                            <button type="submit" 
+                                    class="delete-btn"
+                                    onclick="return confirm('Supprimer cette photo ?')">×</button>
+                        </form>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
                 
@@ -656,16 +644,21 @@
         let slideshowInterval = null;
         let isMusicPlaying = false;
         const bgMusic = document.getElementById('slideshowAudio');
-
+        
+        // OPTIMISATION: Lazy loading des images avec LQIP - DÉSACTIVÉ
+        // Le lazy loading est maintenant géré nativement avec loading="lazy"
+        
         // Mettre à jour le compteur
         function updateCounter() {
             document.getElementById('current-index').textContent = currentIndex + 1;
             document.getElementById('total-photos').textContent = totalPhotos;
         }
 
-        // Charger une image
-        async function loadImage(src) {
+        // Charger une image dans la lightbox
+        async function loadImage(photoItem) {
             const img = document.getElementById('lightbox-image');
+            const photoImg = photoItem.querySelector('img');
+            const src = photoImg.src;
             
             // Démarrer le fondu
             img.classList.add('fade');
@@ -691,7 +684,7 @@
         document.querySelector('.prev-btn').addEventListener('click', async (e) => {
             e.stopPropagation();
             currentIndex = (currentIndex - 1 + totalPhotos) % totalPhotos;
-            await loadImage(photoItems[currentIndex].dataset.src); // Corrected line
+            await loadImage(photoItems[currentIndex]);
             updateCounter();
         });
 
@@ -699,7 +692,7 @@
         document.querySelector('.next-btn').addEventListener('click', async (e) => {
             e.stopPropagation();
             currentIndex = (currentIndex + 1) % totalPhotos;
-            await loadImage(photoItems[currentIndex].dataset.src); // Corrected line
+            await loadImage(photoItems[currentIndex]);
             updateCounter();
         });
 
@@ -708,7 +701,7 @@
             photoItem.addEventListener('click', async function() {
                 currentIndex = index;
                 lightbox.style.display = 'flex';
-                await loadImage(this.dataset.src); // Corrected line
+                await loadImage(this);
                 updateCounter();
             });
         });

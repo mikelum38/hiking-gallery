@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synchronisation JSON - Hiking Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .file-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .file-size {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .download-btn {
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .download-btn:hover {
+            background: #2980b9;
+        }
+        .sync-all {
+            background: #27ae60;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+            display: block;
+            width: 100%;
+        }
+        .sync-all:hover {
+            background: #229954;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Synchronisation des fichiers JSON</h1>
+        
+        <div class="info">
+            <strong>ℹ️ Information :</strong> Cette page vous permet de télécharger les fichiers JSON 
+            mis à jour par le lazy loading en production. Cliquez sur chaque fichier pour le télécharger 
+            individuellement, ou utilisez le bouton de synchronisation complète.
+        </div>
+        
+        <button class="sync-all" onclick="downloadAll()">
+            📦 Télécharger tous les fichiers JSON
+        </button>
+        
+        <ul class="file-list">
+            {% for file in files %}
+            <li class="file-item">
+                <div>
+                    <div class="file-name">{{ file }}</div>
+                    <div class="file-size">
+                        {% set file_size = (file | filesizeformat) %}
+                        Taille: {{ file_size }}
+                    </div>
+                </div>
+                <a href="{{ url_for('download_json', filename=file) }}" class="download-btn">
+                    ⬇️ Télécharger
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <div class="info">
+            <strong>📝 Note :</strong> Les fichiers téléchargés remplaceront vos fichiers locaux. 
+            Pensez à faire une sauvegarde avant de synchroniser.
+        </div>
+    </div>
+
+    <script>
+        function downloadAll() {
+            const files = {{ files | tojson }};
+            
+            files.forEach((file, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = `/admin/download-json/${file}`;
+                    link.download = file;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, index * 500); // Délai de 500ms entre chaque téléchargement
+            });
+        }
+    </script>
+</body>
+</html>

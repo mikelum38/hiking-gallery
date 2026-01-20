@@ -109,39 +109,75 @@ def save_photo_dimensions_cache(cache):
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde du cache des dimensions: {e}")
 
-def get_photo_dimensions(photo_id):
-    """Obtenir les dimensions d'une photo avec cache persistant"""
-    cache = load_photo_dimensions_cache()
-    
-    if photo_id in cache:
-        cached_data = cache[photo_id]
-        # Vérifier si le cache n'est pas trop vieux (7 jours)
-        cache_date = cached_data.get('cached_at')
-        if cache_date:
-            try:
-                cache_datetime = datetime.strptime(cache_date, '%Y-%m-%d')
-                if (datetime.now() - cache_datetime).days < 7:
-                    return {
-                        'width': cached_data['width'],
-                        'height': cached_data['height']
-                    }
-            except ValueError:
-                pass
-    
-    # Si pas en cache ou cache trop vieux, appeler l'API
+def save_photo_dimensions_to_gallery(gallery_id, photo_id, width, height):
+    """
+    Sauvegarde les dimensions d'une photo dans le JSON de la galerie.
+    Approche lazy loading : sauvegarde uniquement lors de la visualisation.
+    Version optimisée et directe : modification ciblée du fichier.
+    """
     try:
+        # Déterminer l'année pour le fichier en utilisant la galerie directement
+        # Pas besoin de charger toutes les galeries !
+        year_file = None
+        year_galleries = {}
+        
+        # Chercher dans quel fichier se trouve la galerie
+        for year in range(2015, 2030):
+            test_file = f"galleries_{year}.json"
+            if os.path.exists(test_file):
+                try:
+                    with open(test_file, 'r', encoding='utf-8') as f:
+                        test_galleries = json.load(f)
+                        if gallery_id in test_galleries:
+                            year_file = test_file
+                            year_galleries = test_galleries
+                            break
+                except:
+                    continue
+        
+        if not year_file:
+            app.logger.error(f"Galerie {gallery_id} non trouvée dans aucun fichier")
+            return
+        
+        # Mettre à jour la galerie dans ce fichier
+        if gallery_id in year_galleries:
+            # Trouver la photo et mettre à jour ses dimensions
+            for photo in year_galleries[gallery_id].get('photos', []):
+                current_photo_id = photo['url'].split('/')[-1].split('.')[0]
+                if current_photo_id == photo_id:
+                    photo['width'] = width
+                    photo['height'] = height
+                    break
+            
+            # Sauvegarder uniquement ce fichier
+            with open(year_file, 'w', encoding='utf-8') as f:
+                json.dump(year_galleries, f, ensure_ascii=False, indent=2)
+            
+            app.logger.info(f"✅ Dimensions sauvegardées pour {photo_id}: {width}x{height} dans {year_file}")
+            
+            # Plus besoin de vider le cache - les données sont toujours fraîches
+        else:
+            app.logger.error(f"Galerie {gallery_id} non trouvée dans {year_file}")
+            
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde des dimensions pour {photo_id}: {e}")
+        import traceback
+        app.logger.error(f"Traceback: {traceback.format_exc()}")
+
+def get_photo_dimensions(photo_id):
+    """
+    Obtenir les dimensions d'une photo.
+    OPTIMISATION: Les dimensions sont maintenant stockées directement dans galleries_YYYY.json
+    Cette fonction n'est appelée que pour les photos sans dimensions (legacy).
+    """
+    try:
+        # Appeler l'API Cloudinary (seulement pour les photos legacy)
         result = cloudinary.api.resource(photo_id)
-        dimensions = {
+        app.logger.info(f"Dimensions récupérées via API pour {photo_id}: {result['width']}x{result['height']}")
+        return {
             'width': result['width'],
-            'height': result['height'],
-            'cached_at': datetime.now().strftime('%Y-%m-%d')
+            'height': result['height']
         }
-        
-        # Mettre à jour le cache
-        cache[photo_id] = dimensions
-        save_photo_dimensions_cache(cache)
-        
-        return dimensions
     except Exception as e:
         app.logger.error(f"Erreur lors de la récupération des dimensions de {photo_id}: {e}")
         return {'width': 0, 'height': 0}
@@ -181,25 +217,245 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def save_single_gallery_to_year(gallery_id, gallery_data):
+    """
+    Sauvegarde uniquement une galerie dans son fichier galleries_YYYY.json correspondant.
+    Optimisé pour le lazy loading : ne sauvegarde que l'année concernée.
+    """
+    try:
+        # Déterminer l'année de la galerie
+        if 'year' in gallery_data:
+            year = gallery_data['year']
+        else:
+            date = datetime.strptime(gallery_data['date'], '%Y-%m-%d')
+            year = date.year
+            gallery_data['year'] = year
+            gallery_data['month'] = date.month
+            gallery_data['day'] = date.day
+        
+        # Charger uniquement le fichier de l'année concernée
+        year_file = f"galleries_{year}.json"
+        year_galleries = {}
+        
+        if os.path.exists(year_file):
+            with open(year_file, 'r', encoding='utf-8') as f:
+                year_galleries = json.load(f)
+        
+        # Mettre à jour uniquement cette galerie
+        year_galleries[gallery_id] = gallery_data
+        
+        # Sauvegarder uniquement ce fichier
+        with open(year_file, 'w', encoding='utf-8') as f:
+            json.dump(year_galleries, f, ensure_ascii=False, indent=2)
+        
+        app.logger.info(f"✅ {year_file} mis à jour (1 galerie)")
+        
+        # Mettre à jour le cache
+        clear_gallery_cache()
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde de {gallery_id}: {e}")
+
 def save_gallery_data(data):
+    """
+    Sauvegarde les galeries dans les fichiers appropriés.
+    OPTION B : Sauvegarde dans galleries_YYYY.json + galleries.json (backup)
+    """
+    # Organiser les galeries par année
+    galleries_by_year = {}
+    
+    for gallery_id, gallery in data.items():
+        try:
+            # Utiliser la métadonnée 'year' si disponible, sinon parser la date
+            if 'year' in gallery:
+                year = gallery['year']
+            else:
+                date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+                year = date.year
+                # Ajouter la métadonnée pour la prochaine fois
+                gallery['year'] = year
+                gallery['month'] = date.month
+                gallery['day'] = date.day
+            
+            if year not in galleries_by_year:
+                galleries_by_year[year] = {}
+            
+            galleries_by_year[year][gallery_id] = gallery
+            
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la classification de {gallery_id}: {e}")
+            continue
+    
+    # Sauvegarder chaque année dans son propre fichier
+    for year, galleries in galleries_by_year.items():
+        year_file = f"galleries_{year}.json"
+        with open(year_file, 'w', encoding='utf-8') as f:
+            json.dump(galleries, f, ensure_ascii=False, indent=2)
+        app.logger.info(f"✅ {year_file} sauvegardé ({len(galleries)} galeries)")
+    
+    # Sauvegarder aussi dans galleries.json (backup/compatibilité)
     with open('galleries.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+    
+    # Reconstruire l'index des galeries par année
+    rebuild_galleries_index()
+    
+    # Mettre à jour les métadonnées
+    update_galleries_metadata()
+    
     # Mettre à jour l'index de recherche
     global search_engine
     search_engine = SearchEngine('galleries.json')
-    app.logger.info("Index de recherche mis à jour")
+    app.logger.info("✅ Tous les fichiers sauvegardés et index mis à jour")
 
-@lru_cache(maxsize=1)
 def load_gallery_data():
-    try:
-        with open('galleries.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    """
+    Charge les données des galeries depuis les fichiers JSON par année.
+    Version optimisée : charge uniquement les fichiers nécessaires.
+    """
+    galleries = {}
+    
+    # Parcourir uniquement les fichiers galleries_YYYY.json existants
+    for year_file in sorted([f for f in os.listdir('.') if f.startswith('galleries_') and f.endswith('.json') and f != 'galleries_index.json' and f != 'galleries_metadata.json' and f != 'galleries_by_year.json']):
+        try:
+            with open(year_file, 'r', encoding='utf-8') as f:
+                year_galleries = json.load(f)
+                galleries.update(year_galleries)
+                # Log seulement si le fichier contient des galeries
+                if year_galleries:
+                    app.logger.info(f"✅ Chargement OPTIMAL : {len(year_galleries)} galeries depuis {year_file}")
+        except Exception as e:
+            app.logger.error(f"Erreur lors du chargement de {year_file}: {e}")
+    
+    # Fallback vers galleries.json si aucun fichier trouvé
+    if not galleries and os.path.exists('galleries.json'):
+        try:
+            with open('galleries.json', 'r', encoding='utf-8') as f:
+                galleries = json.load(f)
+                app.logger.info(f"✅ Fallback : Chargement depuis galleries.json")
+        except Exception as e:
+            app.logger.error(f"Erreur lors du chargement de galleries.json: {e}")
+            return {}
+    
+    if galleries:
+        app.logger.info(f"✅ Total chargé : {len(galleries)} galeries")
+    return galleries
+
+def load_gallery_data_for_year(year):
+    """
+    Charge uniquement les galeries d'une année spécifique.
+    Version ultra-optimisée pour le lazy loading.
+    """
+    year_file = f"galleries_{year}.json"
+    
+    if os.path.exists(year_file):
+        try:
+            with open(year_file, 'r', encoding='utf-8') as f:
+                year_galleries = json.load(f)
+                app.logger.info(f"✅ Chargement ULTRA-OPTIMAL : {len(year_galleries)} galeries depuis {year_file}")
+                return year_galleries
+        except Exception as e:
+            app.logger.error(f"Erreur lors du chargement de {year_file}: {e}")
+    
+    return {}
 
 def clear_gallery_cache():
     """Invalider le cache des galeries après modifications"""
-    load_gallery_data.cache_clear()
+    # Plus de cache à vider - les données sont toujours fraîches
+    pass
+
+def load_galleries_index():
+    """Charge l'index des galeries par année"""
+    try:
+        with open('galleries_index.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        app.logger.warning("galleries_index.json non trouvé, création automatique...")
+        # Créer l'index automatiquement si absent
+        rebuild_galleries_index()
+        return load_galleries_index()
+
+def load_galleries_by_year():
+    """Charge les galeries groupées par année"""
+    try:
+        with open('galleries_by_year.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        app.logger.warning("galleries_by_year.json non trouvé, création automatique...")
+        # Créer le groupement automatiquement si absent
+        galleries = load_gallery_data()
+        by_year = {}
+        for gallery_id, gallery in galleries.items():
+            year = gallery.get('year', datetime.strptime(gallery['date'], '%Y-%m-%d').year)
+            if year not in by_year:
+                by_year[year] = []
+            by_year[year].append(gallery)
+        
+        with open('galleries_by_year.json', 'w', encoding='utf-8') as f:
+            json.dump(by_year, f, ensure_ascii=False, indent=2)
+        
+        return by_year
+
+def rebuild_galleries_index():
+    """Reconstruit l'index des galeries par année"""
+    galleries = load_gallery_data()
+    index = {}
+    
+    for gallery_id, gallery in galleries.items():
+        try:
+            date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+            year = str(date.year)
+            
+            if year not in index:
+                index[year] = []
+            
+            index[year].append(gallery_id)
+        except (ValueError, KeyError) as e:
+            app.logger.warning(f"Impossible d'indexer la galerie {gallery_id}: {e}")
+    
+    # Sauvegarder l'index
+    with open('galleries_index.json', 'w', encoding='utf-8') as f:
+        json.dump(index, f, ensure_ascii=False, indent=2)
+    
+    app.logger.info(f"Index reconstruit : {sum(len(v) for v in index.values())} galeries indexées")
+    return index
+
+def update_galleries_metadata():
+    """Met à jour le fichier de métadonnées globales"""
+    try:
+        metadata = {
+            "updated_at": datetime.now().isoformat(),
+            "total_galleries": 0,
+            "years": {}
+        }
+        
+        # Parcourir tous les fichiers galleries_YYYY.json
+        for year_file in sorted([f for f in os.listdir('.') if f.startswith('galleries_') and f.endswith('.json') and f != 'galleries_index.json' and f != 'galleries_metadata.json']):
+            try:
+                with open(year_file, 'r', encoding='utf-8') as f:
+                    year_galleries = json.load(f)
+                
+                year = year_file.replace('galleries_', '').replace('.json', '')
+                file_size = os.path.getsize(year_file) / 1024  # En KB
+                
+                metadata["years"][year] = {
+                    "count": len(year_galleries),
+                    "file": year_file,
+                    "size_kb": round(file_size, 1)
+                }
+                metadata["total_galleries"] += len(year_galleries)
+                
+            except Exception as e:
+                app.logger.error(f"Erreur lors de la lecture de {year_file}: {e}")
+        
+        # Sauvegarder les métadonnées
+        with open('galleries_metadata.json', 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=2)
+        
+        app.logger.info(f"Métadonnées mises à jour : {metadata['total_galleries']} galeries")
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la mise à jour des métadonnées: {e}")
 
 def load_projects():
     try:
@@ -330,9 +586,11 @@ def get_optimized_cover_url(cover_image_url):
         return None
 
 
+@lru_cache(maxsize=500)
 def get_cloudinary_background_url(image_name, page_type="others"):
     """
     Génère une URL Cloudinary optimisée pour une image de fond.
+    Cache les résultats pour éviter les appels API répétés.
     """
     try:
         # Récupérer les informations de l'image depuis Cloudinary
@@ -425,6 +683,54 @@ def get_optimized_animal_url(image_url, type="main"):
         return optimized_url
     return image_url
 
+@lru_cache(maxsize=1000)
+def get_responsive_photo_urls(image_url, width, height):
+    """
+    Génère toutes les URLs responsive nécessaires pour une photo de galerie.
+    Cache les résultats pour éviter les calculs répétés.
+    
+    Args:
+        image_url: URL Cloudinary de l'image
+        width: Largeur de l'image
+        height: Hauteur de l'image
+    
+    Returns:
+        dict avec les URLs pour différentes tailles (400w, 800w, 1200w, lightbox, lqip)
+    """
+    try:
+        url_parts = image_url.split('/upload/')
+        if len(url_parts) != 2:
+            return None
+        
+        base_url = url_parts[0] + '/upload/'
+        image_name = url_parts[1]
+        
+        # Déterminer l'orientation (paysage vs portrait)
+        is_landscape = width > height
+        
+        # Définir les transformations selon l'orientation
+        if is_landscape:
+            trans_400 = 'f_auto,q_auto,w_400,c_limit'
+            trans_800 = 'f_auto,q_auto,w_800,c_limit'
+            trans_1200 = 'f_auto,q_auto,w_1200,c_limit'
+        else:
+            trans_400 = 'f_auto,q_auto,h_400,c_limit'
+            trans_800 = 'f_auto,q_auto,h_800,c_limit'
+            trans_1200 = 'f_auto,q_auto,h_1200,c_limit'
+        
+        return {
+            'base_url': base_url,
+            'image_name': image_name,
+            'url_400': f"{base_url}{trans_400}/{image_name}",
+            'url_800': f"{base_url}{trans_800}/{image_name}",
+            'url_1200': f"{base_url}{trans_1200}/{image_name}",
+            'url_lightbox': f"{base_url}f_auto,q_auto,w_1600,c_limit/{image_name}",
+            'url_lqip': f"{base_url}f_auto,q_10,w_50,e_blur:1000/{image_name}"
+        }
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la génération des URLs responsive: {e}")
+        return None
+
 # gestiobn des pages web
 
 @app.route('/')
@@ -474,10 +780,14 @@ def upload_photos(gallery_id):
                 result = cloudinary.uploader.upload(file)
                 app.logger.info(f"Upload réussi: {result['secure_url']}")
                 
+                # OPTIMISATION: Stocker les dimensions directement
                 gallery['photos'].append({
                     'url': result['secure_url'],
-                    'filename': file.filename
+                    'filename': file.filename,
+                    'width': result.get('width', 0),
+                    'height': result.get('height', 0)
                 })
+                app.logger.info(f"Dimensions stockées: {result.get('width')}x{result.get('height')}")
             except Exception as e:
                 app.logger.error(f"Erreur lors de l'upload de {file.filename}: {str(e)}")
                 app.logger.error(f"Traceback complet: {traceback.format_exc()}")
@@ -636,13 +946,35 @@ def gallery(gallery_id):
     page = request.args.get('page', 1, type=int)
     per_page = app.config['PHOTOS_PER_PAGE']
     
-    galleries = load_gallery_data()
+    # Essayer d'abord avec l'index pour trouver l'année de la galerie
+    try:
+        index = load_galleries_index()
+        gallery_year = None
+        
+        # Chercher dans quel fichier se trouve la galerie
+        for year, gallery_ids in index.items():
+            if gallery_id in gallery_ids:
+                gallery_year = int(year)
+                break
+        
+        if gallery_year:
+            # Chargement ultra-optimisé : uniquement le fichier de l'année
+            galleries = load_gallery_data_for_year(gallery_year)
+        else:
+            # Fallback : chargement complet
+            galleries = load_gallery_data()
+    except:
+        # En cas d'erreur avec l'index, utiliser le chargement complet
+        galleries = load_gallery_data()
+    
     gallery = galleries.get(gallery_id)
     if not gallery:
         return "Gallery not found", 404
     
     # Créer une copie pour éviter de modifier l'original
     gallery_copy = gallery.copy()
+    # Copie profonde des photos pour hériter les dimensions du JSON
+    gallery_copy['photos'] = [photo.copy() for photo in gallery.get('photos', [])]
         
     # S'assurer que formatted_date est défini
     if 'date' in gallery_copy and 'formatted_date' not in gallery_copy:
@@ -707,17 +1039,38 @@ def gallery(gallery_id):
         # Définir l'image de fond
         optimized_background_url = gallery_copy['optimized_background_url']
         # Optimiser la récupération des dimensions des photos avec cache persistant
+        # Les dimensions sont déjà dans gallery_copy si elles existent dans le JSON
+        dimensions_updated = False
         for photo in gallery_copy['photos']:
             photo_id = photo['url'].split('/')[-1].split('.')[0]
             
-            # Vérifier si les dimensions sont déjà dans la photo
-            if 'width' in photo and 'height' in photo:
-                continue
-                
-            # Utiliser le cache persistant
-            dimensions = get_photo_dimensions(photo_id)
-            photo['width'] = dimensions['width']
-            photo['height'] = dimensions['height']
+            # Vérifier si les dimensions sont déjà dans la photo (elles viennent du JSON)
+            if 'width' in photo and 'height' in photo and photo['width'] > 0 and photo['height'] > 0:
+                # Les dimensions sont déjà en cache, pas d'appel API
+                pass
+            else:
+                # Utiliser le cache persistant ET sauvegarder pour les prochaines fois
+                app.logger.info(f"Dimensions manquantes pour {photo_id}, appel API...")
+                dimensions = get_photo_dimensions(photo_id)
+                if dimensions['width'] > 0 and dimensions['height'] > 0:
+                    photo['width'] = dimensions['width']
+                    photo['height'] = dimensions['height']
+                    # Sauvegarder les dimensions dans le JSON pour les prochaines visualisations
+                    save_photo_dimensions_to_gallery(gallery_id, photo_id, dimensions['width'], dimensions['height'])
+                    dimensions_updated = True
+                else:
+                    app.logger.warning(f"Impossible de récupérer les dimensions pour {photo_id}")
+            
+            # OPTIMISATION: Optimisation simple des URLs Cloudinary
+            if photo['url'] and 'cloudinary.com' in photo['url']:
+                # Ajouter une optimisation basique pour réduire la taille
+                url_parts = photo['url'].split('/upload/')
+                if len(url_parts) == 2:
+                    base_url = url_parts[0] + '/upload/'
+                    image_name = url_parts[1]
+                    # Optimisation modérée : qualité auto et taille raisonnable
+                    optimized_url = f"{base_url}f_auto,q_auto,w_1200,c_limit/{image_name}"
+                    photo['url'] = optimized_url
 
         return render_template('gallery.html', 
                             gallery=gallery_copy, 
@@ -730,7 +1083,8 @@ def gallery(gallery_id):
 
 @app.route('/month/<int:year>/<int:month>')
 def month_galleries(year, month):
-    galleries = load_gallery_data()
+    # OPTIMISATION : Charger uniquement les galeries de l'année demandée
+    galleries = load_gallery_data_for_year(year)
     month_galleries_data = []
     optimized_background_url = None
     
@@ -759,7 +1113,7 @@ def month_galleries(year, month):
                         gallery['optimized_cover_url'] = None
                         app.logger.warning(f"Pas d'image de couverture pour {gallery_id}")
                 month_galleries_data.append(gallery)
-                app.logger.info(f"Galerie ajoutée pour {MOIS_FR[month-1]} {year}: {gallery['name']}")
+                app.logger.debug(f"Galerie ajoutée pour {MOIS_FR[month-1]} {year}: {gallery['name']}")
 
 
         except Exception as e:
@@ -1225,6 +1579,39 @@ def mountain_animals():
 
 
 @app.route('/add_animal', methods=['POST'])
+@app.route('/admin/download-json/<filename>')
+def download_json(filename):
+    """Endpoint sécurisé pour télécharger les fichiers JSON (uniquement en dev)"""
+    if not app.config.get('DEV_MODE', False):
+        return "Non autorisé en production", 403
+    
+    # Validation du nom de fichier pour sécurité
+    if not filename.startswith('galleries_') or not filename.endswith('.json'):
+        return "Nom de fichier invalide", 400
+    
+    # Vérifier que le fichier existe
+    file_path = os.path.join('.', filename)
+    if not os.path.exists(file_path):
+        return "Fichier non trouvé", 404
+    
+    # Envoyer le fichier
+    from flask import send_file
+    return send_file(file_path, as_attachment=True, download_name=filename)
+
+@app.route('/admin/sync-all-json')
+def sync_all_json():
+    """Page de synchronisation de tous les JSON (uniquement en dev)"""
+    if not app.config.get('DEV_MODE', False):
+        return "Non autorisé en production", 403
+    
+    import glob
+    json_files = glob.glob('galleries_*.json')
+    index_files = ['galleries_index.json', 'galleries_by_year.json', 'galleries_metadata.json']
+    
+    all_files = json_files + [f for f in index_files if os.path.exists(f)]
+    
+    return render_template('sync_json.html', files=all_files)
+
 def add_animal():
     app.logger.info("Début de l'ajout d'un animal")
     
@@ -1340,7 +1727,8 @@ def year_view(year):
     if year < 2016 or year > 2026:
         abort(404)
     
-    galleries = load_gallery_data()
+    # OPTIMISATION : Charger uniquement les galeries de l'année demandée
+    galleries = load_gallery_data_for_year(year)
     galleries_by_month = {}
     today = datetime.now()  # Ajouter pour détecter les dates futures
     
