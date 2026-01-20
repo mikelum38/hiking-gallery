@@ -98,13 +98,12 @@
             {% for file in files %}
             <li class="file-item">
                 <div>
-                    <div class="file-name">{{ file }}</div>
+                    <div class="file-name">{{ file.name }}</div>
                     <div class="file-size">
-                        {% set file_size = (file | filesizeformat) %}
-                        Taille: {{ file_size }}
+                        Taille: {{ file.size | filesizeformat }}
                     </div>
                 </div>
-                <a href="{{ url_for('download_json', filename=file) }}" class="download-btn">
+                <a href="{{ url_for('download_json', filename=file.name) }}" class="download-btn">
                     ⬇️ Télécharger
                 </a>
             </li>
@@ -124,8 +123,8 @@
             files.forEach((file, index) => {
                 setTimeout(() => {
                     const link = document.createElement('a');
-                    link.href = `/admin/download-json/${file}`;
-                    link.download = file;
+                    link.href = `/admin/download-json/${file.name}`;
+                    link.download = file.name;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);

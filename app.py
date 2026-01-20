@@ -1608,7 +1608,13 @@ def sync_all_json():
     json_files = glob.glob('galleries_*.json')
     index_files = ['galleries_index.json', 'galleries_by_year.json', 'galleries_metadata.json']
     
-    all_files = json_files + [f for f in index_files if os.path.exists(f)]
+    all_files = []
+    for file_path in json_files + [f for f in index_files if os.path.exists(f)]:
+        file_info = {
+            'name': os.path.basename(file_path),
+            'size': os.path.getsize(file_path) if os.path.exists(file_path) else 0
+        }
+        all_files.append(file_info)
     
     return render_template('sync_json.html', files=all_files)
 
