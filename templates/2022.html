@@ -78,7 +78,7 @@
         }
 
         .month-card {
-            flex: 0 0 200px;
+            flex: 0 0 300px;
             scroll-snap-align: start;
             background: white;
             border-radius: 8px;
@@ -87,8 +87,13 @@
             transition: transform 0.3s ease;
             text-decoration: none;
             color: inherit;
-            height: 150px;
+            height: 200px;
             position: relative;
+        }
+
+        .month-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
         .month-cover {
@@ -235,11 +240,12 @@
             }
 
             .month-card {
+                flex: 0 0 250px;
                 height: 180px;
             }
 
             .month-name {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
             }
 
             .back-link {

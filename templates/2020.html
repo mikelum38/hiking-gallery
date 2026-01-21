@@ -73,7 +73,7 @@
         }
 
         .month-card {
-            flex: 0 0 200px;
+            flex: 0 0 300px;
             scroll-snap-align: start;
             background: white;
             border-radius: 8px;
@@ -82,7 +82,7 @@
             transition: transform 0.3s ease;
             text-decoration: none;
             color: inherit;
-            height: 150px;
+            height: 200px;
             position: relative;
         }
 
@@ -258,18 +258,18 @@
                 padding: 0 20px;
             }
 
-            .months-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-                padding: 15px;
+            .months-scroll {
+                gap: 1rem;
+                padding: 1rem;
             }
 
             .month-card {
+                flex: 0 0 250px;
                 height: 180px;
             }
 
-            .month-card h2 {
-                font-size: 1.5rem;
+            .month-name {
+                font-size: 1.2rem;
             }
 
             .back-link {
@@ -293,10 +293,9 @@
                 font-size: 1rem;
             }
 
-            .months-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-                padding: 12px;
+            .months-scroll {
+                gap: 1rem;
+                padding: 1rem;
             }
 
             .month-card {
