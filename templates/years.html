@@ -52,7 +52,7 @@
             position: absolute;
             top: 8%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%); /* Centré horizontalement seulement */
             color: white;
             font-size: 4rem;
             font-weight: 300;
@@ -95,7 +95,9 @@
         @media (max-width: 768px) {
             .main-title {
                 font-size: 2.5rem;
-                top: 3%;
+                top: 80px; /* Positionné sous les boutons du haut */
+                left: 50%;
+                transform: translateX(-50%); /* Centré horizontalement */
             }
 
             body {
@@ -373,11 +375,37 @@
             .controls {
                 bottom: 5%;
                 gap: 2rem;
+                display: none; /* Cacher les flèches sur mobile */
             }
 
             .control-btn {
                 width: 2.5rem;
                 height: 2.5rem;
+            }
+
+            .search-floating-btn {
+                width: 50px;
+                height: 50px;
+                bottom: 80px;
+                right: 20px;
+                font-size: 10px;
+            }
+
+            .search-floating-btn::after {
+                content: 'Recherche';
+                position: static;
+                background: transparent;
+                color: white;
+                padding: 0;
+                border-radius: 0;
+                font-size: 10px;
+                opacity: 1;
+                margin-top: 2px;
+            }
+
+            .search-floating-btn i {
+                display: block;
+                margin-bottom: 2px;
             }
         }
 
@@ -431,6 +459,27 @@
             z-index: 999;
             text-decoration: none;
             transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .search-floating-btn::after {
+            content: 'Recherche';
+            position: absolute;
+            bottom: -25px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .search-floating-btn:hover::after {
+            opacity: 1;
         }
 
         .search-floating-btn:hover {
