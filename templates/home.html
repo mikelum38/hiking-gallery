@@ -59,9 +59,10 @@
             background: rgba(0, 0, 0, 0.4);
             border-radius: 8px;
             backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease; /* Réduit pour plus de réactivité */
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            will-change: transform, background; /* Optimisation GPU */
         }
 
         .nav-link:hover {
@@ -179,37 +180,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Initialisation dès que possible
-        window.addEventListener('DOMContentLoaded', function() {
+        // Initialisation optimisée dès que possible
+        document.addEventListener('DOMContentLoaded', function() {
             const firstItem = document.querySelector('.carousel-item.active img');
             
             // Forcer le zoom initial
-            firstItem.style.transform = 'scale(1.2)';
+            if (firstItem) {
+                firstItem.style.transform = 'scale(1.2)';
+            }
             
-            // Déclencher l'animation après un court délai
-            setTimeout(() => {
-                firstItem.style.transition = 'transform 10s ease';
-                firstItem.style.transform = 'scale(1)';
-            }, 50);
+            // Précharger les images suivantes
+            const images = document.querySelectorAll('.carousel-item img');
+            images.forEach(img => {
+                if (img !== firstItem) {
+                    img.loading = 'eager'; // Précharger pour éviter la latence
+                }
+            });
         });
 
         window.addEventListener('load', function() {
-            // Démarrer le carrousel
+            // Démarrer le carrousel avec intervalle plus long pour moins de transitions
             var carousel = new bootstrap.Carousel(document.getElementById('mountainCarousel'), {
-                interval: 5000,
-                ride: 'carousel'
+                interval: 7000, // Augmenté pour moins de transitions
+                ride: 'carousel',
+                pause: 'hover'
             });
 
-            // Gestionnaire pour les transitions suivantes
+            // Gestionnaire pour les transitions optimisées
             document.getElementById('mountainCarousel').addEventListener('slide.bs.carousel', function (e) {
                 const nextImage = e.relatedTarget.querySelector('img');
-                nextImage.style.transition = 'none';
-                nextImage.style.transform = 'scale(1.2)';
-                
-                requestAnimationFrame(() => {
-                    nextImage.style.transition = 'transform 10s ease';
-                    nextImage.style.transform = 'scale(1)';
-                });
+                if (nextImage) {
+                    nextImage.style.transition = 'none';
+                    nextImage.style.transform = 'scale(1.2)';
+                }
             });
             
             // Démarrer la musique
