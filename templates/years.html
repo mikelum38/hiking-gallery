@@ -179,9 +179,10 @@
             padding: 30px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             transform-origin: center;
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
             cursor: pointer;
             overflow: hidden;
+            will-change: transform, background;
         }
 
         /* Couleurs spécifiques pour chaque année */
@@ -338,60 +339,35 @@
 
         @media (max-width: 768px) {
             body {
-                perspective: none; /* Désactiver la 3D sur mobile */
+                perspective: 800px; /* Réduit mais pas désactivé */
             }
             
             .wheel-container {
-                width: 90%;
-                height: auto;
-                margin-top: 0;
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-                padding: 1rem;
-                transform: none; /* Désactiver la rotation 3D */
+                width: 400px;
+                height: 400px;
+                transform: scale(0.6); /* Plus petit mais garde la 3D */
             }
 
             .year-link {
-                width: 100%;
+                width: 200px;
                 height: 120px;
-                transform: none; /* Désactiver les transformations 3D */
-                position: relative;
+                transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(200px); /* Rayon réduit */
             }
 
             .year-card {
-                width: 100%;
-                height: 100%;
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 12px;
-                backdrop-filter: blur(10px);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                transition: all 0.2s ease; /* Plus rapide sur mobile */
-                will-change: transform; /* Optimisation GPU */
+                backdrop-filter: blur(5px); /* Plus léger */
             }
 
             .year-card:hover {
-                transform: scale(1.02); /* Léger au lieu de 1.05 */
-                background: rgba(255, 255, 255, 0.15);
-            }
-
-            .year-card.central {
-                transform: scale(1.05); /* Plus subtil sur mobile */
-                background: rgba(255, 255, 255, 0.2);
-                border: 2px solid rgba(255, 255, 255, 0.4);
+                transform: scale(1.02); /* Plus subtil */
             }
 
             .year-card h2 {
-                font-size: 1.5rem; /* Plus lisible sur mobile */
+                font-size: 1.4rem;
             }
 
             .year-card p {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
             }
 
             .controls {
@@ -540,25 +516,10 @@
         let currentCentralIndex = 9; // Index de 2026
         const anglePerItem = 360 / years.length;
         
-        // Détecter si on est sur mobile
-        const isMobile = window.innerWidth <= 768;
-        
-        if (isMobile) {
-            // Mode mobile : grille simple, pas de 3D
-            wheel.style.display = 'grid';
-            wheel.style.gridTemplateColumns = 'repeat(2, 1fr)';
-            wheel.style.gap = '1rem';
-            wheel.style.padding = '1rem';
-            wheel.style.transform = 'none';
-            wheel.style.width = '90%';
-            wheel.style.height = 'auto';
-            wheel.style.margin = '0 auto';
-        } else {
-            // Mode desktop : roue 3D
-            const initialRotation = -currentCentralIndex * anglePerItem;
-            currentRotation = initialRotation;
-            wheel.style.transform = `rotateY(${currentRotation}deg)`;
-        }
+        // Rotation initiale pour centrer 2026
+        const initialRotation = -currentCentralIndex * anglePerItem;
+        currentRotation = initialRotation;
+        wheel.style.transform = `rotateY(${currentRotation}deg)`;
 
         // Créer les blocs d'années
         years.forEach((yearData, index) => {
@@ -572,18 +533,12 @@
                 </div>
             `;
             
-            if (isMobile) {
-                // Mode mobile : pas de transformations 3D
-                block.style.transform = 'none';
-                block.style.position = 'relative';
-            } else {
-                // Mode desktop : positionner en 3D
-                const angle = anglePerItem * index;
-                const radius = 500;
-                block.style.transform = `
-                    translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px)
-                `;
-            }
+            // Positionner chaque bloc en 3D
+            const angle = anglePerItem * index;
+            const radius = 500;
+            block.style.transform = `
+                translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px)
+            `;
             
             block.addEventListener('click', () => {
                 window.location.href = yearData.route;
@@ -612,11 +567,11 @@
             // Mise à jour de l'index central
             currentCentralIndex = (currentCentralIndex - direction + years.length) % years.length;
             
-            // Mise à jour visuelle après la transition
+            // Mise à jour visuelle plus rapide
             setTimeout(() => {
                 selectCentral(currentCentralIndex);
                 isRotating = false;
-            }, 800);
+            }, 400); /* Réduit de 800ms à 400ms */
         }
         
         function selectCentral(index) {
