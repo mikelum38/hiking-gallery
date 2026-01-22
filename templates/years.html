@@ -95,7 +95,7 @@
         @media (max-width: 768px) {
             .main-title {
                 font-size: 2.5rem;
-                top: 80px; /* Positionné sous les boutons du haut */
+                top: 120px; /* Positionné sous les boutons du haut */
                 left: 50%;
                 transform: translateX(-50%); /* Centré horizontalement */
             }
@@ -373,8 +373,6 @@
             }
 
             .controls {
-                bottom: 5%;
-                gap: 2rem;
                 display: none; /* Cacher les flèches sur mobile */
             }
 
@@ -400,6 +398,33 @@
                 border-radius: 0;
                 font-size: 10px;
                 opacity: 1;
+                margin-top: 2px;
+                display: none; /* Masquer le texte au survol */
+            }
+
+            .search-floating-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 70px;
+                height: 70px;
+                font-size: 9px;
+                padding: 5px;
+                text-align: center;
+                line-height: 1;
+            }
+
+            .search-floating-btn i {
+                font-size: 16px;
+                margin-bottom: 3px;
+            }
+
+            .search-floating-btn::before {
+                content: 'Recherche';
+                position: static;
+                font-size: 9px;
+                line-height: 1;
                 margin-top: 2px;
             }
 
