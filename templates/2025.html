@@ -19,13 +19,17 @@
 
         .page-container {
             height: 100vh;
-            display: flex;
-            flex-direction: column;
             background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('{{ background_url }}');
             background-size: cover;
             background-position: center;
-            color: white;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            color: white;
+            padding-top: 4rem;
         }
 
         .top-nav {
@@ -100,13 +104,9 @@
         }
 
         .hero-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
             text-align: center;
-            padding-top: 4rem;
-            flex: 1;
+            padding: 0;
+            margin: 0;
         }
 
         .hero-content h1 {
@@ -116,6 +116,9 @@
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 1s ease-out forwards 0.5s;
         }
 
         .hero-content p {
@@ -126,6 +129,9 @@
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
             max-width: 600px;
             letter-spacing: 0.5px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 1s ease-out forwards 0.8s;
         }
 
         .months-container {
@@ -133,23 +139,23 @@
             bottom: 2rem;
             left: 0;
             right: 0;
-            padding: 0 2rem;
+            padding: 1rem 0;
             z-index: 2;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 1s ease-out forwards 1.7s;
         }
 
         .months-scroll {
             display: flex;
-            gap: 1.5rem;
             overflow-x: auto;
-            scrollbar-width: none;
-            padding-bottom: 1rem;
+            scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
-            position: relative;
             -webkit-overflow-scrolling: touch;
             gap: 1rem;
             padding: 1rem 0;
             scrollbar-width: none;
-            -ms-overflow-style: none;
         }
 
         .months-scroll::-webkit-scrollbar {
@@ -512,15 +518,14 @@
             }
 
             .hero-content h1 {
-                font-size: 2.8rem;
-                margin-bottom: 0.5rem;
-                text-align: center;
+                font-size: 2.8rem !important;
                 padding: 0 20px;
+                text-align: center;
             }
 
             .hero-content p {
-                font-size: 1rem;
-                margin: 0.5rem auto 1rem;
+                font-size: 1.2rem !important;
+                padding: 0 20px;
             }
 
             .months-container {
@@ -615,6 +620,17 @@
             /* Ajuster la hauteur du conteneur principal */
             .page-container {
                 padding-bottom: 2rem;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
