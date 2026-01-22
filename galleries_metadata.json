@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-01-20T13:01:31.977206",
-  "total_galleries": 219,
+  "updated_at": "2026-01-22T18:34:30.514990",
+  "total_galleries": 220,
   "years": {
     "2016": {
       "count": 1,
@@ -45,17 +45,17 @@
     "2024": {
       "count": 85,
       "file": "galleries_2024.json",
-      "size_kb": 582.9
+      "size_kb": 580.7
     },
     "2025": {
       "count": 109,
       "file": "galleries_2025.json",
-      "size_kb": 706.9
+      "size_kb": 702.9
     },
     "2026": {
-      "count": 4,
+      "count": 5,
       "file": "galleries_2026.json",
-      "size_kb": 27.2
+      "size_kb": 28.0
     }
   }
 }

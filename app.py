@@ -29,6 +29,9 @@ if Config.ENABLE_SENTRY and Config.SENTRY_DSN:
 
 load_dotenv()  # Chargement des variables d'environnement depuis .env
 
+# Configuration des extensions de fichiers autorisées
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
 # Configuration du logging
 logging.basicConfig(
     level=logging.INFO,
