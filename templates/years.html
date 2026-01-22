@@ -84,11 +84,11 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateX(-50%) translateY(-20px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateX(-50%) translateY(0);
             }
         }
 
@@ -96,12 +96,17 @@
             .main-title {
                 font-size: 2.5rem;
                 top: 100px; /* Positionné sous les boutons du haut */
-                left: 50%;
-                transform: translateX(-50%); /* Centré horizontalement */
+                left: 50% !important;
+                transform: translateX(-50%) !important; /* Centré horizontalement */
                 width: 100%;
                 text-align: center;
                 padding: 0 20px;
                 box-sizing: border-box;
+            }
+            
+            .main-title::after {
+                left: 50%;
+                transform: translateX(-50%);
             }
 
             body {
@@ -123,12 +128,24 @@
             .year-card {
                 pointer-events: auto;
             }
+
+            .back-link {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                top: 15px;
+                right: 15px;
+            }
         }
 
         @media (max-width: 480px) {
             .main-title {
                 font-size: 2rem;
-                top: 2%;
+                top: 100px;
             }
 
             .wheel-container {
@@ -316,10 +333,10 @@
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 0.8rem 1.6rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 30px;
             text-decoration: none;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
             display: flex;
@@ -524,10 +541,10 @@
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 0.8rem 1.6rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 30px;
             text-decoration: none;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s;
             backdrop-filter: blur(5px);
             display: flex;

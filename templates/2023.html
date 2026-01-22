@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Best of 2023 - Rêves de Montagne</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <style>
@@ -32,25 +33,31 @@
         }
 
         .back-link {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            z-index: 10;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
             text-decoration: none;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem 1.5rem;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 0.5rem;
+            white-space: nowrap;
+            z-index: 1000;
         }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        
 
         .back-link:hover {
             background: rgba(0, 0, 0, 0.5);
@@ -64,9 +71,9 @@
         }
 
         .home-hero h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 3.8rem;
-            font-weight: 500;
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 600;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
@@ -94,7 +101,7 @@
             }
 
             .home-hero h1 {
-                font-size: 2.8rem;
+                font-size: 2.5rem;
                 padding: 0 1rem;
                 margin-top: 2rem;
             }
@@ -134,12 +141,31 @@
             }
 
             .back-link {
-                top: 1rem;
-                left: 1rem;
-                font-size: 0.9rem;
-                padding: 0.5rem 1rem;
-                z-index: 100;
-            }
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        
 
             .back-link i {
                 font-size: 0.9rem;
@@ -347,9 +373,7 @@
     </style>
 </head>
 <body>
-    <a href="/years" class="back-link">
-        <i class="fas fa-arrow-left"></i> Retour aux années
-    </a>
+    <a href="{{ url_for('years') }}" class="back-link"><i class="fas fa-arrow-left"></i> Retour</a>
 
     <div class="home-hero">
         <h1>Best of 2023</h1>

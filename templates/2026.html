@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026 : L'Année de tous les Sentiers - Escapades en altitude</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <style>
@@ -57,10 +58,10 @@
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 0.8rem 1.6rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 30px;
             text-decoration: none;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
             display: flex;
@@ -83,9 +84,9 @@
         }
 
         .hero-content h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 3.8rem;
-            font-weight: 500;
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 600;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
@@ -96,7 +97,7 @@
 
         .hero-content p {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 300;
             margin: 1rem auto 3rem;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
@@ -388,9 +389,14 @@
         }
 
         @media (max-width: 768px) {
+
             .hero-content h1 {
-                font-size: 2.8rem;
+                font-size: 2.5rem;
                 padding: 0 20px;
+            }
+
+            .hero-content p {
+                font-size: 1.1rem;
             }
 
             .nav-button {
@@ -427,26 +433,22 @@
             }
 
             .months-container {
-                margin-top: 2rem;
-                padding: 0.5rem;
+                position: absolute;
+                bottom: 2rem;
+                left: 0;
+                right: 0;
+                padding: 0 2rem;
+                z-index: 2;
             }
 
             .months-scroll {
                 gap: 1rem;
                 padding: 1rem;
             }
-            
-            .months-scroll:active {
-                cursor: grabbing;
-            }
-
-            .months-scroll::-webkit-scrollbar {
-                display: none;
-            }
 
             .month-card {
                 flex: 0 0 250px;
-                height: 180px;
+                height: 160px;
                 border-radius: 10px;
                 overflow: hidden;
                 position: relative;
