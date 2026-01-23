@@ -274,6 +274,19 @@
         #lightbox-image.fade {
             opacity: 0;
         }
+        
+        /* Mode zoom */
+        .zoom-active #lightbox-image {
+            cursor: zoom-in;
+            max-width: none;
+            max-height: none;
+            width: auto;
+            height: auto;
+        }
+        
+        .zoom-active.zoomed #lightbox-image {
+            cursor: zoom-out;
+        }
 
         .fullscreen #lightbox-image {
             width: 100vw;
@@ -610,6 +623,9 @@
                 <img id="lightbox-image" src="" alt="Image en plein écran">
                 <div class="spinner"></div>
                 <div class="controls-sidebar">
+                    <button class="control-btn zoom-btn" onclick="toggleZoom()" data-tooltip="Activer le zoom">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
                     <button class="control-btn fullscreen-btn" onclick="toggleFullscreen()" data-tooltip="Passer en plein écran">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -644,6 +660,13 @@
         let slideshowInterval = null;
         let isMusicPlaying = false;
         const bgMusic = document.getElementById('slideshowAudio');
+        
+        // Variables pour le zoom
+        let isZoomActive = false;
+        let isZoomed = false;
+        let zoomScale = 2.5;
+        let imageOriginalWidth = 0;
+        let imageOriginalHeight = 0;
         
         // OPTIMISATION: Lazy loading des images avec LQIP - DÉSACTIVÉ
         // Le lazy loading est maintenant géré nativement avec loading="lazy"
@@ -865,6 +888,89 @@
         document.querySelector('.music-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             toggleMusic();
+        });
+        
+        // Fonction pour activer/désactiver le mode zoom
+        window.toggleZoom = function() {
+            isZoomActive = !isZoomActive;
+            
+            if (isZoomActive) {
+                lightbox.classList.add('zoom-active');
+                document.querySelector('.zoom-btn i').className = 'fas fa-search-minus';
+                document.querySelector('.zoom-btn').setAttribute('data-tooltip', 'Désactiver le zoom');
+                
+                // Charger les dimensions originales de l'image
+                const img = new Image();
+                img.onload = function() {
+                    imageOriginalWidth = this.naturalWidth;
+                    imageOriginalHeight = this.naturalHeight;
+                };
+                img.src = lightboxImage.src;
+            } else {
+                lightbox.classList.remove('zoom-active', 'zoomed');
+                document.querySelector('.zoom-btn i').className = 'fas fa-search-plus';
+                document.querySelector('.zoom-btn').setAttribute('data-tooltip', 'Activer le zoom');
+                isZoomed = false;
+                resetZoom();
+            }
+        };
+        
+        // Fonction pour réinitialiser le zoom
+        function resetZoom() {
+            lightboxImage.style.transform = 'translate(-50%, -50%) scale(1)';
+            lightboxImage.style.transformOrigin = 'center center';
+        }
+        
+        // Gestion du clic sur l'image pour zoomer
+        lightboxImage.addEventListener('click', function(e) {
+            if (!isZoomActive) return;
+            
+            e.stopPropagation();
+            
+            if (!isZoomed) {
+                // Zoomer sur la position du clic
+                const rect = lightboxImage.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                lightboxImage.style.transformOrigin = `${x}% ${y}%`;
+                lightboxImage.style.transform = `translate(-50%, -50%) scale(${zoomScale})`;
+                lightbox.classList.add('zoomed');
+                isZoomed = true;
+            } else {
+                // Dézoomer
+                resetZoom();
+                lightbox.classList.remove('zoomed');
+                isZoomed = false;
+            }
+        });
+        
+        // Gestion du mouvement de la souris en mode zoom
+        lightboxImage.addEventListener('mousemove', function(e) {
+            if (!isZoomActive || !isZoomed) return;
+            
+            const rect = lightboxImage.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            lightboxImage.style.transformOrigin = `${x}% ${y}%`;
+        });
+        
+        // Réinitialiser le zoom lors du changement d'image
+        document.querySelector('.prev-btn').addEventListener('click', function() {
+            if (isZoomed) {
+                resetZoom();
+                isZoomed = false;
+                lightbox.classList.remove('zoomed');
+            }
+        });
+        
+        document.querySelector('.next-btn').addEventListener('click', function() {
+            if (isZoomed) {
+                resetZoom();
+                isZoomed = false;
+                lightbox.classList.remove('zoomed');
+            }
         });
     });
 </script>
