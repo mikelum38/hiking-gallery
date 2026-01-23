@@ -164,6 +164,27 @@
         .audio-control i {
             font-size: 1.2rem;
         }
+        
+        .audio-hint {
+            position: fixed;
+            bottom: 5rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 1002;
+            animation: fadeInOut 4s ease-in-out forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
 
         @keyframes zoomEffect {
             0% {
@@ -252,30 +273,35 @@
             const audio = document.getElementById('bgMusic');
             const audioIcon = document.getElementById('audioIcon');
             
-            // Tentative de lecture automatique avec volume
+            // Configuration du volume
             audio.volume = 0.5; // Volume à 50%
             
-            // Essayer de démarrer automatiquement
-            const tryAutoplay = () => {
-                audio.play().then(() => {
-                    audioIcon.className = 'fas fa-volume-up';
-                    isPlaying = true;
-                }).catch((error) => {
-                    console.log('Autoplay bloqué par le navigateur - cliquez sur le bouton pour démarrer la musique');
-                    audioIcon.className = 'fas fa-volume-mute';
-                    isPlaying = false;
-                });
+            // Fonction pour démarrer la musique
+            const startMusic = () => {
+                const playPromise = audio.play();
+                const audioHint = document.getElementById('audioHint');
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        audioIcon.className = 'fas fa-volume-up';
+                        isPlaying = true;
+                        // Masquer le hint si visible
+                        if (audioHint) audioHint.style.display = 'none';
+                    }).catch((error) => {
+                        audioIcon.className = 'fas fa-volume-mute';
+                        // Afficher le hint pendant 4 secondes
+                        if (audioHint) {
+                            audioHint.style.display = 'block';
+                            setTimeout(() => {
+                                audioHint.style.display = 'none';
+                            }, 4000);
+                        }
+                    });
+                }
             };
             
-            tryAutoplay();
-            
-            // Tenter de démarrer au premier clic/interaction
-            document.body.addEventListener('click', function startOnInteraction() {
-                if (!isPlaying) {
-                    tryAutoplay();
-                }
-                document.body.removeEventListener('click', startOnInteraction);
-            }, { once: true });
+            // Essai de démarrage automatique immédiat
+            startMusic();
         });
 
         let isPlaying = false;
@@ -331,6 +357,10 @@
     <button class="audio-control" onclick="toggleAudio()" title="Contrôle de la musique">
         <i class="fas fa-volume-up" id="audioIcon"></i>
     </button>
+    
+    <div id="audioHint" class="audio-hint" style="display: none;">
+        🎵 Cliquez sur le bouton pour démarrer la musique
+    </div>
 
         <!-- Bouton flottant -->
     <button id="chatbot-opener" style="
