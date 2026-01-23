@@ -17,14 +17,44 @@
         .carousel-item {
             height: 100vh;
             transition: transform .3s ease-in-out;
+            background: #000; /* Fond noir pour éviter le flash blanc */
         }
         
         .carousel-item img {
             object-fit: cover;
             height: 100%;
             width: 100%;
+            transition: transform 6s ease-in-out;
+        }
+        
+        /* Effet zoom-in (1 → 1.2) pour les images paires */
+        .carousel-item:nth-child(even) img {
+            transform: scale(1);
+        }
+        
+        .carousel-item:nth-child(even).active img {
             transform: scale(1.2);
-            transition: none;
+            animation: zoomIn 6s ease-in-out forwards;
+        }
+        
+        /* Effet zoom-out (1.2 → 1) pour les images impaires */
+        .carousel-item:nth-child(odd) img {
+            transform: scale(1.2);
+        }
+        
+        .carousel-item:nth-child(odd).active img {
+            transform: scale(1);
+            animation: zoomOut 6s ease-in-out forwards;
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+        
+        @keyframes zoomOut {
+            from { transform: scale(1.2); }
+            to { transform: scale(1); }
         }
         
         .overlay-title {
@@ -36,6 +66,12 @@
             color: white;
             text-align: center;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            transition: opacity 1.5s ease-in-out;
+            opacity: 1;
+        }
+        
+        .overlay-title.fade-out {
+            opacity: 0;
         }
         
         .main-title {
@@ -78,20 +114,33 @@
             z-index: 20;
         }
         
+        /* Fondu amélioré pour carousel-fade */
         .carousel-fade .carousel-item {
             opacity: 0;
-            transition: opacity .8s ease-in-out; /* Augmenter légèrement la durée de transition */
+            transition-property: opacity;
+            transition-duration: 1.5s;
+            transition-timing-function: ease-in-out;
         }
         
-        .carousel-fade .carousel-item.active {
+        .carousel-fade .carousel-item.active,
+        .carousel-fade .carousel-item-next.carousel-item-start,
+        .carousel-fade .carousel-item-prev.carousel-item-end {
+            z-index: 1;
             opacity: 1;
+        }
+        
+        .carousel-fade .active.carousel-item-start,
+        .carousel-fade .active.carousel-item-end {
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0s 1.5s;
         }
         
         .audio-control {
             position: fixed;
             bottom: 2rem;
-            right: 2rem;
-            z-index: 1000;
+            right: 7rem;
+            z-index: 1001;
             background: rgba(0, 0, 0, 0.4);
             border: none;
             color: white;
@@ -182,51 +231,51 @@
     <script>
         // Initialisation optimisée dès que possible
         document.addEventListener('DOMContentLoaded', function() {
-            const firstItem = document.querySelector('.carousel-item.active img');
-            
-            // Forcer le zoom initial
-            if (firstItem) {
-                firstItem.style.transform = 'scale(1.2)';
-            }
-            
-            // Précharger les images suivantes
+            // Précharger toutes les images
             const images = document.querySelectorAll('.carousel-item img');
             images.forEach(img => {
-                if (img !== firstItem) {
-                    img.loading = 'eager'; // Précharger pour éviter la latence
-                }
+                img.loading = 'eager';
             });
         });
 
         window.addEventListener('load', function() {
-            // Démarrer le carrousel avec intervalle plus long pour moins de transitions
+            const CAROUSEL_INTERVAL = 8000; // Intervalle de 8 secondes pour laisser le temps au fade
+            
+            // Démarrer le carrousel avec intervalle régulier
             var carousel = new bootstrap.Carousel(document.getElementById('mountainCarousel'), {
-                interval: 7000, // Augmenté pour moins de transitions
+                interval: CAROUSEL_INTERVAL,
                 ride: 'carousel',
-                pause: 'hover'
-            });
-
-            // Gestionnaire pour les transitions optimisées
-            document.getElementById('mountainCarousel').addEventListener('slide.bs.carousel', function (e) {
-                const nextImage = e.relatedTarget.querySelector('img');
-                if (nextImage) {
-                    nextImage.style.transition = 'none';
-                    nextImage.style.transform = 'scale(1.2)';
-                }
+                pause: false
             });
             
             // Démarrer la musique
             const audio = document.getElementById('bgMusic');
             const audioIcon = document.getElementById('audioIcon');
             
-            // Tentative de lecture automatique
-            audio.play().then(() => {
-                audioIcon.className = 'fas fa-volume-up';
-                isPlaying = true;
-            }).catch(() => {
-                audioIcon.className = 'fas fa-volume-mute';
-                isPlaying = false;
-            });
+            // Tentative de lecture automatique avec volume
+            audio.volume = 0.5; // Volume à 50%
+            
+            // Essayer de démarrer automatiquement
+            const tryAutoplay = () => {
+                audio.play().then(() => {
+                    audioIcon.className = 'fas fa-volume-up';
+                    isPlaying = true;
+                }).catch((error) => {
+                    console.log('Autoplay bloqué par le navigateur - cliquez sur le bouton pour démarrer la musique');
+                    audioIcon.className = 'fas fa-volume-mute';
+                    isPlaying = false;
+                });
+            };
+            
+            tryAutoplay();
+            
+            // Tenter de démarrer au premier clic/interaction
+            document.body.addEventListener('click', function startOnInteraction() {
+                if (!isPlaying) {
+                    tryAutoplay();
+                }
+                document.body.removeEventListener('click', startOnInteraction);
+            }, { once: true });
         });
 
         let isPlaying = false;
@@ -256,7 +305,7 @@
         </div>
     </nav>
 
-    <div class="overlay-title">
+    <div class="overlay-title" id="overlayTitle">
         <h1 class="main-title">Rêves de Montagne</h1>
         <div class="quote-container">
             <p class="quote">"À mes montagnes, reconnaissant, infiniment, pour le bien-être intérieur que ma jeunesse a retiré de leur sévère école."</p>
@@ -264,7 +313,7 @@
         </div>
     </div>
 
-    <div id="mountainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+    <div id="mountainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="8000">
         <div class="carousel-inner">
             {% for image_url in carousel_images %}
                         <div class="carousel-item {% if loop.first %}active{% endif %}">
@@ -321,12 +370,31 @@
         // Gestion de l'ouverture/fermeture
         const opener = document.getElementById('chatbot-opener');
         const iframe = document.getElementById('chatbot-iframe');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const carousel = document.getElementById('mountainCarousel');
+        let titleHidden = false;
 
         opener.addEventListener('click', () => {
             const isVisible = iframe.style.display === 'block';
             iframe.style.display = isVisible ? 'none' : 'block';
-            opener.innerHTML = isVisible ? '<i class="fas fa-times"></i>' : '<i class="fas fa-comments"></i>';
+            opener.innerHTML = isVisible ? '<i class="fas fa-comments"></i>' : '<i class="fas fa-times"></i>';
         });
+
+        // Faire disparaître le titre lors du premier changement de slide
+        carousel.addEventListener('slide.bs.carousel', function () {
+            if (!titleHidden) {
+                overlayTitle.classList.add('fade-out');
+                titleHidden = true;
+            }
+        });
+
+        // Optionnel : faire disparaître le titre après un certain délai
+        setTimeout(() => {
+            if (!titleHidden) {
+                overlayTitle.classList.add('fade-out');
+                titleHidden = true;
+            }
+        }, 8000); // Disparaît après 8 secondes si aucun changement de slide
     </script>
 </body>
 </html>
