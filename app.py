@@ -758,30 +758,6 @@ def create_gallery():
     
     # Vérifier l'année de la date pour rediriger vers la bonne page
     year = datetime.strptime(date, '%Y-%m-%d').year
-    return_route = 'year_2024'  # par défaut pour 2024
-    
-    if year == 2021:
-        return_route = 'year_2021'
-    elif year == 2022:
-        return_route = 'year_2022'
-    elif year == 2023:
-        return_route = 'year_2023'
-    elif year == 2024:
-        return_route = 'year_2024'
-    elif year == 2025:
-        return_route = 'year_2025'
-    elif year == 2026:
-        return_route = 'year_2026'
-    elif year == 2020:
-        return_route = 'year_2020'
-    elif year == 2019:
-        return_route = 'year_2019'
-    elif year == 2018:
-        return_route = 'year_2018'
-    elif year == 2017:
-        return_route = 'year_2017'
-    elif year == 2016:
-        return_route = 'year_2016'
     
     # Création d'un ID unique pour la galerie
     gallery_id = str(uuid.uuid4())
@@ -820,10 +796,10 @@ def create_gallery():
         app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
         app.logger.error(f"Traceback complet: {traceback.format_exc()}")
         flash('Erreur lors de la sauvegarde des données')
-        return redirect(url_for(return_route))
+        return redirect(url_for('year_view', year=year))
     
     flash('Galerie créée avec succès', 'success')
-    return redirect(url_for(return_route))
+    return redirect(url_for('year_view', year=year))
 
 @app.route('/edit_gallery/<gallery_id>', methods=['POST'])
 def edit_gallery(gallery_id):
@@ -1650,7 +1626,7 @@ def delete_animal(animal_id):
 @app.route('/<int:year>')
 def year_view(year):
     # Validation de l'année
-    if year < 2016 or year > 2026:
+    if year < 2008 or year > 2026:
         abort(404)
     
     # OPTIMISATION : Charger uniquement les galeries de l'année demandée

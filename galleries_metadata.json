@@ -1,7 +1,47 @@
 {
-  "updated_at": "2026-01-22T18:34:30.514990",
-  "total_galleries": 220,
+  "updated_at": "2026-01-23T11:52:03.074049",
+  "total_galleries": 221,
   "years": {
+    "2008": {
+      "count": 1,
+      "file": "galleries_2008.json",
+      "size_kb": 3.9
+    },
+    "2009": {
+      "count": 0,
+      "file": "galleries_2009.json",
+      "size_kb": 0.0
+    },
+    "2010": {
+      "count": 0,
+      "file": "galleries_2010.json",
+      "size_kb": 0.0
+    },
+    "2011": {
+      "count": 0,
+      "file": "galleries_2011.json",
+      "size_kb": 0.0
+    },
+    "2012": {
+      "count": 0,
+      "file": "galleries_2012.json",
+      "size_kb": 0.0
+    },
+    "2013": {
+      "count": 0,
+      "file": "galleries_2013.json",
+      "size_kb": 0.0
+    },
+    "2014": {
+      "count": 0,
+      "file": "galleries_2014.json",
+      "size_kb": 0.0
+    },
+    "2015": {
+      "count": 0,
+      "file": "galleries_2015.json",
+      "size_kb": 0.0
+    },
     "2016": {
       "count": 1,
       "file": "galleries_2016.json",

@@ -92,55 +92,6 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .main-title {
-                font-size: 2.5rem;
-                top: 100px; /* Positionné sous les boutons du haut */
-                left: 50% !important;
-                transform: translateX(-50%) !important; /* Centré horizontalement */
-                width: 100%;
-                text-align: center;
-                padding: 0 20px;
-                box-sizing: border-box;
-            }
-            
-            .main-title::after {
-                left: 50%;
-                transform: translateX(-50%);
-            }
-
-            body {
-                overflow-x: hidden;
-            }
-
-            .wheel-container {
-                transform-origin: center;
-                transform: scale(0.3);
-                margin-top: -350px;
-            }
-
-            .controls {
-                bottom: 10%;
-                gap: 6rem;
-                z-index: 1000;
-            }
-
-            .year-card {
-                pointer-events: auto;
-            }
-
-            .back-link {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-
-            .nav-btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-                top: 15px;
-                right: 15px;
-            }
-        }
 
         @media (max-width: 480px) {
             .main-title {
@@ -217,9 +168,17 @@
         .year-link:nth-child(6) .year-card { background: linear-gradient(135deg, rgba(108, 92, 231, 0.2), rgba(108, 92, 231, 0.4)); }
         .year-link:nth-child(7) .year-card { background: linear-gradient(135deg, rgba(95, 39, 205, 0.2), rgba(95, 39, 205, 0.4)); }
         .year-link:nth-child(8) .year-card { background: linear-gradient(135deg, rgba(200, 55, 171, 0.2), rgba(200, 55, 171, 0.4)); }
-        .year-link:nth-child(9) .year-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4)); }
-        .year-link:nth-child(10) .year-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4)); }
-        .year-link:nth-child(11) .year-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4)); }
+        .year-link:nth-child(9) .year-card { background: linear-gradient(135deg, rgba(255, 159, 64, 0.2), rgba(255, 159, 64, 0.4)); }
+        .year-link:nth-child(10) .year-card { background: linear-gradient(135deg, rgba(54, 162, 235, 0.2), rgba(54, 162, 235, 0.4)); }
+        .year-link:nth-child(11) .year-card { background: linear-gradient(135deg, rgba(153, 102, 255, 0.2), rgba(153, 102, 255, 0.4)); }
+        .year-link:nth-child(12) .year-card { background: linear-gradient(135deg, rgba(255, 99, 132, 0.2), rgba(255, 99, 132, 0.4)); }
+        .year-link:nth-child(13) .year-card { background: linear-gradient(135deg, rgba(75, 192, 192, 0.2), rgba(75, 192, 192, 0.4)); }
+        .year-link:nth-child(14) .year-card { background: linear-gradient(135deg, rgba(255, 205, 86, 0.2), rgba(255, 205, 86, 0.4)); }
+        .year-link:nth-child(15) .year-card { background: linear-gradient(135deg, rgba(201, 203, 207, 0.2), rgba(201, 203, 207, 0.4)); }
+        .year-link:nth-child(16) .year-card { background: linear-gradient(135deg, rgba(255, 179, 186, 0.2), rgba(255, 179, 186, 0.4)); }
+        .year-link:nth-child(17) .year-card { background: linear-gradient(135deg, rgba(128, 222, 234, 0.2), rgba(128, 222, 234, 0.4)); }
+        .year-link:nth-child(18) .year-card { background: linear-gradient(135deg, rgba(255, 195, 0, 0.2), rgba(255, 195, 0, 0.4)); }
+        .year-link:nth-child(19) .year-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4)); }
 
         .year-card:hover {
             transform: scale(1.05);
@@ -361,28 +320,48 @@
         }
 
         @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+                top: 100px;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                width: 100%;
+                text-align: center;
+                padding: 0 20px;
+                box-sizing: border-box;
+            }
+            
+            .main-title::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
             body {
-                perspective: 800px; /* Réduit mais pas désactivé */
+                perspective: 800px;
+                overflow-x: hidden;
             }
             
             .wheel-container {
                 width: 400px;
                 height: 400px;
-                transform: scale(0.6); /* Plus petit mais garde la 3D */
+                transform: scale(0.65) !important;
+                margin-top: -100px !important;
+                transform-origin: center;
             }
 
             .year-link {
                 width: 200px;
                 height: 120px;
-                transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(200px); /* Rayon réduit */
+                transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(200px);
             }
 
             .year-card {
-                backdrop-filter: blur(5px); /* Plus léger */
+                backdrop-filter: blur(5px);
+                pointer-events: auto;
             }
 
             .year-card:hover {
-                transform: scale(1.02); /* Plus subtil */
+                transform: scale(1.02);
             }
 
             .year-card h2 {
@@ -394,12 +373,34 @@
             }
 
             .controls {
-                display: none !important; /* Cacher complètement les flèches sur mobile */
+                display: none !important;
+                bottom: 10%;
+                gap: 6rem;
+                z-index: 1000;
             }
 
             .control-btn {
                 width: 2.5rem;
                 height: 2.5rem;
+            }
+
+            .back-link {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .archives-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                bottom: 15px;
+                left: 15px;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                top: 15px;
+                right: 15px;
             }
 
             .search-floating-btn {
@@ -558,12 +559,41 @@
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
+        
+        .archives-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .archives-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <div class="main-container">
         <a href="/" class="back-link">
             <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        
+        <a href="/inmy" class="archives-btn">
+            <i class="fas fa-archive"></i> Archives
         </a>
         
         <a href="/map" class="nav-btn">
@@ -594,6 +624,15 @@
 
     <script>
         const years = [
+            { year: 2008, route: '/2008', desc: 'Best of' },
+            { year: 2009, route: '/2009', desc: 'Best of' },
+            { year: 2010, route: '/2010', desc: 'Best of' },
+            { year: 2011, route: '/2011', desc: 'Best of' },
+            { year: 2012, route: '/2012', desc: 'Best of' },
+            { year: 2013, route: '/2013', desc: 'Best of' },
+            { year: 2014, route: '/2014', desc: 'Best of' },
+            { year: 2015, route: '/2015', desc: 'Best of' },
+            { year: 2016, route: '/2016', desc: 'Best of' },
             { year: 2017, route: '/2017', desc: 'Best of' },
             { year: 2018, route: '/2018', desc: 'Best of' },
             { year: 2019, route: '/2019', desc: 'Best of' },
@@ -603,18 +642,16 @@
             { year: 2023, route: '/2023', desc: 'Best of' },
             { year: 2024, route: '/2024', desc: 'Galeries photos' },
             { year: 2025, route: '/2025', desc: 'Galeries photos' },
-            { year: 2026, route: '/2026', desc: 'Coming Soon' },
-            { year: 'Archives', route: '/inmy', desc: 'Passé lointain' },
-            { year: 2016, route: '/2016', desc: 'Best of' }
+            { year: 2026, route: '/2026', desc: 'Coming Soon' }
         ];
 
         const wheel = document.getElementById('wheel');
         let currentRotation = 0;
-        let currentCentralIndex = 9; // Index de 2026
+        let currentCentralIndex = 18; // Index de 2026 (dernière position dans le tableau - 19 éléments)
         const anglePerItem = 360 / years.length;
         
         // Rotation initiale pour centrer 2026
-        const initialRotation = -currentCentralIndex * anglePerItem;
+        const initialRotation = currentCentralIndex * anglePerItem;
         currentRotation = initialRotation;
         wheel.style.transform = `rotateY(${currentRotation}deg)`;
 
@@ -634,7 +671,7 @@
             const angle = anglePerItem * index;
             const radius = 500;
             block.style.transform = `
-                translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px)
+                translate(-50%, -50%) rotateY(${-angle}deg) translateZ(${radius}px)
             `;
             
             block.addEventListener('click', () => {
@@ -661,8 +698,8 @@
             currentRotation += direction * anglePerItem;
             wheel.style.transform = `rotateY(${currentRotation}deg)`;
             
-            // Mise à jour de l'index central
-            currentCentralIndex = (currentCentralIndex - direction + years.length) % years.length;
+            // Mise à jour de l'index central (inversé car les blocs sont en rotation négative)
+            currentCentralIndex = (currentCentralIndex + direction + years.length) % years.length;
             
             // Mise à jour visuelle plus rapide
             setTimeout(() => {
