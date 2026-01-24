@@ -752,5 +752,45 @@
             }
         }, { passive: true });
     </script>
+
+    <a href="/stats" class="stats-btn">
+    <i class="fas fa-chart-bar"></i> Statistiques
+    </a>
+
+    <style>
+    .stats-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    z-index: 1000;
+    }
+
+    .stats-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+    .stats-btn {
+        bottom: 15px;
+        right: 15px;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        }
+    }
+    </style>
 </body>
 </html>

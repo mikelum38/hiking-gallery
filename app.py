@@ -2384,5 +2384,71 @@ def edit_inmy_life_page():
         app.logger.error(f"Erreur lors de l'édition de la page: {str(e)}")
         return jsonify({'error': f'Erreur lors de l\'édition: {str(e)}'}), 500 
 
+@app.route('/stats')
+def stats():
+    """Page des statistiques des randonnées"""
+    granier_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/granier"
+    background_url = get_cloudinary_background_url(granier_url, page_type="years")
+    return render_template('stats.html', dev_mode=app.config['DEV_MODE'], background_url=background_url)
+
+@app.route('/api/stats')
+def api_stats():
+    """API pour récupérer les statistiques"""
+    try:
+        galleries = load_gallery_data()
+        
+        # Organiser par année
+        yearly_stats = {}
+        
+        for gallery_id, gallery in galleries.items():
+            try:
+                date = datetime.strptime(gallery['date'], '%Y-%m-%d')
+                year = date.year
+                
+                if year not in yearly_stats:
+                    yearly_stats[year] = {
+                        'year': year,
+                        'hikes': 0,
+                        'photos': 0,
+                        'totalKm': gallery.get('distance', 0) or 0,
+                        'elevation': gallery.get('denivele', 0) or 0
+                    }
+                
+                yearly_stats[year]['hikes'] += 1
+                yearly_stats[year]['photos'] += len(gallery.get('photos', []))
+                yearly_stats[year]['totalKm'] += gallery.get('distance', 0) or 0
+                yearly_stats[year]['elevation'] += gallery.get('denivele', 0) or 0
+                
+            except Exception as e:
+                app.logger.error(f"Erreur lors du traitement de {gallery_id}: {e}")
+                continue
+        
+        # Convertir en liste et trier par année
+        yearly_data = sorted(yearly_stats.values(), key=lambda x: x['year'])
+        
+        # Calculer les totaux
+        total_stats = {
+            'totalHikes': sum(y['hikes'] for y in yearly_data),
+            'totalPhotos': sum(y['photos'] for y in yearly_data),
+            'totalKm': round(sum(y['totalKm'] for y in yearly_data), 1),
+            'totalElevation': sum(y['elevation'] for y in yearly_data),
+            'yearsActive': len(yearly_data),
+            'avgPhotosPerHike': 0,
+            'mostActiveYear': max(yearly_data, key=lambda x: x['hikes']) if yearly_data else None,
+            'mostPhotogenicYear': max(yearly_data, key=lambda x: x['photos']) if yearly_data else None
+        }
+        
+        if total_stats['totalHikes'] > 0:
+            total_stats['avgPhotosPerHike'] = round(total_stats['totalPhotos'] / total_stats['totalHikes'])
+        
+        return jsonify({
+            'yearlyData': yearly_data,
+            'totalStats': total_stats
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors du calcul des statistiques: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+        
 if __name__ == '__main__':
     app.run(debug=True)

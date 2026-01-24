@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques - Rêves de Montagne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4facfe;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            text-align: center;
+            padding: 3rem;
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .back-btn {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('years') }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Retour
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1>Statistiques des Randonnées</h1>
+            <p>Une vue d'ensemble de toutes vos aventures en montagne</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Chargement des statistiques...
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i> Erreur lors du chargement des données
+        </div>
+
+        <div id="content" style="display: none;">
+            <!-- Statistiques principales -->
+            <div class="stats-grid" id="mainStats">
+                <!-- Sera rempli par JavaScript -->
+            </div>
+
+            <!-- Graphiques -->
+            <div class="chart-container">
+                <h2 class="chart-title">Évolution annuelle</h2>
+                <div id="yearChart" style="height: 400px;"></div>
+            </div>
+
+            <div class="chart-container">
+                <h2 class="chart-title">Répartition par année</h2>
+                <div id="pieChart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Utiliser Chart.js au lieu de Recharts pour éviter les problèmes CORB -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Fonction pour vérifier que les bibliothèques sont chargées
+        function waitForLibraries() {
+            if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+                setTimeout(waitForLibraries, 100);
+                return;
+            }
+            
+            // Toutes les bibliothèques sont chargées, on peut continuer
+            initializeApp();
+        }
+
+        function initializeApp() {
+            const { useState, useEffect } = React;
+
+            function StatsApp() {
+                const [data, setData] = useState(null);
+                const [loading, setLoading] = useState(true);
+                const [error, setError] = useState(null);
+
+                useEffect(() => {
+                    console.log('Fetching stats data...');
+                    fetch('/api/stats')
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Stats data received:', data);
+                            if (data.error) {
+                                throw new Error(data.error);
+                            }
+                            setData(data);
+                            setLoading(false);
+                        })
+                        .catch(err => {
+                            console.error('Error fetching stats:', err);
+                            setError(err.message);
+                            setLoading(false);
+                        });
+                }, []);
+
+                useEffect(() => {
+                    if (!data) return;
+
+                    // Créer les graphiques Chart.js une fois les données chargées
+                    createCharts(data);
+                }, [data]);
+
+                if (loading) {
+                    return React.createElement('div', { className: 'loading' }, 
+                        React.createElement('i', { className: 'fas fa-spinner fa-spin' }), ' Chargement des statistiques...'
+                    );
+                }
+
+                if (error) {
+                    return React.createElement('div', { className: 'error' },
+                        React.createElement('i', { className: 'fas fa-exclamation-triangle' }), ' Erreur: ', error,
+                        React.createElement('br'),
+                        React.createElement('small', null, 'Vérifiez la console pour plus de détails')
+                    );
+                }
+
+                const { totalStats, yearlyData } = data;
+
+                const mainStatsCards = [
+                    { number: totalStats.totalHikes, label: 'Randonnées totales', icon: 'fa-hiking' },
+                    { number: totalStats.totalPhotos, label: 'Photos prises', icon: 'fa-camera' },
+                    { number: totalStats.totalKm + ' km', label: 'Distance totale', icon: 'fa-route' },
+                    { number: totalStats.totalElevation + ' m', label: 'Dénivelé total', icon: 'fa-mountain' },
+                    { number: totalStats.yearsActive, label: 'Années d\'activité', icon: 'fa-calendar' },
+                    { number: totalStats.avgPhotosPerHike, label: 'Photos par randonnée', icon: 'fa-images' }
+                ];
+
+                return React.createElement('div', null,
+                    // Statistiques principales
+                    React.createElement('div', { className: 'stats-grid', id: 'mainStats' },
+                        mainStatsCards.map(stat => 
+                            React.createElement('div', { className: 'stat-card', key: stat.label },
+                                React.createElement('div', { className: 'stat-number' }, stat.number),
+                                React.createElement('div', { className: 'stat-label' }, 
+                                    React.createElement('i', { className: `fas ${stat.icon}` }), ' ', stat.label
+                                )
+                            )
+                        )
+                    ),
+
+                    // Graphiques (conteneurs pour Chart.js)
+                    React.createElement('div', { className: 'chart-container' },
+                        React.createElement('h2', { className: 'chart-title' }, 'Évolution annuelle'),
+                        React.createElement('canvas', { id: 'yearChart', style: { maxHeight: '400px' } })
+                    ),
+
+                    React.createElement('div', { className: 'chart-container' },
+                        React.createElement('h2', { className: 'chart-title' }, 'Répartition des randonnées par année'),
+                        React.createElement('canvas', { id: 'pieChart', style: { maxHeight: '400px' } })
+                    ),
+
+                    // Tableau détaillé par année
+                    React.createElement('div', { className: 'chart-container' },
+                        React.createElement('h2', { className: 'chart-title' }, 'Détail par année'),
+                        React.createElement('div', { style: { overflowX: 'auto' } },
+                            React.createElement('table', { 
+                                style: { 
+                                    width: '100%', 
+                                    borderCollapse: 'collapse',
+                                    color: '#fff',
+                                    fontSize: '0.9rem'
+                                } 
+                            },
+                                React.createElement('thead', null,
+                                    React.createElement('tr', { 
+                                        style: { 
+                                            borderBottom: '2px solid rgba(255,255,255,0.2)',
+                                            textAlign: 'left'
+                                        } 
+                                    },
+                                        React.createElement('th', { style: { padding: '1rem', fontWeight: '600' } }, 'Année'),
+                                        React.createElement('th', { style: { padding: '1rem', fontWeight: '600', textAlign: 'center' } }, 'Randonnées'),
+                                        React.createElement('th', { style: { padding: '1rem', fontWeight: '600', textAlign: 'center' } }, 'Photos'),
+                                        React.createElement('th', { style: { padding: '1rem', fontWeight: '600', textAlign: 'center' } }, 'Distance (km)'),
+                                        React.createElement('th', { style: { padding: '1rem', fontWeight: '600', textAlign: 'center' } }, 'Dénivelé (m)')
+                                    )
+                                ),
+                                React.createElement('tbody', null,
+                                    yearlyData.map((year, index) => 
+                                        React.createElement('tr', { 
+                                            key: year.year,
+                                            style: { 
+                                                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                                                backgroundColor: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent'
+                                            }
+                                        },
+                                            React.createElement('td', { style: { padding: '1rem', fontWeight: '600', color: '#4facfe' } }, year.year),
+                                            React.createElement('td', { style: { padding: '1rem', textAlign: 'center' } }, year.hikes),
+                                            React.createElement('td', { style: { padding: '1rem', textAlign: 'center' } }, year.photos.toLocaleString()),
+                                            React.createElement('td', { style: { padding: '1rem', textAlign: 'center' } }, year.totalKm.toFixed(1)),
+                                            React.createElement('td', { style: { padding: '1rem', textAlign: 'center' } }, year.elevation.toLocaleString())
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                );
+            }
+
+            // Fonction pour créer les graphiques Chart.js
+            function createCharts(data) {
+                const { yearlyData } = data;
+
+                // Préparer les données pour Chart.js
+                const chartLabels = yearlyData.map(y => y.year.toString());
+                const hikesData = yearlyData.map(y => y.hikes);
+                const kmData = yearlyData.map(y => Math.round(y.totalKm));
+
+                // Graphique en barres
+                const yearCtx = document.getElementById('yearChart');
+                if (yearCtx) {
+                    new Chart(yearCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [
+                                {
+                                    label: 'Randonnées',
+                                    data: hikesData,
+                                    backgroundColor: '#4facfe',
+                                    borderColor: '#4facfe',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Kilomètres',
+                                    data: kmData,
+                                    backgroundColor: '#00f2fe',
+                                    borderColor: '#00f2fe',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#fff' }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff',
+                                    borderColor: '#4facfe',
+                                    borderWidth: 1
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: '#fff' },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                },
+                                y: {
+                                    ticks: { color: '#fff' },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Graphique circulaire
+                const pieCtx = document.getElementById('pieChart');
+                if (pieCtx) {
+                    const COLORS = ['#4facfe', '#00f2fe', '#667eea', '#764ba2', '#f093fb', '#f5576c'];
+                    
+                    new Chart(pieCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [{
+                                data: hikesData,
+                                backgroundColor: COLORS.slice(0, chartLabels.length),
+                                borderColor: '#1a1a1a',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: { color: '#fff' }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff',
+                                    borderColor: '#4facfe',
+                                    borderWidth: 1,
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Rendre l'application
+            const root = ReactDOM.createRoot(document.getElementById('content'));
+            root.render(React.createElement(StatsApp));
+
+            // Masquer le chargement et afficher le contenu
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        // Démarrer la vérification des bibliothèques
+        waitForLibraries();
+    </script>
+</body>
+</html>
