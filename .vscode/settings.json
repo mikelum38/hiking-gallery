@@ -1,3 +1,28 @@
 {
-    "makefile.configureOnOpen": false
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true,
+    "**/*.log": true,
+    "**/.next/**": true,
+    "**/out/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/coverage": true,
+    "**/.next": true,
+    "**/out": true
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
+  },
+  "files.maxMemoryForLargeFilesMB": 2048,
+  "search.maxFileSize": "5MB",
+  "makefile.configureOnOpen": false
 }

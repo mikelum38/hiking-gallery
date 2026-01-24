@@ -1,7 +1,37 @@
 {
-    "1": "<div>Avec le Caf lyon , années 90 , en montant à la petite Ciamarella , en haute maurienne .</div>",
-    "2": "2 aout 1990<br><br>Au sommet du Mt blanc , au retour d'une semaine en Autriche .",
-    "3": "en stage à Argentières , Ucpa&nbsp;",
-    "4": "septembre 1990<br><br>au sommet du Grand Paradis",
-    "5": "\n                                    Septembre 1993<br><br>Sommet de l'Ailefroide&nbsp;\n                                "
+    "pages": [
+        {
+            "id": 1,
+            "text": "<div>Avec le Caf lyon , années 90 , en montant à la petite Ciamarella , en haute maurienne .</div>",
+            "image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769204979/basqexct8wfn1zvw0d8d.jpg"
+        },
+        {
+            "id": 2,
+            "text": "\n                                2 aout 1990 :&nbsp;Au sommet du Mt blanc , au retour d'une semaine en Autriche .\n                            ",
+            "image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769205277/tgn15xcdeqgo8oml4vis.jpg"
+        },
+        {
+            "id": 3,
+            "text": "Juillet 1994 : en stage à Argentières , Ucpa&nbsp;\n                            ",
+            "image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769205253/wky9qicdcylpjpniouxw.jpg"
+        },
+        {
+            "id": 4,
+            "text": "\n                                septembre 1990 :&nbsp;au sommet du Grand Paradis\n                            ",
+            "image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769205185/cyg46r5da2i9cvkxxo2f.jpg"
+        },
+        {
+            "id": 5,
+            "text": "\n                                Septembre 1993 :&nbsp;Sommet de l'Ailefroide&nbsp;\n                            ",
+            "image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769205208/w8pjtlhaaw762fa2ekwq.jpg"
+        },
+        {
+            "id": 6,
+            "text": "Octobre 2005 : tête de la Maille , 1 an 1/2 après fractures lombaires .",
+            "image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769205449/fekpvjwquegacdxum2nc.jpg"
+        }
+    ],
+    "cover": {
+        "text": "Merci d'avoir parcouru ces souvenirs..."
+    }
 }

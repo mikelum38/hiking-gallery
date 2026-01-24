@@ -517,6 +517,8 @@ def get_cloudinary_background_url(image_url, page_type="others"):
         # Définir les transformations selon le type de page
         if page_type == "years":
             transformations = 'f_auto,q_auto,w_2048,c_limit'
+        elif page_type == "inmy_life":
+            transformations = 'f_auto,q_auto,w_1200,h_800,c_fit'
         else:
             transformations = 'f_auto,q_auto,w_1280,c_limit'
         
@@ -758,6 +760,30 @@ def create_gallery():
     
     # Vérifier l'année de la date pour rediriger vers la bonne page
     year = datetime.strptime(date, '%Y-%m-%d').year
+    return_route = 'year_2024'  # par défaut pour 2024
+    
+    if year == 2021:
+        return_route = 'year_2021'
+    elif year == 2022:
+        return_route = 'year_2022'
+    elif year == 2023:
+        return_route = 'year_2023'
+    elif year == 2024:
+        return_route = 'year_2024'
+    elif year == 2025:
+        return_route = 'year_2025'
+    elif year == 2026:
+        return_route = 'year_2026'
+    elif year == 2020:
+        return_route = 'year_2020'
+    elif year == 2019:
+        return_route = 'year_2019'
+    elif year == 2018:
+        return_route = 'year_2018'
+    elif year == 2017:
+        return_route = 'year_2017'
+    elif year == 2016:
+        return_route = 'year_2016'
     
     # Création d'un ID unique pour la galerie
     gallery_id = str(uuid.uuid4())
@@ -796,10 +822,10 @@ def create_gallery():
         app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
         app.logger.error(f"Traceback complet: {traceback.format_exc()}")
         flash('Erreur lors de la sauvegarde des données')
-        return redirect(url_for('year_view', year=year))
+        return redirect(url_for(return_route))
     
     flash('Galerie créée avec succès', 'success')
-    return redirect(url_for('year_view', year=year))
+    return redirect(url_for(return_route))
 
 @app.route('/edit_gallery/<gallery_id>', methods=['POST'])
 def edit_gallery(gallery_id):
@@ -1707,45 +1733,74 @@ def inmy_landing():
 @app.route('/inmy_life')
 def inmy_life():
     page = request.args.get('page', 1, type=int)
-    total_pages = 6
     
     # Load texts from JSON file
     try:
         with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
-            texts = json.load(f)
+            data = json.load(f)
     except FileNotFoundError:
-        texts = {}
-
-    # Assurer que toutes les clés de texte existent
-    for i in range(1, total_pages + 1):
-        if str(i) not in texts:
-            texts[str(i)] = ""  # Initialiser avec une chaîne vide si la clé n'existe pas
+        # Format par défaut si le fichier n'existe pas
+        data = {
+            "pages": [
+                {"id": 1, "text": "", "image": ""},
+                {"id": 2, "text": "", "image": ""},
+                {"id": 3, "text": "", "image": ""},
+                {"id": 4, "text": "", "image": ""},
+                {"id": 5, "text": "", "image": ""}
+            ],
+            "cover": {"text": "Merci d'avoir parcouru ces souvenirs..."}
+        }
     
-    # Get text for current page
-    text_key = str(page)
-    page_text = texts.get(text_key, '')
+    # Déterminer le nombre total de pages (pages normales + couverture)
+    pages_list = data.get('pages', [])
+    total_pages = len(pages_list) + 1  # +1 pour la couverture
+    
+    # Validation du numéro de page
+    if page < 1 or page > total_pages:
+        return redirect(url_for('inmy_life', page=1))
+    
+    # Préparer les données pour le template
+    page_data = None
+    cover_text = data.get('cover', {}).get('text', '')
+    
+    if page <= len(pages_list):
+        # Page normale
+        page_index = page - 1
+        if page_index < len(pages_list):
+            page_data = pages_list[page_index]
+            
+            # Obtenir l'URL de l'image
+            if page_data.get('image'):
+                image_url = page_data['image']
+                
+                # Utiliser l'URL avec transformations Cloudinary optimisées pour In My Life
+                page_image_url = get_cloudinary_background_url(image_url, "inmy_life")
+            else:
+                # Image par défaut basée sur le numéro de page
+                default_url = f"https://res.cloudinary.com/dfuzvu8c5/image/upload/inmy_life_page{page}"
+                page_image_url = get_cloudinary_background_url(default_url, "inmy_life")
+    else:
+        # Page de couverture (dernière page)
+        page_data = {"text": cover_text}
+        page_image_url = None
     
     # Navigation URLs
     prev_url = url_for('inmy_landing') if page == 1 else url_for('inmy_life', page=page-1)
     next_url = url_for('inmy_life', page=page+1) if page < total_pages else None
     
-      # Get image URLs from Cloudinary
-    page_image_url = get_cloudinary_background_url(f"https://res.cloudinary.com/dfuzvu8c5/image/upload/page{page}") if page <= 5 else None
-
-      # Préparer les variables de texte pour le template
-    text_vars = {}
-    for i in range(1, total_pages + 1):
-        text_vars[f'text{i}'] = texts.get(str(i), "")
-
+    # Image de fond pour la couverture
+    slide_url = session.get('slide_url', get_cloudinary_background_url("https://res.cloudinary.com/dfuzvu8c5/image/upload/slide-img-fall"))
+    
     return render_template('inmy_life.html', 
                          page=page,
                          total_pages=total_pages,
                          prev_url=prev_url,
                          next_url=next_url,
                          dev_mode=app.config['DEV_MODE'],
-                         page_image_url=page_image_url,
-                         slide_url=session.get('slide_url', get_cloudinary_background_url("https://res.cloudinary.com/dfuzvu8c5/image/upload/slide-img-fall")),
-                         **text_vars)
+                         page_image_url=page_image_url if page <= len(pages_list) else None,
+                         page_text=page_data.get('text', '') if page_data else '',
+                         slide_url=slide_url,
+                         is_cover_page=(page == total_pages))
 
 @app.route('/save_inmy_life_text', methods=['POST'])
 def save_inmy_life_text():
@@ -1753,23 +1808,44 @@ def save_inmy_life_text():
         data = request.get_json()
         page = data.get('page')
         text = data.get('text')
+        is_cover = data.get('is_cover', False)
         
         if not page or text is None:
             return jsonify({'success': False, 'error': 'Page ou texte manquant'})
         
-        # Charger le fichier JSON existant ou créer un nouveau
+        # Charger le fichier JSON existant
         try:
             with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
-                texts = json.load(f)
+                json_data = json.load(f)
         except FileNotFoundError:
-            texts = {}
+            json_data = {"pages": [], "cover": {"text": ""}}
         
-        # Mettre à jour le texte pour la page
-        texts[str(page)] = text
+        # S'assurer que le format est correct
+        if 'pages' not in json_data:
+            json_data['pages'] = []
+        if 'cover' not in json_data:
+            json_data['cover'] = {"text": ""}
+        
+        if is_cover:
+            # Sauvegarder le texte de la couverture
+            json_data['cover']['text'] = text
+        else:
+            # Sauvegarder le texte de la page normale
+            page_index = page - 1
+            
+            # S'assurer que la page existe
+            while len(json_data['pages']) <= page_index:
+                json_data['pages'].append({
+                    "id": len(json_data['pages']) + 1,
+                    "text": "",
+                    "image": ""
+                })
+            
+            json_data['pages'][page_index]['text'] = text
         
         # Sauvegarder dans le fichier
         with open('inmy_life_texts.json', 'w', encoding='utf-8') as f:
-            json.dump(texts, f, ensure_ascii=False, indent=4)
+            json.dump(json_data, f, ensure_ascii=False, indent=4)
         
         return jsonify({'success': True})
     except Exception as e:
@@ -2076,6 +2152,236 @@ def edit_gallery_location(gallery_id):
     except Exception as e:
         app.logger.error(f"Erreur lors de la mise à jour des coordonnées: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/upload_inmy_life_photo', methods=['POST'])
+def upload_inmy_life_photo():
+    """Upload une nouvelle photo pour une page spécifique de In My Life"""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé en production'}), 403
+    
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'Aucune image sélectionnée'}), 400
         
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'error': 'Nom de fichier vide'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'Type de fichier non autorisé'}), 400
+        
+        page = request.form.get('page', type=int)
+        
+        if not page or page < 1:
+            return jsonify({'error': 'Numéro de page invalide'}), 400
+        
+        # Upload vers Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result['secure_url']
+        
+        # Charger les données existantes
+        try:
+            with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            data = {"pages": [], "cover": {"text": ""}}
+        
+        # Vérifier si on essaie de modifier la couverture
+        total_pages = len(data.get('pages', [])) + 1  # +1 pour la couverture
+        if page >= total_pages:
+            return jsonify({'error': 'Impossible de modifier la photo de la couverture'}), 400
+        
+        # Vérifier si la page existe déjà dans le tableau "pages"
+        page_index = page - 1
+        
+        # Si le format JSON est différent (ancienne structure), adapter
+        if 'pages' in data and isinstance(data['pages'], list):
+            # Si la page n'existe pas encore, créer une entrée
+            while len(data['pages']) <= page_index:
+                data['pages'].append({"id": len(data['pages']) + 1, "text": "", "image": ""})
+            
+            # Mettre à jour l'image de la page
+            data['pages'][page_index]['image'] = image_url
+        else:
+            # Ancien format de données, convertir au nouveau format
+            data = {
+                "pages": [],
+                "cover": {"text": data.get('cover', {}).get('text', "")}
+            }
+            for i in range(1, 6):
+                data['pages'].append({
+                    "id": i,
+                    "text": data.get(f'text{i}', ''),
+                    "image": ""
+                })
+            data['pages'][page_index]['image'] = image_url
+        
+        # Sauvegarder les données
+        with open('inmy_life_texts.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        
+        return jsonify({'success': True, 'image_url': image_url})
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'upload de la photo: {str(e)}")
+        return jsonify({'error': f'Erreur lors de l\'upload: {str(e)}'}), 500
+
+@app.route('/add_inmy_life_page', methods=['POST'])
+def add_inmy_life_page():
+    """Ajoute une nouvelle page avant la couverture"""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé en production'}), 403
+    
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'Aucune image sélectionnée'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'error': 'Nom de fichier vide'}), 400
+        
+        text = request.form.get('text', '')
+        
+        # Upload vers Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result['secure_url']
+        
+        # Charger les données existantes
+        try:
+            with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            data = {"pages": [], "cover": {"text": ""}}
+        
+        # S'assurer que le format est correct
+        if 'pages' not in data:
+            data['pages'] = []
+        if 'cover' not in data:
+            data['cover'] = {"text": ""}
+        
+        # Ajouter la nouvelle page (avant la couverture, donc à l'avant-dernière position)
+        new_page_id = len(data['pages']) + 1
+        new_page = {
+            "id": new_page_id,
+            "text": text,
+            "image": image_url
+        }
+        
+        # Insérer avant la couverture (donc à la fin du tableau pages)
+        data['pages'].append(new_page)
+        
+        # Sauvegarder les données
+        with open('inmy_life_texts.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        
+        # Rediriger vers la nouvelle page
+        return jsonify({
+            'success': True, 
+            'page_number': new_page_id,
+            'message': 'Page ajoutée avec succès'
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'ajout de la page: {str(e)}")
+        return jsonify({'error': f'Erreur lors de l\'ajout: {str(e)}'}), 500
+
+@app.route('/delete_inmy_life_page', methods=['POST'])
+def delete_inmy_life_page():
+    """Supprime une page spécifique"""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé en production'}), 403
+    
+    try:
+        page_data = request.get_json()
+        page_num = page_data.get('page', type=int)
+        
+        if not page_num or page_num < 1:
+            return jsonify({'error': 'Numéro de page invalide'}), 400
+        
+        # Charger les données existantes
+        try:
+            with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            return jsonify({'error': 'Fichier de données non trouvé'}), 404
+        
+        # Vérifier si le format est correct
+        if 'pages' not in data or not isinstance(data['pages'], list):
+            return jsonify({'error': 'Format de données invalide'}), 400
+        
+        # Vérifier que la page existe
+        if page_num > len(data['pages']):
+            return jsonify({'error': 'Page non trouvée'}), 404
+        
+        # Supprimer la page (index = page_num - 1)
+        data['pages'].pop(page_num - 1)
+        
+        # Réorganiser les IDs des pages restantes
+        for i, page in enumerate(data['pages']):
+            page['id'] = i + 1
+        
+        # Sauvegarder les données
+        with open('inmy_life_texts.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Page {page_num} supprimée avec succès'
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la suppression de la page: {str(e)}")
+        return jsonify({'error': f'Erreur lors de la suppression: {str(e)}'}), 500
+
+@app.route('/edit_inmy_life_page', methods=['POST'])
+def edit_inmy_life_page():
+    """Édite une page spécifique (image et texte)"""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé en production'}), 403
+    
+    try:
+        page_num = request.form.get('page', type=int)
+        
+        if not page_num or page_num < 1:
+            return jsonify({'error': 'Numéro de page invalide'}), 400
+        
+        # Charger les données existantes
+        try:
+            with open('inmy_life_texts.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            return jsonify({'error': 'Fichier de données non trouvé'}), 404
+        
+        # Vérifier si le format est correct
+        if 'pages' not in data or not isinstance(data['pages'], list):
+            return jsonify({'error': 'Format de données invalide'}), 400
+        
+        # Vérifier que la page existe
+        if page_num > len(data['pages']):
+            return jsonify({'error': 'Page non trouvée'}), 404
+        
+        # Mettre à jour le texte
+        text = request.form.get('text', '')
+        data['pages'][page_num - 1]['text'] = text
+        
+        # Mettre à jour l'image si fournie
+        if 'image' in request.files and request.files['image'].filename:
+            file = request.files['image']
+            upload_result = cloudinary.uploader.upload(file)
+            data['pages'][page_num - 1]['image'] = upload_result['secure_url']
+        
+        # Sauvegarder les données
+        with open('inmy_life_texts.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Page {page_num} mise à jour avec succès'
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'édition de la page: {str(e)}")
+        return jsonify({'error': f'Erreur lors de l\'édition: {str(e)}'}), 500 
+
 if __name__ == '__main__':
     app.run(debug=True)
