@@ -68,7 +68,9 @@
     "year": 2026,
     "month": 1,
     "day": 13,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768479330/vpxrmyaesuprp1xzldoh.jpg"
+    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768479330/vpxrmyaesuprp1xzldoh.jpg",
+    "distance": 12.0,
+    "denivele": 800
   },
   "b748656a-4c16-4282-8edc-ecb67ba6cc4d": {
     "name": "La Mer des Rochers",
@@ -239,7 +241,9 @@
     "year": 2026,
     "month": 1,
     "day": 1,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768500570/eddvl8k9lcso3ukgj2yn.jpg"
+    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768500570/eddvl8k9lcso3ukgj2yn.jpg",
+    "distance": 6.0,
+    "denivele": 135
   },
   "d4881aa2-00ed-4239-9a06-ca01859ebecb": {
     "name": "Grau du Roi",
@@ -338,12 +342,14 @@
     "year": 2026,
     "month": 1,
     "day": 2,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768504726/sdasocjndt51llmsh1qe.jpg"
+    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768504726/sdasocjndt51llmsh1qe.jpg",
+    "distance": 4.0,
+    "denivele": 0
   },
   "8c30d83f-b43d-4fc5-ac33-a105a028a56b": {
     "name": "Aigues Mortes",
     "date": "2026-01-02",
-    "description": "Aux portes de la Camargue, Aigues-Mortes s’élève au-dessus des marais et des eaux roses du salin.\r\nTour des remparts, le chemin de ronde avec vue sur la Camargue !\r\nMarchez dans les pas des chevaliers et plongez au cœur de l’extraordinaire projet de Saint Louis : construire un port sur la Méditerranée et protéger la population au cœur d’une cité fortifiée.\r\n\r\nLa Tour de Constance, lieu tristement célèbre pour avoir servi de prison aux protestantes cévenoles à partir de 1685. La plus connue est incontestablement Marie Durand, emprisonnée pendant 38 ans.\r\n\r\n",
+    "description": "Aux portes de la Camargue, Aigues-Mortes s’élève au-dessus des marais et des eaux roses du salin.\r\nTour des remparts, le chemin de ronde avec vue sur la Camargue !\r\nMarchez dans les pas des chevaliers et plongez au cœur de l’extraordinaire projet de Saint Louis : construire un port sur la Méditerranée et protéger la population au cœur d’une cité fortifiée.\r\n\r\nLa Tour de Constance, lieu tristement célèbre pour avoir servi de prison aux protestantes cévenoles à partir de 1685. La plus connue est incontestablement Marie Durand, emprisonnée pendant 38 ans.",
     "photos": [
       {
         "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768570422/zriv5zfhzpxuxsstpley.jpg",
@@ -501,7 +507,9 @@
     "year": 2026,
     "month": 1,
     "day": 2,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768505154/bnjn7fjme05sy0eqrjya.jpg"
+    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768505154/bnjn7fjme05sy0eqrjya.jpg",
+    "distance": 4.0,
+    "denivele": 20
   },
   "42e0558a-bb0c-4436-bd78-c45c2b26e0d9": {
     "name": "Grande Odyssée",

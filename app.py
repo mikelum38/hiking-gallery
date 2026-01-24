@@ -713,8 +713,7 @@ def upload_photos(gallery_id):
                 continue
     
     try:
-        save_gallery_data(galleries)
-        clear_gallery_cache()
+        save_single_gallery_to_year(gallery_id, gallery)
         app.logger.info("Données sauvegardées avec succès")
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
@@ -739,7 +738,16 @@ def delete_gallery(gallery_id):
             
         # Supprimer la galerie des données
         del galleries[gallery_id]
-        save_gallery_data(galleries)
+        # Sauvegarder uniquement l'année concernée
+        year_file = f"galleries_{year}.json"
+        if os.path.exists(year_file):
+            with open(year_file, 'r', encoding='utf-8') as f:
+                year_galleries = json.load(f)
+            if gallery_id in year_galleries:
+                del year_galleries[gallery_id]
+                with open(year_file, 'w', encoding='utf-8') as f:
+                    json.dump(year_galleries, f, ensure_ascii=False, indent=2)
+                app.logger.info(f"✅ {year_file} mis à jour après suppression")
         clear_gallery_cache()
         flash('Galerie supprimée avec succès', 'success')
         
@@ -757,6 +765,8 @@ def create_gallery():
     name = request.form.get('name')
     date = request.form.get('date')
     description = request.form.get('description')
+    distance = request.form.get('distance')
+    denivele = request.form.get('denivele')
     
     # Vérifier l'année de la date pour rediriger vers la bonne page
     year = datetime.strptime(date, '%Y-%m-%d').year
@@ -796,6 +806,8 @@ def create_gallery():
         'name': name,
         'date': date,
         'description': description,
+        'distance': float(distance) if distance else None,
+        'denivele': int(denivele) if denivele else None,
         'photos': [],
         'cover_image': None
     }
@@ -816,8 +828,7 @@ def create_gallery():
     # Ajout de la nouvelle galerie
     try:
         galleries[gallery_id] = new_gallery
-        save_gallery_data(galleries)
-        clear_gallery_cache()
+        save_single_gallery_to_year(gallery_id, new_gallery)
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
         app.logger.error(f"Traceback complet: {traceback.format_exc()}")
@@ -832,24 +843,71 @@ def edit_gallery(gallery_id):
     app.logger.info(f"Modification de la galerie {gallery_id}")
     app.logger.info(f"Données reçues: {request.form}")
     
-    galleries = load_gallery_data()
-    if gallery_id not in galleries:
+    # Charger uniquement la galerie nécessaire en déterminant son année
+    gallery = None
+    gallery_year = None
+    
+    # D'abord essayer de trouver la galerie en chargeant les fichiers un par un
+    for year_file in sorted([f for f in os.listdir('.') if f.startswith('galleries_') and f.endswith('.json') and f != 'galleries_index.json']):
+        try:
+            with open(year_file, 'r', encoding='utf-8') as f:
+                year_galleries = json.load(f)
+                if gallery_id in year_galleries:
+                    gallery = year_galleries[gallery_id]
+                    gallery_year = year_file.replace('galleries_', '').replace('.json', '')
+                    break
+        except Exception as e:
+            app.logger.error(f"Erreur lors du chargement de {year_file}: {e}")
+            continue
+    
+    if not gallery:
         flash('Galerie non trouvée')
         return redirect(url_for('year_view', year=2024))
     
-    gallery = galleries[gallery_id]
     gallery['name'] = request.form.get('name', gallery['name']).strip()
     gallery['description'] = request.form.get('description', '').strip()
     
-    # Mettre à jour la date
+    # Mettre à jour la distance et le dénivelé
+    distance = request.form.get('distance')
+    denivele = request.form.get('denivele')
+    if distance:
+        gallery['distance'] = float(distance)
+    elif 'distance' in gallery:
+        del gallery['distance']
+        
+    if denivele:
+        gallery['denivele'] = int(denivele)
+    elif 'denivele' in gallery:
+        del gallery['denivele']
+    
+    # Mettre à jour la date et gérer le changement d'année
     new_date = request.form.get('date')
+    old_year = gallery_year
+    new_year = None
+    
     if new_date:
         gallery['date'] = new_date
         gallery['formatted_date'] = format_date(new_date)
+        # Déterminer la nouvelle année
+        new_year = datetime.strptime(new_date, '%Y-%m-%d').year
+    
+    # Si l'année a changé, supprimer de l'ancien fichier
+    if new_year and new_year != int(old_year):
+        # Supprimer de l'ancien fichier
+        old_year_file = f"galleries_{old_year}.json"
+        try:
+            with open(old_year_file, 'r', encoding='utf-8') as f:
+                old_galleries = json.load(f)
+            if gallery_id in old_galleries:
+                del old_galleries[gallery_id]
+                with open(old_year_file, 'w', encoding='utf-8') as f:
+                    json.dump(old_galleries, f, ensure_ascii=False, indent=2)
+                app.logger.info(f"✅ {gallery_id} supprimée de {old_year_file}")
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la suppression de {old_year_file}: {e}")
     
     try:
-        save_gallery_data(galleries)
-        clear_gallery_cache()
+        save_single_gallery_to_year(gallery_id, gallery)
         flash('Galerie mise à jour avec succès')
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde: {str(e)}")
@@ -1875,7 +1933,7 @@ def delete_photo(gallery_id, photo_index):
         
     # Supprimer la photo
     del gallery['photos'][photo_index]
-    save_gallery_data(galleries)
+    save_single_gallery_to_year(gallery_id, gallery)
     
     flash('Photo supprimée avec succès')
     return redirect(url_for('gallery', gallery_id=gallery_id))
@@ -1939,8 +1997,7 @@ def update_photo_order(gallery_id):
         gallery['photos'] = new_photos_order
         
         # Sauvegarder les modifications
-        save_gallery_data(galleries)
-        clear_gallery_cache()
+        save_single_gallery_to_year(gallery_id, gallery)
         
         return jsonify({
             'status': 'success', 
@@ -2099,8 +2156,7 @@ def upload_gpx(gallery_id):
         galleries = load_gallery_data()
         if gallery_id in galleries:
             galleries[gallery_id]['gpx_file'] = f'/static/gpx/{filename}'
-            save_gallery_data(galleries)
-            clear_gallery_cache()
+            save_single_gallery_to_year(gallery_id, galleries[gallery_id])
             
             return jsonify({
                 'success': True,
@@ -2145,8 +2201,7 @@ def edit_gallery_location(gallery_id):
         if 'duration' in data:
             galleries[gallery_id]['duration'] = data['duration']
         
-        save_gallery_data(galleries)
-        clear_gallery_cache()
+        save_single_gallery_to_year(gallery_id, galleries[gallery_id])
         
         return jsonify({'success': True, 'message': 'Coordonnées mises à jour'})
         
@@ -2410,8 +2465,8 @@ def api_stats():
                         'year': year,
                         'hikes': 0,
                         'photos': 0,
-                        'totalKm': gallery.get('distance', 0) or 0,
-                        'elevation': gallery.get('denivele', 0) or 0
+                        'totalKm': 0,
+                        'elevation': 0
                     }
                 
                 yearly_stats[year]['hikes'] += 1

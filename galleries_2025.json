@@ -15692,7 +15692,7 @@
   "ac971f18-9a5d-4f69-9b2f-0f43c4a711cc": {
     "name": "Pic st Michel ( 1996m )",
     "date": "2025-12-14",
-    "description": "Par lans en Vercors , en neige gelée ",
+    "description": "Par lans en Vercors , en neige gelée",
     "photos": [
       {
         "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492954/vchql7vg3vkmy6o1insq.jpg",
@@ -15799,7 +15799,10 @@
     "year": 2025,
     "month": 12,
     "day": 14,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492868/waq5xsuk2nypfwmhjlqz.jpg"
+    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1766492868/waq5xsuk2nypfwmhjlqz.jpg",
+    "distance": 12.0,
+    "denivele": 725,
+    "formatted_date": "14 Décembre 2025"
   },
   "a70b5416-e1e1-42a2-95c2-6b1b67de9a00": {
     "name": "Cirque d'Archiane",
@@ -15987,7 +15990,10 @@
     "year": 2025,
     "month": 12,
     "day": 20,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768416374/uz3xzp67rsedmos5hsib.jpg"
+    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768416374/uz3xzp67rsedmos5hsib.jpg",
+    "distance": 5.0,
+    "denivele": 400,
+    "formatted_date": "20 Décembre 2025"
   },
   "c9bb143c-ac8b-4ed6-bfbd-671be313a6cb": {
     "name": "Saut de la Drôme - le Claps",

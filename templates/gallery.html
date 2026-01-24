@@ -516,6 +516,22 @@
                     <div class="gallery-description">{{ gallery.description }}</div>
                     {% endif %}
                     
+                    <!-- Affichage des statistiques de la randonnée -->
+                    {% if gallery.get('distance') or gallery.get('denivele') %}
+                    <div class="gallery-stats" style="margin-top: 1rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+                        {% if gallery.get('distance') %}
+                        <div style="text-align: center; color: white; background: rgba(79, 172, 254, 0.2); padding: 0.5rem 1rem; border-radius: 20px; backdrop-filter: blur(5px);">
+                            <i class="fas fa-route"></i> {{ "%.1f"|format(gallery.distance) }} km
+                        </div>
+                        {% endif %}
+                        {% if gallery.get('denivele') %}
+                        <div style="text-align: center; color: white; background: rgba(0, 242, 254, 0.2); padding: 0.5rem 1rem; border-radius: 20px; backdrop-filter: blur(5px);">
+                            <i class="fas fa-mountain"></i> {{ gallery.denivele }} m
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
                     {% if dev_mode %}
                     <button onclick="showEditModal()">Modifier la galerie</button>
                     <form action="{{ url_for('delete_gallery', gallery_id=gallery.id) }}" method="post" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette galerie ?');">
@@ -605,6 +621,14 @@
                     <div class="form-group">
                         <label for="description">Description:</label>
                         <textarea id="description" name="description" placeholder="Description de la galerie">{{ gallery.description }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="distance">Distance (km):</label>
+                        <input type="number" id="distance" name="distance" step="0.1" min="0" value="{{ gallery.get('distance', '') }}" placeholder="Ex: 15.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="denivele">Dénivelé (m):</label>
+                        <input type="number" id="denivele" name="denivele" step="1" min="0" value="{{ gallery.get('denivele', '') }}" placeholder="Ex: 850">
                     </div>
                     <div class="button-group">
                         <button type="button" onclick="hideEditModal()">Annuler</button>
