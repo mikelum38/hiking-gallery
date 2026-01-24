@@ -1711,6 +1711,7 @@ def year_view(year):
     return render_template(f'{year}.html', 
                         galleries_by_month=galleries_by_month,
                         background_url=background_url,
+                        cover_image_url=background_url,  # Ajout pour compatibilité avec le template 2026
                         dev_mode=app.config['DEV_MODE'])
 
 @app.route('/wheel-of-fortune')
