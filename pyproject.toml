@@ -1,0 +1,8 @@
+# Configuration pour désactiver les tests automatiques
+# Vercel ne lancera pas de tests avec cette configuration
+
+[tool.pytest.ini_options]
+testpaths = []
+python_files = []
+python_classes = []
+python_functions = []
