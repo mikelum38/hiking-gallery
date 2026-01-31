@@ -351,7 +351,7 @@
                 <div class="filters">
                     <div class="filter-group">
                         <label><i class="fas fa-calendar-alt"></i> Année</label>
-                        <select name="year" onchange="this.form.submit()">
+                        <select name="year" id="yearFilter" onchange="resetAndSubmit()">
                             <option value="">Toutes les années</option>
                             {% for year in stats.years %}
                             <option value="{{ year }}" {% if year_filter == year|string %}selected{% endif %}>
@@ -363,7 +363,7 @@
                     
                     <div class="filter-group">
                         <label><i class="fas fa-calendar"></i> Mois</label>
-                        <select name="month" onchange="this.form.submit()">
+                        <select name="month" id="monthFilter" onchange="resetAndSubmit()">
                             <option value="">Tous les mois</option>
                             <option value="1" {% if month_filter == '1' %}selected{% endif %}>Janvier</option>
                             <option value="2" {% if month_filter == '2' %}selected{% endif %}>Février</option>
@@ -404,6 +404,8 @@
             <p class="results-count">
                 {{ results|length }} randonnée{% if results|length > 1 %}s{% endif %} trouvée{% if results|length > 1 %}s{% endif %}
                 {% if query %}pour "{{ query }}"{% endif %}
+                {% if year_filter %}en {{ year_filter }}{% endif %}
+                {% if month_filter %}en mois {{ month_filter }}{% endif %}
             </p>
         </div>
         
@@ -414,7 +416,9 @@
                 {% if result.cover_image %}
                 <img src="{{ result.cover_image }}" alt="{{ result.name }}" class="result-image">
                 {% else %}
-                <div class="result-image"></div>
+                <div class="result-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-mountain" style="font-size: 3rem; color: white;"></i>
+                </div>
                 {% endif %}
                 
                 <div class="result-content">
@@ -457,12 +461,26 @@
             }
             
             debounceTimer = setTimeout(() => {
-                fetch(`/api/search/suggest?q=${encodeURIComponent(query)}`)
+                // Récupérer les filtres du formulaire
+                const form = searchInput.form;
+                const formData = new FormData(form);
+                const params = new URLSearchParams();
+                
+                // Ajouter la query
+                params.set('q', query);
+                
+                // Ajouter les filtres année et mois s'ils existent
+                const year = formData.get('year');
+                const month = formData.get('month');
+                if (year) params.set('year', year);
+                if (month) params.set('month', month);
+                
+                fetch(`/api/search/suggest?${params.toString()}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.suggestions && data.suggestions.length > 0) {
                             suggestionsDiv.innerHTML = data.suggestions
-                                .map(s => `<div class="suggestion-item" onclick="selectSuggestion('${s}')">
+                                .map(s => `<div class="suggestion-item" onclick="selectSuggestion('${s.replace(/'/g, "\\'")}')">
                                     <i class="fas fa-search"></i>${s}
                                 </div>`)
                                 .join('');
@@ -480,7 +498,22 @@
         function selectSuggestion(text) {
             searchInput.value = text;
             suggestionsDiv.classList.remove('active');
-            searchInput.form.submit();
+            
+            // Créer l'URL avec les filtres existants
+            const form = searchInput.form;
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            // Ajouter tous les champs du formulaire
+            for (let [key, value] of formData.entries()) {
+                if (value) params.append(key, value);
+            }
+            
+            // Mettre à jour la query
+            params.set('q', text);
+            
+            // Rediriger avec les filtres
+            window.location.href = `${form.action}?${params.toString()}`;
         }
         
         // Fermer suggestions en cliquant ailleurs
@@ -493,6 +526,28 @@
         // Focus automatique sur l'input
         if (!searchInput.value) {
             searchInput.focus();
+        }
+        
+        // Fonction pour réinitialiser la recherche et soumettre
+        function resetAndSubmit() {
+            // Effacer le champ de recherche
+            searchInput.value = '';
+            suggestionsDiv.classList.remove('active');
+            
+            // Soumettre le formulaire avec les nouveaux filtres
+            const form = searchInput.form;
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            // Ajouter tous les champs du formulaire sauf la query (vide)
+            for (let [key, value] of formData.entries()) {
+                if (value && key !== 'q') {
+                    params.append(key, value);
+                }
+            }
+            
+            // Rediriger avec les filtres seulement
+            window.location.href = `${form.action}?${params.toString()}`;
         }
     </script>
 </body>

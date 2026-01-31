@@ -1,1 +1,16 @@
-{}
+{
+  "d5659dd1-3a66-49c9-b6f4-1a9635ff577b": {
+    "name": "Une semaine à Névaches",
+    "date": "2015-08-31",
+    "description": "Une semaine de randos à partir de Névaches",
+    "distance": null,
+    "denivele": null,
+    "photos": [],
+    "lat": 45.188529,
+    "lon": 5.724524,
+    "year": 2015,
+    "month": 8,
+    "day": 31,
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769864285/ygy9m4d39u8z96tnhi84.jpg"
+  }
+}

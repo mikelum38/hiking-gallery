@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 : L'Année de tous les Sentiers - Escapades en altitude</title>
+    <title>2026 : L'Appel des sentiers - Escapades en altitude</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -489,7 +489,7 @@
         </nav>
 
         <div class="hero-content">
-            <h1>2026 : L'Année de tous les Sentiers</h1>
+            <h1>2026 : L'Appel des sentiers</h1>
             <p>De la simple échappée à l'expédition inoubliable</p>
             {% if dev_mode %}
             <button class="add-hike-btn" onclick="toggleCreateGallery()">
@@ -559,6 +559,15 @@
                     <label for="cover_image">Image de couverture :</label>
                     <input type="file" id="cover_image" name="cover_image" accept="image/*" required>
                 </div>
+                {% if dev_mode %}
+                <div class="form-group">
+                    <label for="gpx_file">Fichier GPX (optionnel) :</label>
+                    <input type="file" id="gpx_file" name="gpx_file" accept=".gpx">
+                    <small style="color: #666; font-size: 0.9em;">
+                        Si vous fournissez un fichier GPX, les coordonnées, distance et dénivelé seront automatiquement extraits.
+                    </small>
+                </div>
+                {% endif %}
                 <div class="form-actions">
                     <button type="button" class="nav-btn" onclick="toggleCreateGallery()">Annuler</button>
                     <button type="submit" class="nav-btn primary">Créer</button>

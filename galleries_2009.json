@@ -1,1 +1,20 @@
-{}
+{
+  "be96eeba-684d-41ab-8451-1505800cd36c": {
+    "name": "Haute Cime ( 3257 m )",
+    "date": "2009-08-04",
+    "description": "Haute Cime ( 3257 m ) - Dents du Midi ( Suisse ) , grimpée en solo .",
+    "distance": null,
+    "denivele": null,
+    "photos": [
+      {
+        "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769862857/dpd0evyi0um8ggzksrjj.jpg"
+      }
+    ],
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769862857/dpd0evyi0um8ggzksrjj.jpg",
+     "lat": 45.188529,
+    "lon": 5.724524,
+    "year": 2009,
+    "month": 8,
+    "day": 4
+  }
+}

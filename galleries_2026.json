@@ -61,16 +61,21 @@
         "filename": "PXL_20260113_130311350.jpg"
       }
     ],
-    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768479330/vpxrmyaesuprp1xzldoh.jpg",
-    "id": "03f73a76-4109-417f-935d-c69a42729620",
-    "formatted_date": "13 Janvier 2026",
-    "optimized_cover_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/f_auto/q_auto/c_limit,w_1280/v1768479330/vpxrmyaesuprp1xzldoh",
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/vpxrmyaesuprp1xzldoh",
     "year": 2026,
     "month": 1,
     "day": 13,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768479330/vpxrmyaesuprp1xzldoh.jpg",
-    "distance": 12.0,
-    "denivele": 800
+    "distance": 10.544,
+    "denivele": 787,
+    "lat": 45.271503,
+    "lon": 5.613153,
+    "difficulty": "moyen",
+    "gpx_file": "/static/gpx/03f73a76-4109-417f-935d-c69a42729620.gpx",
+    "gpx_metadata": {
+      "duration_seconds": 17243.0,
+      "min_elevation": 199.0,
+      "max_elevation": 947.2
+    }
   },
   "b748656a-4c16-4282-8edc-ecb67ba6cc4d": {
     "name": "La Mer des Rochers",
@@ -234,16 +239,21 @@
         "filename": "PXL_20260101_153055912.jpg"
       }
     ],
-    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768500570/eddvl8k9lcso3ukgj2yn.jpg",
-    "id": "b748656a-4c16-4282-8edc-ecb67ba6cc4d",
-    "formatted_date": "1 Janvier 2026",
-    "optimized_cover_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/f_auto/q_auto/c_limit,w_1280/v1768500570/eddvl8k9lcso3ukgj2yn",
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/eddvl8k9lcso3ukgj2yn.jpg",
     "year": 2026,
     "month": 1,
     "day": 1,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768500570/eddvl8k9lcso3ukgj2yn.jpg",
-    "distance": 6.0,
-    "denivele": 135
+    "distance": 5.672,
+    "denivele": 197,
+    "lat": 43.9392,
+    "lon": 3.949685,
+    "difficulty": "facile",
+    "gpx_file": "/static/gpx/b748656a-4c16-4282-8edc-ecb67ba6cc4d.gpx",
+    "gpx_metadata": {
+      "duration_seconds": 11344.0,
+      "min_elevation": 85.6,
+      "max_elevation": 152.2
+    }
   },
   "d4881aa2-00ed-4239-9a06-ca01859ebecb": {
     "name": "Grau du Roi",
@@ -335,16 +345,15 @@
         "filename": "PXL_20260102_145114321.jpg"
       }
     ],
-    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768504726/sdasocjndt51llmsh1qe.jpg",
-    "id": "d4881aa2-00ed-4239-9a06-ca01859ebecb",
-    "formatted_date": "2 Janvier 2026",
-    "optimized_cover_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/f_auto/q_auto/c_limit,w_1280/v1768504726/sdasocjndt51llmsh1qe",
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/sdasocjndt51llmsh1qe.jpg",
     "year": 2026,
     "month": 1,
     "day": 2,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768504726/sdasocjndt51llmsh1qe.jpg",
     "distance": 4.0,
-    "denivele": 0
+    "denivele": 0,
+    "lat": 43.5333,
+    "lon": 4.1333,
+    "difficulty": "facile"
   },
   "8c30d83f-b43d-4fc5-ac33-a105a028a56b": {
     "name": "Aigues Mortes",
@@ -500,16 +509,15 @@
         "filename": "PXL_20260102_120457925.MP.jpg"
       }
     ],
-    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768505154/bnjn7fjme05sy0eqrjya.jpg",
-    "id": "8c30d83f-b43d-4fc5-ac33-a105a028a56b",
-    "formatted_date": "2 Janvier 2026",
-    "optimized_cover_url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/f_auto/q_auto/c_limit,w_1280/v1768505154/bnjn7fjme05sy0eqrjya",
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/bnjn7fjme05sy0eqrjya.jpg",
     "year": 2026,
     "month": 1,
     "day": 2,
-    "cover_image_name": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1768505154/bnjn7fjme05sy0eqrjya.jpg",
     "distance": 4.0,
-    "denivele": 20
+    "denivele": 20,
+    "lat": 43.5667,
+    "lon": 4.1833,
+    "difficulty": "facile"
   },
   "42e0558a-bb0c-4436-bd78-c45c2b26e0d9": {
     "name": "Grande Odyssée",
@@ -628,9 +636,14 @@
         "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769103258/dji0mqi5zuhdtwo5sfym.jpg"
       }
     ],
-    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769102508/o8ezvh2bbcrch6kl10wi.jpg",
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/o8ezvh2bbcrch6kl10wi.jpg",
     "year": 2026,
     "month": 1,
-    "day": 21
+    "day": 21,
+    "lat": 45.2333,
+    "lon": 6.0167,
+    "difficulty": "facile",
+    "distance": 2.0,
+    "denivele": 50
   }
 }

@@ -6,7 +6,7 @@ Recherche dans : noms, descriptions, dates, lieux
 
 import json
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import re
 
 class SearchEngine:
@@ -45,6 +45,13 @@ class SearchEngine:
         for accent, plain in accents.items():
             text = text.replace(accent, plain)
         
+        # Retirer la ponctuation sauf les espaces
+        import re
+        text = re.sub(r"[^\w\s]", " ", text)  # Remplace tout ce qui n'est pas lettre/chiffre/espace par espace
+        
+        # Nettoyer les espaces multiples
+        text = re.sub(r"\s+", " ", text).strip()
+        
         return text
     
     def _build_index(self):
@@ -81,7 +88,11 @@ class SearchEngine:
             Liste de galeries correspondantes
         """
         if not query:
-            return self._apply_filters(list(self.galleries.values()), filters)
+            # Ajouter les IDs aux galeries quand pas de query
+            all_results = list(self.galleries.values())
+            for gallery in all_results:
+                gallery['id'] = next((gid for gid, g in self.galleries.items() if g == gallery), '')
+            return self._apply_filters(all_results, filters)
         
         # Normaliser la requête
         normalized_query = self._normalize_text(query)
@@ -109,7 +120,7 @@ class SearchEngine:
         results = []
         for gallery_id in (matching_ids or []):
             gallery = self.galleries[gallery_id].copy()
-            gallery['id'] = gallery_id
+            gallery['id'] = gallery_id  
             results.append(gallery)
         
         # Appliquer les filtres
@@ -193,6 +204,46 @@ class SearchEngine:
                 if 'date' in g
             ))
         }
+    
+    def get_gallery_with_cover(self, gallery_id: str) -> Optional[Dict]:
+        """Récupère une galerie avec sa cover_image depuis le fichier annuel"""
+        import os
+        
+        # D'abord essayer depuis galleries.json
+        gallery = self.galleries.get(gallery_id)
+        if not gallery:
+            return None
+        
+        # Si déjà cover_image, retourner directement
+        if gallery.get('cover_image'):
+            return gallery
+        
+        # Sinon, chercher dans le fichier annuel
+        date = gallery.get('date', '')
+        if date:
+            try:
+                year = datetime.strptime(date, '%Y-%m-%d').year
+                annual_file = f'galleries_{year}.json'
+                
+                if os.path.exists(annual_file):
+                    with open(annual_file, 'r', encoding='utf-8') as f:
+                        annual_galleries = json.load(f)
+                    
+                    annual_gallery = annual_galleries.get(gallery_id)
+                    if annual_gallery and annual_gallery.get('cover_image'):
+                        # Ajouter cover_image à la galerie
+                        gallery_with_cover = gallery.copy()
+                        gallery_with_cover['cover_image'] = annual_gallery['cover_image']
+                        return gallery_with_cover
+            except (ValueError, FileNotFoundError, json.JSONDecodeError):
+                pass
+        
+        # Retourner la galerie sans cover_image
+        return gallery
+    
+    def get_gallery(self, gallery_id: str) -> Optional[Dict]:
+        """Récupère une galerie par son ID"""
+        return self.galleries.get(gallery_id)
 
 
 # Routes Flask pour la recherche
@@ -208,13 +259,22 @@ def setup_search_routes(app, search_engine):
         year_filter = request.args.get('year', '')
         month_filter = request.args.get('month', '')
         
+        # Créer les filtres
         filters = {}
         if year_filter:
             filters['year'] = year_filter
         if month_filter:
             filters['month'] = month_filter
         
-        results = search_engine.search(query, filters) if query else []
+        # Rechercher avec les filtres et ajouter les cover_image
+        raw_results = search_engine.search(query, filters) if query or filters else []
+        
+        # Ajouter les cover_image depuis les fichiers annuels
+        results = []
+        for result in raw_results:
+            gallery_with_cover = search_engine.get_gallery_with_cover(result['id'])
+            if gallery_with_cover:
+                results.append(gallery_with_cover)
         stats = search_engine.get_stats()
         
         return render_template('search.html',
@@ -226,16 +286,51 @@ def setup_search_routes(app, search_engine):
                              dev_mode=app.config.get('DEV_MODE', False))
     
     @app.route('/api/search/suggest')
-    def search_suggest():
-        """API auto-complétion"""
-        from flask import jsonify, request
+    def api_search_suggest():
+        """API de suggestions AVEC filtres"""
+        from flask import request, jsonify
         
-        q = request.args.get('q', '')
-        suggestions = search_engine.suggest(q)
+        q = request.args.get('q', '').strip()
+        year = request.args.get('year', type=int)
+        month = request.args.get('month', type=int)
+        
+        # Utiliser la fonction de recherche avec filtres pour obtenir les galeries pertinentes
+        filters = {}
+        if year:
+            filters['year'] = year
+        if month:
+            filters['month'] = month
+            
+        # Obtenir les galeries filtrées
+        if filters:
+            filtered_galleries = search_engine.search(query='', filters=filters)
+        else:
+            # Si pas de filtres, utiliser toutes les galeries
+            filtered_galleries = list(search_engine.galleries.values())
+        
+        # Générer des suggestions à partir des galeries filtrées
+        suggestions = set()
+        query_lower = q.lower()
+        
+        for gallery in filtered_galleries:
+            name = gallery.get('name', '').lower()
+            description = gallery.get('description', '').lower()
+            
+            # Suggestions depuis les noms (si contient la query)
+            if query_lower in name:
+                suggestions.add(gallery.get('name', ''))
+            
+            # Suggestions depuis les descriptions (mots qui contiennent la query)
+            words = description.split()
+            for word in words:
+                if query_lower in word.lower() and len(word) >= len(query_lower):
+                    suggestions.add(word.capitalize())
+        
+        suggestions_list = sorted(list(suggestions))[:10]
         
         return jsonify({
             'query': q,
-            'suggestions': suggestions
+            'suggestions': suggestions_list
         })
     
     @app.route('/api/search')

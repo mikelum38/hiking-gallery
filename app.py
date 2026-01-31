@@ -5,6 +5,8 @@ from datetime import datetime
 import cloudinary
 import cloudinary.uploader
 import os
+import tempfile
+import shutil
 import cloudinary.api
 from dotenv import load_dotenv
 import logging
@@ -16,6 +18,7 @@ import traceback
 from flask import send_file
 from config import config, Config
 from search import SearchEngine, setup_search_routes
+from gpx_manager import gpx_manager
 
 # Initialiser Sentry si activé
 if Config.ENABLE_SENTRY and Config.SENTRY_DSN:
@@ -31,6 +34,7 @@ load_dotenv()  # Chargement des variables d'environnement depuis .env
 
 # Configuration des extensions de fichiers autorisées
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+ALLOWED_GPX_EXTENSIONS = {'gpx'}
 
 # Configuration du logging
 logging.basicConfig(
@@ -131,21 +135,156 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def allowed_gpx_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_GPX_EXTENSIONS
+
+# Fonctions de déduction de coordonnées
+def deduire_coordonnees_gps(name, description, date):
+    """Déduit les coordonnées GPS selon le lieu de la randonnée"""
+    
+    text = f"{name} {description}".lower()
+    
+    # Corse d'abord !
+    if 'corse' in text or 'gr20' in text:
+        return (42.389667, 9.135556), "Corse - GR20"
+    
+    # Lieux spécifiques avec coordonnées exactes
+    lieux_specifiques = {
+        'tete chevalière': (44.966667, 5.783333),  # Vercors
+        'tête chevalière': (44.966667, 5.783333),  # Vercors
+        'le peu': (45.183333, 5.766667),        # Uriol - Grenoble
+        'pieu': (45.183333, 5.766667),          # Uriol - Grenoble
+        'crête d uriol': (45.183333, 5.766667),  # Uriol - Grenoble
+        'saint paul de varces': (45.183333, 5.766667), # Grenoble
+        'tour isabelle': (45.083927, 5.884837),  # Chartreuse
+        'aiguilles de chabrière': (44.516670, 6.366670), # Serre-Ponçon
+        'vallon de la jarjatte': (44.950000, 5.616670), # Vercors
+        'bivouac lacs tempêtes': (44.916670, 6.366670), # Ecrins
+        'lac glaciaire grand mean': (45.479920, 6.913780), # Vanoise
+        'trek nevaches': (44.900410, 6.376890),  # Briançon - Clarée
+        'granier': (45.4333, 5.9167),          # Chartreuse
+    }
+    
+    for lieu, coords in lieux_specifiques.items():
+        if lieu in text:
+            return coords, f"Lieu: {lieu}"
+    
+    # Massifs
+    massifs = {
+        'chartreuse': (45.083927, 5.884837),
+        'vercors': (44.950000, 5.616670),
+        'ecrins': (44.916670, 6.366670),
+        'vanoise': (45.416670, 6.750000),
+        'chamonix': (45.923638, 6.869822),
+        'serre poncon': (44.516670, 6.366670),
+        'bauges': (45.916670, 6.133330),
+        'briançon': (44.900410, 6.376890),
+        'tignes': (45.479920, 6.913780),
+        'les 2 alpes': (44.983330, 6.050000),
+        'alpe d huez': (45.083330, 6.050000),
+        'courchevel': (45.416670, 6.583330),
+        'val d isere': (45.561390, 6.983330),
+        'val thorens': (45.300000, 6.583330),
+        'megeve': (45.857770, 6.614940),
+        'flaine': (45.983570, 6.723880),
+        'annecy': (45.916670, 6.133330),
+        'grenoble': (45.188529, 5.724524),
+        'villard de lans': (44.950000, 5.616670),
+        'chamrousse': (45.083927, 5.884837),
+    }
+    
+    for massif, coords in massifs.items():
+        if massif in text:
+            return coords, f"Massif: {massif}"
+    
+    # Par défaut selon l'année
+    if date:
+        annee = date[:4]
+        coords_annee = {
+            '2026': (45.188529, 5.724524),  # Grenoble
+            '2025': (45.923638, 6.869822),  # Chamonix
+            '2024': (42.389667, 9.135556),  # Corse par défaut pour 2024
+            '2023': (45.479920, 6.913780),  # Tignes
+            '2022': (45.083927, 5.884837),  # Chamrousse
+            '2021': (45.983570, 6.723880),  # Flaine
+            '2020': (44.983330, 6.050000),  # Les 2 Alpes
+            '2019': (45.416670, 6.583330),  # Courchevel
+            '2018': (45.561390, 6.983330),  # Val d'Isère
+            '2017': (45.300000, 6.583330),  # Val Thorens
+            '2016': (45.083330, 6.050000),  # Alpe d'Huez
+        }
+        if annee in coords_annee:
+            return coords_annee[annee], f"Défaut {annee}"
+    
+    return (45.188529, 5.724524), "Défaut Grenoble"
+
+def clean_gallery_data(gallery_data):
+    """
+    Nettoie les données d'une galerie pour respecter les standards:
+    - Supprime les champs inutiles (formatted_date, etc.)
+    - S'assure que lat/lon existent
+    - Conserve uniquement les champs nécessaires
+    """
+    if not isinstance(gallery_data, dict):
+        return gallery_data
+    
+    # Copie pour éviter de modifier l'original
+    cleaned = gallery_data.copy()
+    
+    # Champs à supprimer
+    fields_to_remove = [
+        'formatted_date',
+        'coordinates_added',
+        'coordinates_method', 
+        'deducted_location',
+        'id'  # Champ ID potentiellement ajouté par erreur
+    ]
+    
+    for field in fields_to_remove:
+        if field in cleaned:
+            del cleaned[field]
+    
+    # S'assurer que les coordonnées GPS existent
+    if 'lat' not in cleaned or 'lon' not in cleaned:
+        # Essayer de déduire les coordonnées
+        name = cleaned.get('name', '')
+        description = cleaned.get('description', '')
+        date = cleaned.get('date', '')
+        
+        coords, lieu = deduire_coordonnees_gps(name, description, date)
+        lat, lon = coords
+        cleaned['lat'] = lat
+        cleaned['lon'] = lon
+        
+        app.logger.info(f"Coordonnées déduites pour {name}: {lat:.4f}, {lon:.4f} ({lieu})")
+    
+    # S'assurer que cover_image est None si absent (pas de chaîne vide)
+    if 'cover_image' in cleaned and not cleaned['cover_image']:
+        del cleaned['cover_image']
+    
+    return cleaned
+
 def save_single_gallery_to_year(gallery_id, gallery_data):
     """
     Sauvegarde uniquement une galerie dans son fichier galleries_YYYY.json correspondant.
     Optimisé pour le lazy loading : ne sauvegarde que l'année concernée.
     """
+    # Nettoyer les données avant sauvegarde
+    cleaned_gallery = clean_gallery_data(gallery_data)
+    
     try:
         # Déterminer l'année de la galerie
-        if 'year' in gallery_data:
-            year = gallery_data['year']
+        if 'year' in cleaned_gallery:
+            year = cleaned_gallery['year']
+            # Les champs year/month/day sont déjà présents et dans le bon ordre
         else:
-            date = datetime.strptime(gallery_data['date'], '%Y-%m-%d')
+            date = datetime.strptime(cleaned_gallery['date'], '%Y-%m-%d')
             year = date.year
-            gallery_data['year'] = year
-            gallery_data['month'] = date.month
-            gallery_data['day'] = date.day
+            # Ajouter les champs seulement s'ils n'existent pas (pour les galeries plus anciennes)
+            cleaned_gallery['year'] = year
+            cleaned_gallery['month'] = date.month
+            cleaned_gallery['day'] = date.day
         
         # Charger uniquement le fichier de l'année concernée
         year_file = f"galleries_{year}.json"
@@ -156,7 +295,7 @@ def save_single_gallery_to_year(gallery_id, gallery_data):
                 year_galleries = json.load(f)
         
         # Mettre à jour uniquement cette galerie
-        year_galleries[gallery_id] = gallery_data
+        year_galleries[gallery_id] = cleaned_gallery
         
         # Sauvegarder uniquement ce fichier
         with open(year_file, 'w', encoding='utf-8') as f:
@@ -167,8 +306,49 @@ def save_single_gallery_to_year(gallery_id, gallery_data):
         # Mettre à jour le cache
         clear_gallery_cache()
         
+        # Ne PAS mettre à jour galleries.json pour l'upload GPX
+        # Seul le fichier annuel doit être mis à jour avec les coordonnées
+        # update_galleries_json_search()  # COMMENTÉ - INUTILE POUR GPX
+        
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde de {gallery_id}: {e}")
+
+def update_galleries_json_search():
+    """
+    Met à jour galleries.json avec seulement les champs de recherche.
+    Utilisé pour la recherche optimisée.
+    """
+    try:
+        # Charger toutes les galeries depuis les fichiers annuels
+        all_galleries = load_gallery_data()
+        
+        # Extraire seulement les champs de recherche
+        search_only_data = {}
+        for gallery_id, gallery in all_galleries.items():
+            search_only_data[gallery_id] = {
+                'name': gallery.get('name', ''),
+                'description': gallery.get('description', ''),
+                'date': gallery.get('date', ''),
+                'year': gallery.get('year', ''),
+                'month': gallery.get('month', ''),
+                'day': gallery.get('day', '')
+            }
+        
+        # Sauvegarder dans galleries.json
+        with open('galleries.json', 'w', encoding='utf-8') as f:
+            json.dump(search_only_data, f, ensure_ascii=False, indent=2)
+        
+        # Reconstruire l'index des galeries par année (pour la route /gallery/<id>)
+        rebuild_galleries_index()
+        
+        # Mettre à jour le moteur de recherche
+        global search_engine
+        search_engine = SearchEngine('galleries.json')
+        
+        app.logger.info(f"✅ galleries.json et index mis à jour ({len(all_galleries)} galeries)")
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la mise à jour de galleries.json: {e}")
 
 def save_gallery_data(data):
     """
@@ -207,9 +387,20 @@ def save_gallery_data(data):
             json.dump(galleries, f, ensure_ascii=False, indent=2)
         app.logger.info(f"✅ {year_file} sauvegardé ({len(galleries)} galeries)")
     
-    # Sauvegarder aussi dans galleries.json (backup/compatibilité)
+    # Sauvegarder seulement les champs de recherche dans galleries.json
+    search_only_data = {}
+    for gallery_id, gallery in data.items():
+        search_only_data[gallery_id] = {
+            'name': gallery.get('name', ''),
+            'description': gallery.get('description', ''),
+            'date': gallery.get('date', ''),
+            'year': gallery.get('year', ''),
+            'month': gallery.get('month', ''),
+            'day': gallery.get('day', '')
+        }
+    
     with open('galleries.json', 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+        json.dump(search_only_data, f, ensure_ascii=False, indent=2)
     
     # Reconstruire l'index des galeries par année
     rebuild_galleries_index()
@@ -234,10 +425,24 @@ def load_gallery_data():
         try:
             with open(year_file, 'r', encoding='utf-8') as f:
                 year_galleries = json.load(f)
-                galleries.update(year_galleries)
-                # Log seulement si le fichier contient des galeries
-                if year_galleries:
-                    app.logger.info(f"✅ Chargement OPTIMAL : {len(year_galleries)} galeries depuis {year_file}")
+                
+                # Vérifier si c'est un format direct (comme galleries_2008.json)
+                if isinstance(year_galleries, dict) and 'name' in year_galleries and 'photos' in year_galleries:
+                    # Format direct : créer un ID basé sur la date
+                    date_str = year_galleries.get('date', '')
+                    if date_str:
+                        gallery_id = date_str.replace('-', '_') + '_direct'
+                        galleries[gallery_id] = year_galleries
+                        app.logger.info(f"✅ Format direct : 1 galerie depuis {year_file}")
+                    else:
+                        app.logger.warning(f"⚠️  Fichier {year_file} au format direct mais sans date")
+                else:
+                    # Format normal : dictionnaire de galeries
+                    galleries.update(year_galleries)
+                    # Log seulement si le fichier contient des galeries
+                    if year_galleries:
+                        app.logger.info(f"✅ Chargement OPTIMAL : {len(year_galleries)} galeries depuis {year_file}")
+                        
         except Exception as e:
             app.logger.error(f"Erreur lors du chargement de {year_file}: {e}")
     
@@ -471,6 +676,126 @@ def get_cached_static_file(filename):
         app.logger.error(f"Fichier statique non trouvé: {filename}")
         return None
 
+
+
+# FONCTIONS POUR LA GESTION SEARCH-ONLY DE GALLERIES.JSON
+
+def save_gallery_to_search_only(gallery_id, gallery_data):
+    """
+    Sauvegarde uniquement les champs de recherche dans galleries.json.
+    Utilisé pour optimiser la taille du fichier de recherche.
+    """
+    try:
+        # Charger galleries.json existant
+        galleries_search = {}
+        if os.path.exists('galleries.json'):
+            with open('galleries.json', 'r', encoding='utf-8') as f:
+                galleries_search = json.load(f)
+        
+        # Ajouter/Mettre à jour uniquement les champs de recherche
+        galleries_search[gallery_id] = {
+            'name': gallery_data.get('name', ''),
+            'date': gallery_data.get('date', ''),
+            'description': gallery_data.get('description', ''),
+            'year': gallery_data.get('year', datetime.strptime(gallery_data.get('date', '2000-01-01'), '%Y-%m-%d').year),
+            'month': gallery_data.get('month', datetime.strptime(gallery_data.get('date', '2000-01-01'), '%Y-%m-%d').month),
+            'day': gallery_data.get('day', datetime.strptime(gallery_data.get('date', '2000-01-01'), '%Y-%m-%d').day)
+        }
+        
+        # Sauvegarder
+        with open('galleries.json', 'w', encoding='utf-8') as f:
+            json.dump(galleries_search, f, ensure_ascii=False, indent=2)
+        
+        app.logger.info(f"✅ Galerie {gallery_id} ajoutée à galleries.json (search-only)")
+        
+        # Mettre à jour le moteur de recherche
+        global search_engine
+        search_engine = SearchEngine('galleries.json')
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la sauvegarde search-only: {e}")
+        raise
+
+def update_gallery_in_search_only(gallery_id, gallery_data):
+    """
+    Met à jour uniquement les champs de recherche dans galleries.json.
+    """
+    try:
+        # Charger galleries.json existant
+        if not os.path.exists('galleries.json'):
+            app.logger.warning("galleries.json n'existe pas, création...")
+            galleries_search = {}
+        else:
+            with open('galleries.json', 'r', encoding='utf-8') as f:
+                galleries_search = json.load(f)
+        
+        # Mettre à jour uniquement si la galerie existe
+        if gallery_id in galleries_search:
+            # Extraire year/month/day de la date si non fournis
+            date_str = gallery_data.get('date', galleries_search[gallery_id].get('date', '2000-01-01'))
+            try:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                year = gallery_data.get('year', date_obj.year)
+                month = gallery_data.get('month', date_obj.month)
+                day = gallery_data.get('day', date_obj.day)
+            except:
+                year = gallery_data.get('year', 2000)
+                month = gallery_data.get('month', 1)
+                day = gallery_data.get('day', 1)
+            
+            galleries_search[gallery_id] = {
+                'name': gallery_data.get('name', galleries_search[gallery_id].get('name', '')),
+                'date': gallery_data.get('date', galleries_search[gallery_id].get('date', '')),
+                'description': gallery_data.get('description', galleries_search[gallery_id].get('description', '')),
+                'year': year,
+                'month': month,
+                'day': day
+            }
+            
+            # Sauvegarder
+            with open('galleries.json', 'w', encoding='utf-8') as f:
+                json.dump(galleries_search, f, ensure_ascii=False, indent=2)
+            
+            app.logger.info(f"✅ Galerie {gallery_id} mise à jour dans galleries.json (search-only)")
+            
+            # Mettre à jour le moteur de recherche
+            global search_engine
+            search_engine = SearchEngine('galleries.json')
+        else:
+            app.logger.warning(f"Galerie {gallery_id} non trouvée dans galleries.json")
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la mise à jour search-only: {e}")
+        raise
+
+def remove_gallery_from_search_only(gallery_id):
+    """
+    Supprime une galerie de galleries.json.
+    """
+    try:
+        if not os.path.exists('galleries.json'):
+            return
+        
+        with open('galleries.json', 'r', encoding='utf-8') as f:
+            galleries_search = json.load(f)
+        
+        if gallery_id in galleries_search:
+            del galleries_search[gallery_id]
+            
+            with open('galleries.json', 'w', encoding='utf-8') as f:
+                json.dump(galleries_search, f, ensure_ascii=False, indent=2)
+            
+            app.logger.info(f"✅ Galerie {gallery_id} supprimée de galleries.json")
+            
+            # Mettre à jour le moteur de recherche
+            global search_engine
+            search_engine = SearchEngine('galleries.json')
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la suppression search-only: {e}")
+
+
+
 @app.route('/cached_static/<path:filename>')
 def cached_static(filename):
     content = get_cached_static_file(filename)
@@ -479,19 +804,25 @@ def cached_static(filename):
 
 # optimisations images cloudinary 
 
-def get_optimized_cover_url(cover_image_url):
+def get_optimized_cover_url(cover_image_url, width=400, height=300, crop_mode='c_fill'):
     """
     Génère une URL Cloudinary optimisée pour une image de couverture.
+    
+    Args:
+        cover_image_url: URL originale de l'image
+        width: Largeur souhaitée (défaut: 400)
+        height: Hauteur souhaitée (défaut: 300)
+        crop_mode: Mode de crop (défaut: 'c_fill')
+    
+    Returns:
+        URL optimisée ou None si erreur
     """
     if not cover_image_url:
         return None
     
     try:
-        # Extraire le public_id de l'URL
-        public_id = cover_image_url.split('/')[-1].split('.')[0]
-        
         # Construire l'URL avec les transformations
-        transformations = 'f_auto,q_auto,w_400,h_300,c_fill'
+        transformations = f'f_auto,q_auto,w_{width},h_{height},{crop_mode}'
         optimized_cover_url = cover_image_url.replace('/upload/', '/upload/' + transformations + '/')
         
         return optimized_cover_url
@@ -748,6 +1079,10 @@ def delete_gallery(gallery_id):
                 with open(year_file, 'w', encoding='utf-8') as f:
                     json.dump(year_galleries, f, ensure_ascii=False, indent=2)
                 app.logger.info(f"✅ {year_file} mis à jour après suppression")
+                
+        # Supprimer aussi de galleries.json (search-only)
+        remove_gallery_from_search_only(gallery_id)
+                
         clear_gallery_cache()
         flash('Galerie supprimée avec succès', 'success')
         
@@ -770,47 +1105,115 @@ def create_gallery():
     
     # Vérifier l'année de la date pour rediriger vers la bonne page
     year = datetime.strptime(date, '%Y-%m-%d').year
-    return_route = 'year_2024'  # par défaut pour 2024
     
-    if year == 2021:
-        return_route = 'year_2021'
-    elif year == 2022:
-        return_route = 'year_2022'
-    elif year == 2023:
-        return_route = 'year_2023'
-    elif year == 2024:
-        return_route = 'year_2024'
-    elif year == 2025:
-        return_route = 'year_2025'
-    elif year == 2026:
-        return_route = 'year_2026'
-    elif year == 2020:
-        return_route = 'year_2020'
-    elif year == 2019:
-        return_route = 'year_2019'
-    elif year == 2018:
-        return_route = 'year_2018'
-    elif year == 2017:
-        return_route = 'year_2017'
-    elif year == 2016:
-        return_route = 'year_2016'
+    # Utiliser la route year_view avec l'année en paramètre
+    return_route = 'year_view'
     
     # Création d'un ID unique pour la galerie
     gallery_id = str(uuid.uuid4())
     
-    # Chargement des données existantes
-    galleries = load_gallery_data()
+    # Création de la nouvelle galerie - SEULEMENT les champs de recherche
+    new_gallery_search = {
+        'name': name,
+        'date': date,
+        'description': description
+    }
     
-    # Création de la nouvelle galerie
-    new_gallery = {
+    # Création de la galerie complète pour le fichier annuel
+    date_obj = datetime.strptime(date, '%Y-%m-%d')
+    new_gallery_full = {
         'name': name,
         'date': date,
         'description': description,
         'distance': float(distance) if distance else None,
         'denivele': int(denivele) if denivele else None,
-        'photos': [],
-        'cover_image': None
+        'photos': []
     }
+    
+    # Ajouter les coordonnées GPS déduites automatiquement
+    coords, lieu = deduire_coordonnees_gps(name, description, date)
+    lat, lon = coords
+    new_gallery_full['lat'] = lat
+    new_gallery_full['lon'] = lon
+    
+    # Ajouter les champs de date
+    new_gallery_full['year'] = date_obj.year
+    new_gallery_full['month'] = date_obj.month
+    new_gallery_full['day'] = date_obj.day
+    
+    app.logger.info(f"Coordonnées déduites pour {name}: {lat:.4f}, {lon:.4f} ({lieu})")
+    
+    # Gestion du fichier GPX (uniquement en mode dev)
+    gpx_processed = False
+    if 'gpx_file' in request.files:
+        gpx_file = request.files['gpx_file']
+        if gpx_file and gpx_file.filename and allowed_gpx_file(gpx_file.filename):
+            try:
+                app.logger.info(f"Traitement du fichier GPX: {gpx_file.filename}")
+                
+                # Sauvegarder le fichier GPX temporairement pour le parser
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.gpx') as tmp_file:
+                    gpx_file.save(tmp_file.name)
+                    tmp_file_path = tmp_file.name
+                
+                try:
+                    # Parser le fichier GPX
+                    gpx_data = gpx_manager.parse_gpx_file(tmp_file_path)
+                    
+                    # Créer les données de base de la galerie
+                    gallery_base = {
+                        'name': name,
+                        'date': date,
+                        'description': description,
+                        'lat': new_gallery_full.get('lat'),
+                        'lon': new_gallery_full.get('lon'),
+                        'distance': new_gallery_full.get('distance'),
+                        'denivele': new_gallery_full.get('denivele')
+                    }
+                    
+                    # Mettre à jour avec les données GPX
+                    updated_gallery = gpx_manager.update_gallery_from_gpx(gallery_base, gpx_data)
+                    
+                    # Générer un nom de fichier unique et le déplacer vers static/gpx
+                    gpx_uuid = uuid.uuid4()
+                    gpx_filename = f"{gpx_uuid}.gpx"
+                    gpx_destination = os.path.join('static', 'gpx', gpx_filename)
+                    
+                    # Créer le dossier s'il n'existe pas
+                    os.makedirs(os.path.dirname(gpx_destination), exist_ok=True)
+                    
+                    # Déplacer le fichier
+                    shutil.move(tmp_file_path, gpx_destination)
+                    
+                    # Mettre à jour les données de la galerie
+                    new_gallery_full['lat'] = updated_gallery['lat']
+                    new_gallery_full['lon'] = updated_gallery['lon']
+                    new_gallery_full['distance'] = updated_gallery['distance']
+                    new_gallery_full['denivele'] = updated_gallery['denivele']
+                    new_gallery_full['difficulty'] = updated_gallery['difficulty']
+                    new_gallery_full['gpx_file'] = f"/static/gpx/{gpx_filename}"
+                    new_gallery_full['gpx_metadata'] = updated_gallery['gpx_metadata']
+                    
+                    gpx_processed = True
+                    app.logger.info(f"✅ GPX traité avec succès: {updated_gallery['distance']}km, {updated_gallery['denivele']}m D+")
+                    
+                finally:
+                    # Nettoyer le fichier temporaire s'il existe encore
+                    if os.path.exists(tmp_file_path):
+                        os.unlink(tmp_file_path)
+                        
+            except Exception as e:
+                app.logger.error(f"Erreur lors du traitement du GPX: {str(e)}")
+                app.logger.error(f"Traceback complet: {traceback.format_exc()}")
+                flash("Erreur lors du traitement du fichier GPX", 'warning')
+    
+    # Si pas de GPX traité, utiliser la déduction automatique des coordonnées
+    if not gpx_processed:
+        # Ajouter les coordonnées GPS déduites automatiquement
+        coords, lieu = deduire_coordonnees_gps(name, description, date)
+        lat, lon = coords
+        new_gallery_full['lat'] = lat
+        new_gallery_full['lon'] = lon
     
     # Gestion de l'image de couverture
     if 'cover_image' in request.files:
@@ -819,24 +1222,37 @@ def create_gallery():
             try:
                 # Upload vers Cloudinary
                 upload_result = cloudinary.uploader.upload(cover_file)
-                new_gallery['cover_image'] = upload_result['secure_url']
+                new_gallery_full['cover_image'] = upload_result['secure_url']
             except Exception as e:
                 app.logger.error(f"Erreur lors de l'upload Cloudinary: {str(e)}")
                 app.logger.error(f"Traceback complet: {traceback.format_exc()}")
                 flash("Erreur lors de l'upload de l'image de couverture", 'error')
     
-    # Ajout de la nouvelle galerie
+    # Sauvegarder dans les deux systèmes
     try:
-        galleries[gallery_id] = new_gallery
-        save_single_gallery_to_year(gallery_id, new_gallery)
+        # 1. Sauvegarder la galerie complète dans le fichier annuel
+        save_single_gallery_to_year(gallery_id, new_gallery_full)
+        
+        # 2. Sauvegarder uniquement les champs de recherche dans galleries.json
+        save_gallery_to_search_only(gallery_id, {
+            'name': name,
+            'date': date,
+            'description': description,
+            'year': date_obj.year,
+            'month': date_obj.month,
+            'day': date_obj.day
+        })
+        
+        app.logger.info(f"✅ Galerie {gallery_id} sauvegardée dans les deux systèmes")
+        
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde des données: {str(e)}")
         app.logger.error(f"Traceback complet: {traceback.format_exc()}")
         flash('Erreur lors de la sauvegarde des données')
-        return redirect(url_for(return_route))
+        return redirect(url_for(return_route, year=year))
     
     flash('Galerie créée avec succès', 'success')
-    return redirect(url_for(return_route))
+    return redirect(url_for(return_route, year=year))
 
 @app.route('/edit_gallery/<gallery_id>', methods=['POST'])
 def edit_gallery(gallery_id):
@@ -887,7 +1303,7 @@ def edit_gallery(gallery_id):
     
     if new_date:
         gallery['date'] = new_date
-        gallery['formatted_date'] = format_date(new_date)
+        # PAS de formatted_date - champ inutile
         # Déterminer la nouvelle année
         new_year = datetime.strptime(new_date, '%Y-%m-%d').year
     
@@ -908,6 +1324,17 @@ def edit_gallery(gallery_id):
     
     try:
         save_single_gallery_to_year(gallery_id, gallery)
+        
+        # Mettre à jour galleries.json (search-only)
+        update_gallery_in_search_only(gallery_id, {
+            'name': gallery['name'],
+            'date': gallery['date'],
+            'description': gallery['description'],
+            'year': gallery.get('year', datetime.strptime(gallery['date'], '%Y-%m-%d').year),
+            'month': gallery.get('month', datetime.strptime(gallery['date'], '%Y-%m-%d').month),
+            'day': gallery.get('day', datetime.strptime(gallery['date'], '%Y-%m-%d').day)
+        })
+        
         flash('Galerie mise à jour avec succès')
     except Exception as e:
         app.logger.error(f"Erreur lors de la sauvegarde: {str(e)}")
@@ -917,34 +1344,55 @@ def edit_gallery(gallery_id):
     return redirect(url_for('gallery', gallery_id=gallery_id))
 
 
+@app.route('/admin/reload-search')
+def reload_search():
+    """Route admin pour recharger le moteur de recherche"""
+    try:
+        # Forcer la mise à jour
+        update_galleries_json_search()
+        return "Moteur de recherche rechargé avec succès !"
+    except Exception as e:
+        return f"Erreur: {str(e)}", 500
+
 @app.route('/gallery/<gallery_id>')
 def gallery(gallery_id):
     page = request.args.get('page', 1, type=int)
     per_page = app.config['PHOTOS_PER_PAGE']
+    
+    app.logger.info(f"🔍 Recherche de la galerie: {gallery_id}")
     
     # Essayer d'abord avec l'index pour trouver l'année de la galerie
     try:
         index = load_galleries_index()
         gallery_year = None
         
+        app.logger.info(f"📋 Index chargé: {len(index)} années")
+        
         # Chercher dans quel fichier se trouve la galerie
         for year, gallery_ids in index.items():
             if gallery_id in gallery_ids:
                 gallery_year = int(year)
+                app.logger.info(f"✅ Galerie trouvée dans l'année: {gallery_year}")
                 break
         
         if gallery_year:
             # Chargement ultra-optimisé : uniquement le fichier de l'année
             galleries = load_gallery_data_for_year(gallery_year)
+            app.logger.info(f"📁 Fichier {gallery_year} chargé: {len(galleries)} galeries")
         else:
             # Fallback : chargement complet
             galleries = load_gallery_data()
-    except:
+            app.logger.info(f"📁 Chargement complet: {len(galleries)} galeries")
+    except Exception as e:
         # En cas d'erreur avec l'index, utiliser le chargement complet
+        app.logger.error(f"❌ Erreur avec l'index: {e}")
         galleries = load_gallery_data()
     
     gallery = galleries.get(gallery_id)
+    app.logger.info(f"🎯 Galerie trouvée: {gallery is not None}")
+    
     if not gallery:
+        app.logger.error(f"❌ Galerie non trouvée: {gallery_id}")
         return "Gallery not found", 404
     
     # Créer une copie pour éviter de modifier l'original
@@ -1789,6 +2237,71 @@ def inmy_landing():
     return render_template('inmy_cover.html', slide_url=session['slide_url'])
 
 
+import re
+
+def extract_year_from_text(text):
+    """Extrait l'année d'un texte de page In My Life"""
+    if not text:
+        return 9999  # Valeur par défaut pour les pages sans année
+    
+    # Nettoyer le texte et convertir en minuscules
+    clean_text = text.lower().strip()
+    
+    # Patterns spécifiques pour "années 90", "années 80", etc.
+    decade_patterns = [
+        r"années?\s+(\d{2})",  # "années 90", "année 80"
+    ]
+    
+    # Patterns pour les années à 2 chiffres
+    two_digit_patterns = [
+        r"(\d{2})(?=\s|$)",  # Nombre à 2 chiffres suivi d'espace ou fin
+        r"'(\d{2})",  # Années comme '76
+    ]
+    
+    # Chercher d'abord les patterns "années XX"
+    for pattern in decade_patterns:
+        match = re.search(pattern, clean_text)
+        if match:
+            two_digit_year = int(match.group(1))
+            # Convertir en année à 4 chiffres
+            if 70 <= two_digit_year <= 99:  # 1970-1999
+                return 1900 + two_digit_year
+            elif 0 <= two_digit_year <= 30:  # 2000-2030
+                return 2000 + two_digit_year
+    
+    # Chercher les années à 4 chiffres
+    four_digit_patterns = [
+        r'\b(19|20)\d{2}\b',  # Années 1900-2099 (pattern principal)
+    ]
+    
+    for pattern in four_digit_patterns:
+        match = re.search(pattern, clean_text)
+        if match:
+            year = int(match.group())
+            if 1900 <= year <= 2030:
+                return year
+    
+    # Si pas d'année à 4 chiffres, essayer les patterns à 2 chiffres
+    for pattern in two_digit_patterns:
+        match = re.search(pattern, clean_text)
+        if match:
+            two_digit_year = int(match.group(1) if match.groups() else match.group())
+            # Convertir en année à 4 chiffres
+            if 70 <= two_digit_year <= 99:  # 1970-1999
+                return 1900 + two_digit_year
+            elif 0 <= two_digit_year <= 30:  # 2000-2030
+                return 2000 + two_digit_year
+    
+    return 9999  # Valeur par défaut si aucune année trouvée
+
+def sort_pages_by_year_asc(pages):
+    """Trie les pages par ordre d'année croissant (plus anciennes au début)"""
+    def get_sort_key(page):
+        year = extract_year_from_text(page.get('text', ''))
+        return (year, page.get('id', 0))  # Année croissante, puis par ID
+    
+    return sorted(pages, key=get_sort_key)
+
 @app.route('/inmy_life')
 def inmy_life():
     page = request.args.get('page', 1, type=int)
@@ -1812,7 +2325,11 @@ def inmy_life():
     
     # Déterminer le nombre total de pages (pages normales + couverture)
     pages_list = data.get('pages', [])
-    total_pages = len(pages_list) + 1  # +1 pour la couverture
+    
+    # Trier les pages par ordre d'année croissant (plus anciennes au début)
+    sorted_pages = sort_pages_by_year_asc(pages_list)
+    
+    total_pages = len(sorted_pages) + 1  # +1 pour la couverture
     
     # Validation du numéro de page
     if page < 1 or page > total_pages:
@@ -1822,16 +2339,13 @@ def inmy_life():
     page_data = None
     cover_text = data.get('cover', {}).get('text', '')
     
-    if page <= len(pages_list):
-        # Page normale
-        page_index = page - 1
-        if page_index < len(pages_list):
-            page_data = pages_list[page_index]
-            
-            # Obtenir l'URL de l'image
-            if page_data.get('image'):
-                image_url = page_data['image']
-                
+    if page <= len(sorted_pages):
+        # Page normale : utiliser les pages triées
+        page_data = sorted_pages[page - 1]  # -1 car les pages commencent à 1
+        
+        if page_data:
+            image_url = page_data.get('image')
+            if image_url:
                 # Utiliser l'URL avec transformations Cloudinary optimisées pour In My Life
                 page_image_url = get_cloudinary_background_url(image_url, "inmy_life")
             else:
@@ -2048,13 +2562,29 @@ def projets_2026():
 
 @app.route('/map')
 def interactive_map():
-    """Route pour la carte interactive des randonnées"""
-    galleries = load_gallery_data()
+    """Route pour la carte interactive des randonnées - ULTRA-OPTIMISÉE"""
+    # Ne charger aucune donnée côté serveur, tout sera chargé dynamiquement par JavaScript
+    return render_template('map.html', hikes_json="[]", dev_mode=app.config.get('DEV_MODE', False))
+
+
+@app.route('/api/hikes')
+def get_hikes_api():
+    """API pour récupérer les données des randonnées - OPTIMISÉE"""
+    year = request.args.get('year')
     
-    # Convertir les galeries en format pour la carte
+    if year:
+        # Charger une année spécifique
+        try:
+            year_int = int(year)
+            galleries = load_gallery_data_for_year(year_int)
+        except ValueError:
+            galleries = load_gallery_data_for_year(2026)
+    else:
+        # Charger toutes les galeries de toutes les années
+        galleries = load_gallery_data()
+    
     hikes = []
     for gallery_id, gallery in galleries.items():
-        # Vérifier si la galerie a des coordonnées GPS
         if 'lat' in gallery and 'lon' in gallery:
             hike_data = {
                 'id': gallery_id,
@@ -2064,48 +2594,19 @@ def interactive_map():
                 'date': gallery.get('date', ''),
                 'description': gallery.get('description', ''),
                 'photos_count': len(gallery.get('photos', [])),
-                'cover_image': get_optimized_cover_url(gallery.get('cover_image')) if gallery.get('cover_image') else None,
+                'cover_image': get_optimized_cover_url(gallery.get('cover_image')) if gallery.get('cover_image') else None,  # Vignette 400x300
                 'distance': gallery.get('distance', None),
                 'denivele': gallery.get('denivele', None),
                 'difficulty': gallery.get('difficulty', 'moyen'),
-                'duration': gallery.get('duration', None)
+                'duration': gallery.get('duration', None),
+                'gpx_file': gallery.get('gpx_file', None)
             }
             hikes.append(hike_data)
     
     # Trier par date (plus récent en premier)
     hikes.sort(key=lambda x: x['date'], reverse=True)
     
-    # Convertir en JSON pour le template
-    hikes_json = json.dumps(hikes)
-    
-    return render_template('map.html', hikes_json=hikes_json)
-
-
-@app.route('/api/hikes')
-def get_hikes_api():
-    """API pour récupérer les données des randonnées"""
-    galleries = load_gallery_data()
-    
-    hikes = []
-    for gallery_id, gallery in galleries.items():
-        if 'lat' in gallery and 'lon' in gallery:
-            hike_data = {
-                'id': gallery_id,
-                'name': gallery.get('name', 'Sans nom'),
-                'lat': gallery['lat'],
-                'lon': gallery['lon'],
-                'date': gallery.get('date', ''),
-                'description': gallery.get('description', ''),
-                'photos_count': len(gallery.get('photos', [])),
-                'cover_image': get_optimized_cover_url(gallery.get('cover_image')) if gallery.get('cover_image') else None,
-                'distance': gallery.get('distance'),
-                'denivele': gallery.get('denivele'),
-                'difficulty': gallery.get('difficulty', 'moyen'),
-                'duration': gallery.get('duration')
-            }
-            hikes.append(hike_data)
-    
-    return jsonify({'hikes': hikes, 'count': len(hikes)})
+    return jsonify(hikes)
 
 
 @app.route('/api/hike/<gallery_id>/gpx')
@@ -2139,7 +2640,7 @@ def upload_gpx(gallery_id):
         return jsonify({'error': 'Nom de fichier vide'}), 400
     
     # Vérifier l'extension
-    if not file.filename.endswith('.gpx'):
+    if not file.filename.lower().endswith('.gpx'):
         return jsonify({'error': 'Le fichier doit être au format GPX'}), 400
     
     try:
@@ -2152,21 +2653,254 @@ def upload_gpx(gallery_id):
         filepath = os.path.join(gpx_folder, filename)
         file.save(filepath)
         
-        # Mettre à jour la galerie
-        galleries = load_gallery_data()
-        if gallery_id in galleries:
-            galleries[gallery_id]['gpx_file'] = f'/static/gpx/{filename}'
-            save_single_gallery_to_year(gallery_id, galleries[gallery_id])
+        # Valider le fichier GPX
+        is_valid, error_msg = gpx_manager.validate_gpx_file(filepath)
+        if not is_valid:
+            os.remove(filepath)  # Supprimer le fichier invalide
+            return jsonify({'error': f'Fichier GPX invalide: {error_msg}'}), 400
+        
+        # Parser le GPX et extraire les informations
+        gpx_info = gpx_manager.parse_gpx_file(filepath)
+        
+        # Charger uniquement la galerie concernée depuis son fichier annuel (optimisation)
+        gallery = None
+        # Essayer de trouver l'année en regardant dans les fichiers annuels
+        for year in range(2020, 2027):  # Adapter la plage si nécessaire
+            year_file = f"galleries_{year}.json"
+            if os.path.exists(year_file):
+                try:
+                    with open(year_file, 'r', encoding='utf-8') as f:
+                        year_galleries = json.load(f)
+                        if gallery_id in year_galleries:
+                            gallery = year_galleries[gallery_id]
+                            break
+                except:
+                    continue
+        
+        if gallery:
+            gallery['gpx_file'] = f'/static/gpx/{filename}'
+            
+            # Mettre à jour les métadonnées depuis le GPX
+            updated_gallery = gpx_manager.update_gallery_from_gpx(
+                gallery, gpx_info
+            )
+            
+            save_single_gallery_to_year(gallery_id, updated_gallery)
             
             return jsonify({
                 'success': True,
-                'gpx_url': f'/static/gpx/{filename}'
+                'gpx_url': f'/static/gpx/{filename}',
+                'gpx_info': {
+                    'name': gpx_info['name'],
+                    'distance': gpx_info.get('total_distance'),
+                    'elevation_gain': gpx_info.get('total_elevation_gain'),
+                    'track_count': gpx_info.get('track_count'),
+                    'point_count': gpx_info.get('total_points')
+                }
             })
         else:
+            os.remove(filepath)  # Nettoyer le fichier si la galerie n'existe pas
             return jsonify({'error': 'Galerie non trouvée'}), 404
             
     except Exception as e:
         app.logger.error(f"Erreur lors de l'upload du GPX: {str(e)}")
+        # Nettoyer le fichier en cas d'erreur
+        if 'filepath' in locals() and os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/hike/<gallery_id>/gpx/info')
+def get_hike_gpx_info(gallery_id):
+    """Récupérer les informations détaillées du GPX d'une randonnée"""
+    galleries = load_gallery_data()
+    
+    if gallery_id not in galleries:
+        return jsonify({'error': 'Randonnée non trouvée'}), 404
+    
+    gallery = galleries[gallery_id]
+    
+    if 'gpx_file' not in gallery:
+        return jsonify({'error': 'Pas de fichier GPX pour cette randonnée'}), 404
+    
+    try:
+        # Construire le chemin complet du fichier
+        gpx_path = os.path.join(app.static_folder, gallery['gpx_file'].replace('/static/', ''))
+        
+        if not os.path.exists(gpx_path):
+            return jsonify({'error': 'Fichier GPX non trouvé'}), 404
+        
+        # Parser le GPX
+        gpx_info = gpx_manager.parse_gpx_file(gpx_path)
+        
+        # Extraire les coordonnées pour la carte
+        coordinates = gpx_manager.extract_track_coordinates(gpx_info)
+        segments = gpx_manager.get_track_segments_for_leaflet(gpx_info)
+        
+        return jsonify({
+            'gpx_info': gpx_info,
+            'coordinates': coordinates,
+            'segments': segments
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la lecture du GPX {gallery_id}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+# Cache simple pour éviter les rechargements multiples
+_gallery_cache = {}
+_cache_timestamp = {}
+import time
+
+def get_gallery_from_cache(gallery_id):
+    """Récupère une galerie depuis le cache avec expiration de 5 minutes"""
+    current_time = time.time()
+    
+    # Vérifier si le cache est valide
+    if gallery_id in _gallery_cache and gallery_id in _cache_timestamp:
+        if current_time - _cache_timestamp[gallery_id] < 300:  # 5 minutes
+            return _gallery_cache[gallery_id]
+    
+    # Charger depuis l'année et mettre en cache
+    try:
+        # Essayer de trouver l'année depuis les fichiers d'index
+        year = None
+        if os.path.exists('galleries_index.json'):
+            with open('galleries_index.json', 'r', encoding='utf-8') as f:
+                index = json.load(f)
+                for yr, gallery_ids in index.items():
+                    if gallery_id in gallery_ids:
+                        year = int(yr)
+                        break
+        
+        if year:
+            galleries = load_gallery_data_for_year(year)
+        else:
+            # Fallback : rechercher dans toutes les années
+            galleries = {}
+            for year_file in sorted([f for f in os.listdir('.') if f.startswith('galleries_') and f.endswith('.json')]):
+                try:
+                    with open(year_file, 'r', encoding='utf-8') as f:
+                        year_galleries = json.load(f)
+                        if gallery_id in year_galleries:
+                            galleries = year_galleries
+                            break
+                except:
+                    continue
+        
+        if gallery_id in galleries:
+            _gallery_cache[gallery_id] = galleries[gallery_id]
+            _cache_timestamp[gallery_id] = current_time
+            return galleries[gallery_id]
+    except:
+        pass
+    
+    return None
+
+@app.route('/api/hike/<gallery_id>/gpx/track')
+def get_hike_gpx_track(gallery_id):
+    """Récupérer les coordonnées de la trace GPX pour affichage sur carte - OPTIMISÉ AVEC CACHE"""
+    # Utiliser le cache pour éviter les rechargements
+    gallery = get_gallery_from_cache(gallery_id)
+    
+    if not gallery:
+        return jsonify({'error': 'Randonnée non trouvée'}), 404
+    
+    if 'gpx_file' not in gallery:
+        return jsonify({'error': 'Pas de fichier GPX pour cette randonnée'}), 404
+    
+    try:
+        # Construire le chemin complet du fichier
+        gpx_path = os.path.join(app.static_folder, gallery['gpx_file'].replace('/static/', ''))
+        
+        if not os.path.exists(gpx_path):
+            return jsonify({'error': 'Fichier GPX non trouvé'}), 404
+        
+        # Parser le GPX et extraire les segments
+        gpx_info = gpx_manager.parse_gpx_file(gpx_path)
+        segments = gpx_manager.get_track_segments_for_leaflet(gpx_info)
+        
+        return jsonify({
+            'segments': segments,
+            'stats': {
+                'total_distance': gpx_info.get('total_distance'),
+                'elevation_gain': gpx_info.get('total_elevation_gain'),
+                'track_count': gpx_info.get('track_count')
+            }
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la lecture de la trace GPX {gallery_id}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/hike/<gallery_id>/gpx/delete', methods=['DELETE'])
+def delete_hike_gpx(gallery_id):
+    """Supprimer le fichier GPX d'une randonnée"""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé en production'}), 403
+    
+    galleries = load_gallery_data()
+    
+    if gallery_id not in galleries:
+        return jsonify({'error': 'Randonnée non trouvée'}), 404
+    
+    gallery = galleries[gallery_id]
+    
+    if 'gpx_file' not in gallery:
+        return jsonify({'error': 'Pas de fichier GPX pour cette randonnée'}), 404
+    
+    try:
+        # Supprimer le fichier physique
+        gpx_path = os.path.join(app.static_folder, gallery['gpx_file'].replace('/static/', ''))
+        if os.path.exists(gpx_path):
+            os.remove(gpx_path)
+        
+        # Supprimer la référence dans la galerie
+        del gallery['gpx_file']
+        if 'gpx_metadata' in gallery:
+            del gallery['gpx_metadata']
+        
+        save_single_gallery_to_year(gallery_id, gallery)
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la suppression du GPX {gallery_id}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/hike/<gallery_id>/gpx/export')
+def export_hike_gpx(gallery_id):
+    """Exporter le fichier GPX d'une randonnée"""
+    galleries = load_gallery_data()
+    
+    if gallery_id not in galleries:
+        return jsonify({'error': 'Randonnée non trouvée'}), 404
+    
+    gallery = galleries[gallery_id]
+    
+    if 'gpx_file' not in gallery:
+        return jsonify({'error': 'Pas de fichier GPX pour cette randonnée'}), 404
+    
+    try:
+        # Construire le chemin complet du fichier
+        gpx_path = os.path.join(app.static_folder, gallery['gpx_file'].replace('/static/', ''))
+        
+        if not os.path.exists(gpx_path):
+            return jsonify({'error': 'Fichier GPX non trouvé'}), 404
+        
+        # Retourner le fichier pour téléchargement
+        return send_file(
+            gpx_path,
+            as_attachment=True,
+            download_name=f"{gallery.get('name', gallery_id)}.gpx",
+            mimetype='application/gpx+xml'
+        )
+        
+    except Exception as e:
+        app.logger.error(f"Erreur lors de l'export du GPX {gallery_id}: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -2315,25 +3049,39 @@ def add_inmy_life_page():
         if 'cover' not in data:
             data['cover'] = {"text": ""}
         
-        # Ajouter la nouvelle page (avant la couverture, donc à l'avant-dernière position)
-        new_page_id = len(data['pages']) + 1
+        # Ajouter la nouvelle page avec un ID temporaire
         new_page = {
-            "id": new_page_id,
+            "id": len(data['pages']) + 1,
             "text": text,
             "image": image_url
         }
         
-        # Insérer avant la couverture (donc à la fin du tableau pages)
+        # Ajouter la page temporairement
         data['pages'].append(new_page)
         
-        # Sauvegarder les données
+        # Toutes les pages par ordre d'année croissant (plus anciennes au début)
+        sorted_pages = sort_pages_by_year_asc(data['pages'])
+        
+        # Trouver la position de la nouvelle page dans l'ordre trié
+        new_page_position = None
+        for i, page in enumerate(sorted_pages):
+            if page['id'] == new_page['id']:
+                new_page_position = i + 1  # +1 car les pages commencent à 1
+                break
+        
+        # Mettre à jour les IDs selon le nouvel ordre
+        for i, page in enumerate(sorted_pages):
+            page['id'] = i + 1
+        
+        # Sauvegarder avec les pages triées et les IDs mis à jour
+        data['pages'] = sorted_pages
         with open('inmy_life_texts.json', 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
         
-        # Rediriger vers la nouvelle page
+        # Rediriger vers la nouvelle page à sa position correcte
         return jsonify({
             'success': True, 
-            'page_number': new_page_id,
+            'page_number': new_page_position if new_page_position else len(sorted_pages),
             'message': 'Page ajoutée avec succès'
         })
         

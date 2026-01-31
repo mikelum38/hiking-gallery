@@ -10,8 +10,38 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.108/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.108/Build/Cesium/Cesium.js"></script>
     
     <style>
+        /* Nouveau conteneur pour la vue 3D */
+        #cesiumContainer { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 9999; 
+        }
+        .cesium-controls { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 10000; 
+            display: flex; 
+            gap: 10px; 
+        }
+        .btn-3d {
+            padding: 10px 15px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -21,6 +51,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a1a;
+            color: #ccc;
             color: white;
             overflow: hidden;
         }
@@ -204,11 +235,34 @@
             color: white;
             border-radius: 10px;
             padding: 0;
-        }
+         }
 
         .leaflet-popup-content {
             margin: 0;
             min-width: 300px;
+        }
+
+        .leaflet-popup {
+            z-index: 2000 !important;
+         }
+
+        .leaflet-popup-tip-container {
+            z-index: 2000 !important;
+            position: relative !important;
+        }
+
+        .leaflet-popup-pane {
+            z-index: 2000 !important;
+            position: absolute !important;
+        }
+
+        /* Forcer le popup à s'ouvrir vers le haut */
+        .leaflet-popup-top {
+            margin-bottom: 0 !important;
+        }
+
+        .leaflet-popup-bottom {
+            margin-top: 0 !important;
         }
 
         .popup-content {
@@ -289,7 +343,7 @@
             border-radius: 10px;
             display: flex;
             gap: 2rem;
-            z-index: 1000;
+            z-index: 999; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
@@ -375,6 +429,33 @@
     </style>
 </head>
 <body>
+    <div id="cesiumContainer">
+        <div class="cesium-controls">
+            <div style="background: rgba(42, 42, 42, 0.9); padding: 15px; border-radius: 10px; color: white; display: flex; flex-direction: column; gap: 10px; border: 1px solid #444; min-width: 250px; backdrop-filter: blur(5px);">
+                
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <label style="font-size: 11px; text-transform: uppercase; color: #aaa;">Altitude du drone</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="altSlider" min="200" max="3000" value="1200" step="100" oninput="updateAltitude(this.value)" style="flex: 1;">
+                        <span style="font-size: 13px; font-weight: bold; min-width: 45px;"><span id="altValue">1200</span>m</span>
+                    </div>
+                </div>
+
+                <div id="timelineContainer" style="display: none; flex-direction: column; gap: 3px;">
+                    <label style="font-size: 11px; text-transform: uppercase; color: #aaa;">Progression du parcours</label>
+                    <input type="range" id="flyTimeline" min="0" max="100" value="0" step="0.1" oninput="seekTimeline(this.value)" style="width: 100%; accent-color: #10b981;">
+                </div>
+                
+                <div style="display: flex; gap: 8px; margin-top: 5px;">
+                    <button id="flyButton" class="btn-3d" style="flex: 2; background: #667eea;" onclick="startFlyOver()">✈️ Lancer le survol</button>
+                    <button id="pauseButton" class="btn-3d" style="flex: 1; background: #f59e0b; display: none;" onclick="togglePause()">⏸</button>
+                </div>
+                
+                <button class="btn-3d" style="background:#ef4444;" onclick="close3DView()">✖ Quitter la 3D</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Header -->
         <div class="header">
@@ -400,6 +481,21 @@
                             <option value="2025">2025</option>
                             <option value="2024">2024</option>
                             <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                            <option value="2019">2019</option>
+                            <option value="2018">2018</option>
+                            <option value="2017">2017</option>
+                            <option value="2016">2016</option>
+                            <option value="2015">2015</option>
+                            <option value="2014">2014</option>
+                            <option value="2013">2013</option>
+                            <option value="2012">2012</option>
+                            <option value="2011">2011</option>
+                            <option value="2010">2010</option>
+                            <option value="2009">2009</option>
+                            <option value="2008">2008</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -456,15 +552,53 @@
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
     <script>
-        // Données des randonnées depuis Flask
-        const hikesData = {{ hikes_json | safe }};
+
+        // AJOUTEZ CETTE LIGNE ICI (tout en haut du script)
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNDVmZWQxZS1kOWRiLTRiNGYtOTFiZC00MDE5YTMzOWJmY2IiLCJpZCI6MzgzNTY1LCJpYXQiOjE3Njk0MzQ0ODJ9.GXzgBLufCYZRr5d7EeZ7fEYGQZycxJS709tbps8hCXk';
+
+        // Détecter si on est en mode développement
+        let isDevMode = false;
+        {% if dev_mode %}
+        isDevMode = true;
+        {% endif %}
+        
+        // Données des randonnées - chargées dynamiquement uniquement
+        let hikesData = [];
         
         let map;
         let markersLayer;
         let heatmapLayer;
         let clustersLayer;
+        let gpxTracksLayer;  // Nouvelle couche pour les traces GPX
         let currentView = 'markers';
-        let filteredHikes = hikesData;
+        let filteredHikes = [];
+        let displayedGPXTracks = new Set();  // Suivre les traces déjà affichées
+
+        // Charger les données dynamiquement selon l'année
+        async function loadHikesData(year = 2026) {
+            try {
+                console.log(`🔄 Chargement des données pour ${year}...`);
+                const response = await fetch(`/api/hikes?year=${year}`);
+                hikesData = await response.json();
+                filteredHikes = hikesData;
+                
+                console.log(`✅ Chargement optimisé : ${hikesData.length} randonnées pour ${year}`);
+                
+                // Mettre à jour le select d'année
+                document.getElementById('yearFilter').value = year.toString();
+                
+                // Mettre à jour l'affichage
+                updateStats();
+                updateHikesList();
+                displayMarkers();
+                
+                // Charger les traces GPX pour cette année
+                loadAllGPXTracks();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+            }
+        }
 
         // Initialiser la carte
         function initMap() {
@@ -481,20 +615,118 @@
             markersLayer = L.layerGroup().addTo(map);
             heatmapLayer = L.layerGroup();
             clustersLayer = L.markerClusterGroup();
-
-            // Charger les données
-            loadHikes();
+            gpxTracksLayer = L.layerGroup().addTo(map);  // Ajouter la couche GPX
+            
+            // Charger les données de 2026 par défaut
+            loadHikesData(2026);
         }
 
         // Charger et afficher les randonnées
         function loadHikes() {
-            filteredHikes = hikesData;
+            // Sélectionner automatiquement l'année 2026 SANS déclencher onchange
+            const yearFilter = document.getElementById('yearFilter');
+            yearFilter.value = '2026';
+            
+            // Appliquer les filtres manuellement pour éviter le double appel
+            const year = yearFilter.value;
+            const difficulty = document.getElementById('difficultyFilter').value;
+            
+            filteredHikes = hikesData.filter(hike => {
+                if (year !== 'all' && !hike.date.startsWith(year)) return false;
+                if (difficulty !== 'all' && hike.difficulty !== difficulty) return false;
+                return true;
+            });
+            
             updateStats();
             updateHikesList();
             displayMarkers();
+            
+            // Charger automatiquement les traces GPX existantes (uniquement pour 2026)
+            loadAllGPXTracks();
+        }
+
+        // Charger toutes les traces GPX disponibles
+        async function loadAllGPXTracks() {
+            for (const hike of filteredHikes) {  // Utiliser les randonnées FILTRÉES, pas toutes
+                if (hike.gpx_file && !displayedGPXTracks.has(hike.id)) {
+                    await loadGPXTrack(hike.id);
+                }
+            }
+        }
+
+        // Charger une trace GPX spécifique
+        async function loadGPXTrack(hikeId) {
+            try {
+                const response = await fetch(`/api/hike/${hikeId}/gpx/track`);
+                const data = await response.json();
+                
+                if (response.ok && data.segments) {
+                    displayGPXTrack(hikeId, data.segments, data.stats);
+                    displayedGPXTracks.add(hikeId);
+                }
+            } catch (error) {
+                console.warn(`Impossible de charger la trace GPX pour ${hikeId}:`, error);
+            }
+        }
+
+        // Afficher une trace GPX sur la carte
+        function displayGPXTrack(hikeId, segments, stats) {
+            const hike = hikesData.find(h => h.id === hikeId);
+            const difficulty = hike?.difficulty || 'moyen';
+            
+            // Couleurs basées sur la difficulté
+            const colors = {
+                'facile': '#10b981',
+                'moyen': '#f59e0b', 
+                'difficile': '#ef4444'
+            };
+            
+            const trackColor = colors[difficulty] || '#667eea';
+            
+            // Créer un polyline pour chaque segment
+            segments.forEach((segment, index) => {
+                const polyline = L.polyline(segment, {
+                    color: trackColor,
+                    weight: 3,
+                    opacity: 0.8,
+                    smoothFactor: 1
+                });
+                
+                // Ajouter un popup avec les informations
+                const popupContent = `
+                    <div style="min-width: 200px;">
+                        <h4 style="margin: 0 0 10px 0; color: ${trackColor};">
+                            🥾 ${hike?.name || 'Trace GPX'}
+                        </h4>
+                        <div style="font-size: 0.9rem;">
+                            <div>📏 Distance: ${stats?.total_distance || '?'} km</div>
+                            <div>⛰️ D+: ${stats?.elevation_gain || '?'} m</div>
+                            <div>📍 Segments: ${segments.length}</div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button onclick="window.location.href='/gallery/${hikeId}'" 
+                                    style="background: ${trackColor}; color: white; border: none; 
+                                           padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                                Voir la galerie
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                polyline.bindPopup(popupContent);
+                polyline.on('mouseover', function() {
+                    this.setStyle({ weight: 5, opacity: 1 });
+                });
+                polyline.on('mouseout', function() {
+                    this.setStyle({ weight: 3, opacity: 0.8 });
+                });
+                
+                gpxTracksLayer.addLayer(polyline);
+            });
         }
 
         // Afficher les markers
+        // Dans la fonction displayMarkers()
         function displayMarkers() {
             markersLayer.clearLayers();
 
@@ -504,14 +736,21 @@
                         icon: createCustomIcon(hike.difficulty)
                     });
 
-                    marker.bindPopup(createPopupContent(hike));
+                    // Dans la fonction displayMarkers()
+                    marker.bindPopup(createPopupContent(hike), {
+                        autoPan: true,
+                        autoPanPaddingTopLeft: [50, 150], // Augmenté à 150 pour passer sous la bannière
+                        autoPanPaddingBottomRight: [50, 20],
+                        maxWidth: 350,
+                        offset: [0, -10]
+                    });
+                                    
                     marker.on('click', () => selectHike(hike.id));
-                    
                     markersLayer.addLayer(marker);
                 }
             });
         }
-
+        
         // Créer une icône personnalisée
         function createCustomIcon(difficulty) {
             const colors = {
@@ -530,11 +769,11 @@
                     transform: rotate(-45deg);
                     border: 3px solid white;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                "></div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 30]
-            });
-        }
+                            "></div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30]
+                });
+            }
 
         // Créer le contenu du popup
         function createPopupContent(hike) {
@@ -561,14 +800,20 @@
                             <div class="popup-stat-label">Date</div>
                         </div>
                     </div>
-                    <button class="popup-button" onclick="window.location.href='/gallery/${hike.id}'">
-                        Voir la galerie →
-                    </button>
+                    <div class="popup-actions">
+                        <button class="popup-button" onclick="window.location.href='/gallery/${hike.id}'">
+                            Voir la galerie →
+                        </button>
+                        ${hike.gpx_file ? `
+                        <button class="popup-button" onclick="open3DView('${hike.id}')" style="margin-bottom: 8px; background: #10b981;">
+                            Voir en 3D (Relief)
+                        </button>
+                        ` : ''}
+                    </div>
                 </div>
             `;
         }
 
-        // Mettre à jour les statistiques
         function updateStats() {
             document.getElementById('totalHikes').textContent = filteredHikes.length;
             
@@ -591,10 +836,10 @@
                         <div class="hike-info">
                             <div class="hike-name">${hike.name}</div>
                             <div class="hike-stats">
-                                <div>📅 ${hike.date}</div>
-                                <div>📸 ${hike.photos_count || 0} photos</div>
-                                <div>📏 ${hike.distance || '?'} km</div>
-                                <div>⛰️ ${hike.denivele || '?'} m D+</div>
+                                <div> ${hike.date}</div>
+                                <div> ${hike.photos_count || 0} photos</div>
+                                <div> ${hike.distance || '?'} km</div>
+                                <div> ${hike.denivele || '?'} m D+</div>
                             </div>
                         </div>
                     </div>
@@ -611,11 +856,15 @@
             const hikeElement = document.getElementById(`hike-${hikeId}`);
             if (hikeElement) hikeElement.classList.add('active');
             
-            // Centrer la carte sur la randonnée
             const hike = filteredHikes.find(h => h.id === hikeId);
-            if (hike && hike.lat && hike.lon) {
-                map.setView([hike.lat, hike.lon], 13);
-            }
+                if (hike && hike.lat && hike.lon) {
+                    // Trouvez le marqueur correspondant et ouvrez son popup
+                    markersLayer.eachLayer(function(marker) {
+                        if (marker.getLatLng().lat === hike.lat && marker.getLatLng().lng === hike.lon) {
+                            marker.openPopup(); // Leaflet fera le déplacement (pan) automatiquement et correctement
+                        }
+                    });
+                }
         }
 
         // Appliquer les filtres
@@ -623,15 +872,14 @@
             const year = document.getElementById('yearFilter').value;
             const difficulty = document.getElementById('difficultyFilter').value;
             
-            filteredHikes = hikesData.filter(hike => {
-                if (year !== 'all' && !hike.date.startsWith(year)) return false;
-                if (difficulty !== 'all' && hike.difficulty !== difficulty) return false;
-                return true;
-            });
+            // Si on change d'année, recharger les données
+            if (year !== 'all') {
+                loadHikesData(parseInt(year));
+                return;
+            }
             
-            updateStats();
-            updateHikesList();
-            displayMarkers();
+            // Si "Toutes les années", charger toutes les données
+            loadHikesData('all');
         }
 
         // Changer la vue
@@ -694,7 +942,14 @@
                         icon: createCustomIcon(hike.difficulty)
                     });
                     
-                    marker.bindPopup(createPopupContent(hike));
+                    marker.bindPopup(createPopupContent(hike), {
+                        autoPan: true,
+                        keepInView: true,
+                        autoPanPaddingTopLeft: [50, 100],
+                        autoPanPaddingBottomRight: [50, 150],
+                        autoPanPadding: [50, 100],
+                        maxWidth: 350
+                    });
                     marker.on('click', () => selectHike(hike.id));
                     
                     clustersLayer.addLayer(marker);
@@ -702,13 +957,479 @@
             });
         }
 
-        // Upload GPX (placeholder)
+        // Upload GPX
         function uploadGPX() {
-            alert('Fonctionnalité d\'import GPX à venir !');
+            // Créer une fenêtre modale pour l'upload
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 3000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: #2a2a2a; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%;">
+                    <h3 style="margin-bottom: 1.5rem; color: #667eea;">📤 Importer un fichier GPX</h3>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: #aaa;">Sélectionner une randonnée:</label>
+                        <select id="hikeSelect" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #444; background: #1a1a1a; color: white;">
+                            <option value="">Choisir une randonnée...</option>
+                            ${hikesData.map(hike => `<option value="${hike.id}">${hike.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: #aaa;">Fichier GPX:</label>
+                        <input type="file" id="gpxFile" accept=".gpx" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #444; background: #1a1a1a; color: white;">
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #888;">
+                            Formats supportés: .gpx
+                        </div>
+                    </div>
+                    
+                    <div id="uploadProgress" style="display: none; margin-bottom: 1rem;">
+                        <div style="background: #333; padding: 0.5rem; border-radius: 6px;">
+                            <div id="progressBar" style="background: #667eea; height: 4px; border-radius: 2px; width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                        <div id="progressText" style="margin-top: 0.5rem; color: #aaa; font-size: 0.9rem;">Téléchargement en cours...</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="closeUploadModal()" style="padding: 0.6rem 1.2rem; background: #666; color: white; border: none; border-radius: 6px; cursor: pointer;">Annuler</button>
+                        <button onclick="performUpload()" style="padding: 0.6rem 1.2rem; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">Importer</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function closeUploadModal() {
+            const modal = document.querySelector('div[style*="position: fixed"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        async function performUpload() {
+            const hikeSelect = document.getElementById('hikeSelect');
+            const gpxFile = document.getElementById('gpxFile');
+            
+            if (!hikeSelect.value) {
+                alert('Veuillez sélectionner une randonnée');
+                return;
+            }
+            
+            if (!gpxFile.files[0]) {
+                alert('Veuillez sélectionner un fichier GPX');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('gpx_file', gpxFile.files[0]);
+            
+            // Afficher la progression
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('progressBar').style.width = '50%';
+            document.getElementById('progressText').textContent = 'Téléchargement du fichier...';
+            
+            try {
+                const response = await fetch(`/upload_gpx/${hikeSelect.value}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                document.getElementById('progressBar').style.width = '80%';
+                document.getElementById('progressText').textContent = 'Analyse du GPX...';
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.getElementById('progressText').textContent = 'Import réussi!';
+                    
+                    // Afficher les informations importées
+                    setTimeout(() => {
+                        alert(`GPX importé avec succès!\n\nNom: ${result.gpx_info.name}\nDistance: ${result.gpx_info.distance} km\nDénivelé: ${result.gpx_info.elevation_gain} m\nPoints: ${result.gpx_info.point_count}`);
+                        
+                        // Recharger les données et afficher la trace
+                        loadGPXTrack(hikeSelect.value);
+                        closeUploadModal();
+                    }, 1000);
+                } else {
+                    throw new Error(result.error || 'Erreur lors de l\'upload');
+                }
+            } catch (error) {
+                document.getElementById('progressText').textContent = `Erreur: ${error.message}`;
+                document.getElementById('progressBar').style.background = '#ef4444';
+                setTimeout(() => {
+                    closeUploadModal();
+                }, 2000);
+            }
         }
 
-        // Initialiser au chargement
-        document.addEventListener('DOMContentLoaded', initMap);
+        // Recharger les données d'une randonnée spécifique
+        async function reloadHikeData(hikeId) {
+            try {
+                const response = await fetch(`/api/hike/${hikeId}`);
+                const hikeData = await response.json();
+                
+                if (response.ok) {
+                    // Mettre à jour les données dans hikesData
+                    const index = hikesData.findIndex(h => h.id === hikeId);
+                    if (index !== -1) {
+                        hikesData[index] = hikeData;
+                    }
+                    
+                    // Rafraîchir l'affichage
+                    applyFilters();
+                }
+            } catch (error) {
+                console.warn('Erreur lors du rechargement des données:', error);
+            }
+        }
+
+        
+  // --- LOGIQUE CESIUM 3D (CORRIGÉE) ---
+        let cesiumViewer = null;
+        let currentTrackFor3D = [];
+        let isPaused = false;
+        let timelineInterval = null;
+        let currentAltitude = 1200;
+        let currentCameraListener = null; // Variable pour stocker le listener de caméra
+
+        function updateAltitude(val) {
+            currentAltitude = parseInt(val);
+            document.getElementById('altValue').innerText = val;
+        }
+
+        function togglePause() {
+            if (!cesiumViewer) return;
+            isPaused = !isPaused;
+            cesiumViewer.clock.shouldAnimate = !isPaused;
+            document.getElementById('pauseButton').innerText = isPaused ? "▶️" : "⏸";
+        }
+
+        function seekTimeline(percent) {
+            if (!cesiumViewer || !cesiumViewer.clock.startTime) return;
+            const totalSeconds = Cesium.JulianDate.secondsDifference(cesiumViewer.clock.stopTime, cesiumViewer.clock.startTime);
+            const targetSeconds = (percent / 100) * totalSeconds;
+            cesiumViewer.clock.currentTime = Cesium.JulianDate.addSeconds(cesiumViewer.clock.startTime, targetSeconds, new Cesium.JulianDate());
+        }
+
+        async function open3DView(hikeId) {
+            console.log("Démarrage vue 3D...");
+            document.getElementById('cesiumContainer').style.display = 'block';
+            
+            if (!cesiumViewer) {
+                cesiumViewer = new Cesium.Viewer('cesiumContainer', {
+                    terrainProvider: await Cesium.createWorldTerrainAsync(),
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    navigationHelpButton: false,
+                    animation: false, 
+                    timeline: false
+                });
+            }
+
+            try {
+                const response = await fetch(`/api/hike/${hikeId}/gpx/track`);
+                const data = await response.json();
+                
+                if (data.segments) {
+                    currentTrackFor3D = data.segments.flat();
+                    cesiumViewer.entities.removeAll();
+                    
+                    const positions = currentTrackFor3D.map(c => Cesium.Cartesian3.fromDegrees(c[1], c[0]));
+                    const entity = cesiumViewer.entities.add({
+                        polyline: {
+                            positions: positions,
+                            width: 5,
+                            material: Cesium.Color.YELLOW,
+                            clampToGround: true
+                        }
+                    });
+                    
+                    // Marqueurs de début et fin supprimés pour éviter qu'ils apparaissent à travers le terrain
+                    
+                    // Calculer l'orientation au départ de la rando
+                    if (currentTrackFor3D.length >= 2) {
+                        const startPoint = currentTrackFor3D[0];
+                        
+                        // Prendre un point plus loin pour avoir une meilleure direction
+                        const lookAheadIndex = Math.min(10, currentTrackFor3D.length - 1);
+                        const forwardPoint = currentTrackFor3D[lookAheadIndex];
+                        
+                        // Calculer l'angle de départ (bearing) entre le début et le point en avant
+                        const lat1 = startPoint[0] * Math.PI / 180;
+                        const lon1 = startPoint[1] * Math.PI / 180;
+                        const lat2 = forwardPoint[0] * Math.PI / 180;
+                        const lon2 = forwardPoint[1] * Math.PI / 180;
+                        
+                        const dLon = lon2 - lon1;
+                        const y = Math.sin(dLon) * Math.cos(lat2);
+                        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+                        const bearing = Math.atan2(y, x);
+                        
+                        // Convertir en degrés (0-360)
+                        const headingDegrees = (bearing * 180 / Math.PI + 360) % 360;
+                        
+                        // Calculer la distance totale et les bornes de la trace
+                        let totalDistance = 0;
+                        let minLat = startPoint[0], maxLat = startPoint[0];
+                        let minLon = startPoint[1], maxLon = startPoint[1];
+                        
+                        for (let i = 0; i < currentTrackFor3D.length - 1; i++) {
+                            const p1 = currentTrackFor3D[i];
+                            const p2 = currentTrackFor3D[i + 1];
+                            
+                            minLat = Math.min(minLat, p1[0]);
+                            maxLat = Math.max(maxLat, p1[0]);
+                            minLon = Math.min(minLon, p1[1]);
+                            maxLon = Math.max(maxLon, p1[1]);
+                            
+                            const R = 6371000;
+                            const dLat = (p2[0] - p1[0]) * Math.PI / 180;
+                            const dLon = (p2[1] - p1[1]) * Math.PI / 180;
+                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                    Math.cos(p1[0] * Math.PI / 180) * Math.cos(p2[0] * Math.PI / 180) *
+                                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                            totalDistance += R * c;
+                        }
+                        
+                        // Calculer l'étendue de la trace
+                        const latSpan = (maxLat - minLat) * 111000; // en mètres
+                        const lonSpan = (maxLon - minLon) * 111000 * Math.cos(startPoint[0] * Math.PI / 180);
+                        const maxSpan = Math.max(latSpan, lonSpan);
+                        
+                        // Hauteur adaptée pour voir toute la trace (entre 2500m et 6000m)
+                        const cameraHeight = Math.min(Math.max(maxSpan * 1.3, 2500), 6000);
+                        
+                        // APPROCHE SIMPLIFIÉE : Positionner la caméra directement au-dessus du point de départ
+                        // puis la décaler légèrement en arrière
+                        
+                        // La caméra est placée AU POINT DE DÉPART, juste en hauteur
+                        const cameraLat = startPoint[0];
+                        const cameraLon = startPoint[1];
+                        
+                        console.log(`Start point [0]: [${startPoint[0].toFixed(6)}, ${startPoint[1].toFixed(6)}]`);
+                        console.log(`Forward point [${lookAheadIndex}]: [${forwardPoint[0].toFixed(6)}, ${forwardPoint[1].toFixed(6)}]`);
+                        console.log(`Last point: [${currentTrackFor3D[currentTrackFor3D.length-1][0].toFixed(6)}, ${currentTrackFor3D[currentTrackFor3D.length-1][1].toFixed(6)}]`);
+                        console.log(`Bearing forward: ${headingDegrees.toFixed(1)}°, Height: ${cameraHeight.toFixed(0)}m`);
+                        
+                        // Vue de toute la trace avec perspective 3D, orientée dans le sens de la marche
+                        // La caméra sera positionnée de manière à voir la trace partir du début
+                        cesiumViewer.flyTo(entity, {
+                            duration: 0,
+                            offset: new Cesium.HeadingPitchRange(
+                                Cesium.Math.toRadians(headingDegrees), // Orienter dans le sens de la marche
+                                Cesium.Math.toRadians(-30), // Angle pour voir le relief en 3D
+                                cameraHeight * 1.5 // Distance pour voir toute la trace
+                            )
+                        });
+                        
+                        console.log(`Camera positioned: Height=${cameraHeight.toFixed(0)}m, Heading=${headingDegrees.toFixed(1)}°, Distance=${totalDistance.toFixed(0)}m`);
+                    } else {
+                        // Fallback si moins de 2 points
+                        cesiumViewer.zoomTo(entity, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-30), 2500));
+                    }
+                }
+            } catch (e) {
+                console.error("Erreur chargement trace:", e);
+            }
+        } 
+
+ function startFlyOver() {
+    if (!currentTrackFor3D.length) return;
+    
+    const btn = document.getElementById('flyButton');
+    const pBtn = document.getElementById('pauseButton');
+    const timelineCont = document.getElementById('timelineContainer');
+    const timelineInput = document.getElementById('flyTimeline');
+    
+    // FORCER le nettoyage complet avant de commencer
+    if (timelineInterval) {
+        clearInterval(timelineInterval);
+        timelineInterval = null;
+    }
+    
+    if (currentCameraListener) {
+        currentCameraListener();
+        currentCameraListener = null;
+    }
+    
+    // Arrêter l'horloge si elle tourne
+    if (cesiumViewer.clock.shouldAnimate) {
+        cesiumViewer.clock.shouldAnimate = false;
+    }
+    
+    btn.disabled = true;
+    pBtn.style.display = "block";
+    timelineCont.style.display = "flex";
+    isPaused = false;
+    pBtn.innerText = "⏸";
+
+    // 1. Création d'une trajectoire lissée avec l'altitude ACTUELLE du slider
+    const property = new Cesium.SampledPositionProperty();
+    const start = Cesium.JulianDate.now();
+    const totalDuration = 60; // secondes pour tout le parcours
+    
+    currentTrackFor3D.forEach((coord, i) => {
+        const timeOffset = (i / currentTrackFor3D.length) * totalDuration;
+        const time = Cesium.JulianDate.addSeconds(start, timeOffset, new Cesium.JulianDate());
+        const position = Cesium.Cartesian3.fromDegrees(coord[1], coord[0], currentAltitude);
+        property.addSample(time, position);
+    });
+
+    // 2. Configuration de l'horloge
+    cesiumViewer.clock.startTime = start.clone();
+    cesiumViewer.clock.stopTime = Cesium.JulianDate.addSeconds(start, totalDuration, new Cesium.JulianDate());
+    cesiumViewer.clock.currentTime = start.clone();
+    cesiumViewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; // S'arrête à la fin
+    cesiumViewer.clock.shouldAnimate = true;
+
+    // 3. Fonction de mise à jour de la caméra (CORRIGÉE)
+    const updateCamera = () => {
+        try {
+            if (isPaused) return;
+
+            const now = cesiumViewer.clock.currentTime;
+            const position = property.getValue(now);
+            const lookAheadTime = Cesium.JulianDate.addSeconds(now, 8.0, new Cesium.JulianDate());
+            let target = property.getValue(lookAheadTime);
+
+            if (position && target) {
+                const direction = Cesium.Cartesian3.normalize(
+                    Cesium.Cartesian3.subtract(target, position, new Cesium.Cartesian3()),
+                    new Cesium.Cartesian3()
+                );
+
+                const backwardOffset = Cesium.Cartesian3.multiplyByScalar(direction, -1500, new Cesium.Cartesian3());
+                const heightOffset = new Cesium.Cartesian3(0, 0, 800);
+                
+                const cameraOffset = Cesium.Cartesian3.add(backwardOffset, heightOffset, new Cesium.Cartesian3());
+                const cameraPosition = Cesium.Cartesian3.add(position, cameraOffset, new Cesium.Cartesian3());
+                
+                const upVector = Cesium.Cartesian3.normalize(cameraPosition, new Cesium.Cartesian3());
+                
+                const cameraDirection = Cesium.Cartesian3.normalize(
+                    Cesium.Cartesian3.subtract(position, cameraPosition, new Cesium.Cartesian3()),
+                    new Cesium.Cartesian3()
+                );
+                
+                cesiumViewer.camera.setView({
+                    destination: cameraPosition,
+                    orientation: {
+                        direction: cameraDirection,
+                        up: upVector
+                    }
+                });
+            }
+        } catch (error) {
+            // Erreur silencieuse pour ne pas arrêter le vol
+        }
+    };
+
+    // Attacher le listener de caméra
+    currentCameraListener = cesiumViewer.scene.postRender.addEventListener(updateCamera);
+
+    // 4. Fonction de nettoyage
+    const cleanup = () => {
+        if (timelineInterval) {
+            clearInterval(timelineInterval);
+            timelineInterval = null;
+        }
+        
+        if (currentCameraListener) {
+            currentCameraListener();
+            currentCameraListener = null;
+        }
+        
+        cesiumViewer.clock.shouldAnimate = false;
+        btn.disabled = false;
+        pBtn.style.display = "none";
+        timelineCont.style.display = "none";
+        isPaused = false;
+        pBtn.innerText = "⏸";
+        timelineInput.value = 0;
+    };
+
+    // 5. Gestion de la timeline
+    timelineInterval = setInterval(() => {
+        if (!isPaused) {
+            // Vérifier si l'horloge tourne encore
+            if (!cesiumViewer.clock.shouldAnimate) {
+                cesiumViewer.clock.shouldAnimate = true;
+            }
+            
+            const currentSec = Cesium.JulianDate.secondsDifference(
+                cesiumViewer.clock.currentTime, 
+                cesiumViewer.clock.startTime
+            );
+            const totalSec = Cesium.JulianDate.secondsDifference(
+                cesiumViewer.clock.stopTime, 
+                cesiumViewer.clock.startTime
+            );
+            const progress = (currentSec / totalSec) * 100;
+            
+            // Mettre à jour la barre de progression
+            timelineInput.value = Math.min(Math.max(progress, 0), 100);
+            
+            // Détecter la fin
+            if (progress >= 99.9 && !cesiumViewer.clock.shouldAnimate) {
+                cleanup();
+                return;
+            }
+        }
+    }, 200);
+
+    // 6. Backup : onStop de l'horloge
+    const onStopHandler = () => {
+        cleanup();
+        cesiumViewer.clock.onStop.removeEventListener(onStopHandler);
+    };
+    cesiumViewer.clock.onStop.addEventListener(onStopHandler);
+}
+
+        function close3DView() {
+            document.getElementById('cesiumContainer').style.display = 'none';
+            if(cesiumViewer) {
+                cesiumViewer.clock.shouldAnimate = false;
+                cesiumViewer.trackedEntity = undefined;
+            }
+            if (timelineInterval) {
+                clearInterval(timelineInterval);
+                timelineInterval = null;
+            }
+            if (currentCameraListener) {
+                currentCameraListener();
+                currentCameraListener = null;
+            }
+            // Réactiver le bouton au cas où
+            const btn = document.getElementById('flyButton');
+            if (btn) btn.disabled = false;
+        }
+        
+        // Initialiser Leaflet au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            
+            // Masquer le bouton d'import GPX en production
+            if (!isDevMode) {
+                const uploadButton = document.querySelector('button[onclick="uploadGPX()"]');
+                if (uploadButton) {
+                    uploadButton.style.display = 'none';
+                }
+            }
+        });
     </script>
 </body>
 </html>

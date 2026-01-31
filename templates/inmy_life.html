@@ -668,6 +668,61 @@
                 font-size: 0.9rem;
             }
         }
+
+        /* Styles spécifiques pour le mode développement */
+        body.dev-mode .page-image {
+            max-width: 50%;
+            max-height: 40vh;
+            order: 1;
+        }
+
+        body.dev-mode .page-content-wrapper {
+            flex: 1;
+            order: 2;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+        }
+
+        body.dev-mode .page-text-container {
+            width: 100%;
+            padding: 1rem;
+        }
+
+        body.dev-mode .page-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            min-height: 100px;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        body.dev-mode .page-text.editing {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Mode développement mobile */
+        @media (max-width: 768px) {
+            body.dev-mode .page-image {
+                max-width: 70%;
+                max-height: 35vh;
+                margin-bottom: 1rem;
+            }
+
+            body.dev-mode .page-content-wrapper {
+                min-height: 150px;
+            }
+
+            body.dev-mode .page-text {
+                font-size: 1rem;
+                min-height: 80px;
+                padding: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body class="{{ 'dev-mode' if dev_mode }}">

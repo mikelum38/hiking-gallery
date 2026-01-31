@@ -1,1 +1,20 @@
-{}
+{
+  "6a68978d-73c0-48ca-a08f-19f0b415ab8e": {
+    "name": "Séjour en Tyrol",
+    "date": "2010-08-26",
+    "description": "Une semaine en Autriche ; illustration : l'oeil de Rotan",
+    "distance": null,
+    "denivele": null,
+    "photos": [
+      {
+        "url": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769863384/c3g8lh3nycooehwpgbkm.jpg"
+      }
+    ],
+    "lat": 45.188529,
+    "lon": 5.724524,
+    "year": 2010,
+    "month": 8,
+    "day": 26,
+    "cover_image": "https://res.cloudinary.com/dfuzvu8c5/image/upload/v1769863238/wquskudw0bokwc5wh21e.jpg"
+  }
+}

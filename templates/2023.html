@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Best of 2023 - Rêves de Montagne</title>
+    <title>Autour du géant catalan - Rêves de Montagne</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -279,6 +279,40 @@
             opacity: 0;
             transform: translateY(30px);
             animation: slideUp 1s ease-out forwards 1.7s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .scroll-arrow:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .scroll-left {
+            left: 10px;
+        }
+
+        .scroll-right {
+            right: 10px;
         }
 
         .months-scroll {
@@ -288,8 +322,27 @@
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
             gap: 1rem;
-            padding: 1rem 0;
-            scrollbar-width: none;
+            padding: 1rem 60px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+
+        .months-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .months-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .months-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .months-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .month-card {
@@ -376,9 +429,8 @@
     <a href="{{ url_for('years') }}" class="back-link"><i class="fas fa-arrow-left"></i> Retour</a>
 
     <div class="home-hero">
-        <h1>Best of 2023</h1>
-        <p>Les plus belles randonnées de l'année</p>
-        <p><em>(ajouts d'autres randonnées, ultérieurement)</em></p>
+        <h1>Autour du géant catalan</h1>
+        <p>Trek tour du canigou , aout 2023</p>
         {% if dev_mode %}
         <button class="add-hike-btn" onclick="toggleCreateGallery()">
             <i class="fas fa-plus"></i> Ajouter une randonnée
@@ -387,24 +439,43 @@
     </div>
 
     <div class="months-container">
-        <div class="months-scroll">
+        <button class="scroll-arrow scroll-left" onclick="scrollMonths('left')">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="months-scroll" id="monthsScroll">
             {% for month, data in galleries_by_month.items()|sort(attribute='1.month') %}
             <a href="{{ url_for('month_galleries', year=data.year, month=data.month) }}" class="month-card">
                     <div class="month-cover"
-                    {% if data.galleries|length > 0 and data.galleries[0].photos|length > 0 %}
-                        {% set first_gallery = data.galleries[0] %}
-                        {% set first_photo_url = first_gallery.photos[0].url %}
-                        {% set transformations = 'f_auto,q_auto,w_400,h_300,c_fill' %}
-                        {% set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') %}
-                        style="background-image: url('{{ optimized_cover_url }}')"
+                    {% if data.galleries|length > 0 %}
+                        {% if data.galleries[0].photos|length > 0 %}
+                            {% set first_gallery = data.galleries[0] %}
+                            {% set first_photo_url = first_gallery.photos[0].url %}
+                            {% set transformations = 'f_auto,q_auto,w_400,h_300,c_fill' %}
+                            {% set optimized_cover_url = first_photo_url|replace('/upload/', '/upload/' + transformations + '/') %}
+                            style="background-image: url('{{ optimized_cover_url }}')"
+                        {% elif data.galleries[0].cover_image %}
+                            style="background-image: url('{{ data.galleries[0].cover_image }}')"
+                        {% else %}
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        {% endif %}
+                    {% else %}
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                     {% endif %}>
                     <div class="month-overlay">
                         <h2 class="month-name">{{ month }}</h2>
+                        {% if data.galleries|length > 0 %}
+                        <p class="gallery-count">{{ data.galleries|length }} randonnée{% if data.galleries|length > 1 %}s{% endif %}</p>
+                        {% endif %}
                     </div>
                 </div>
             </a>
             {% endfor %}
         </div>
+        
+        <button class="scroll-arrow scroll-right" onclick="scrollMonths('right')">
+            <i class="fas fa-chevron-right"></i>
+        </button>
     </div>
 
     {% if dev_mode %}
@@ -433,6 +504,14 @@
                     <input type="file" id="cover_image" name="cover_image" accept="image/*">
                 </div>
                 
+                <div class="form-group">
+                    <label for="gpx_file">Fichier GPX (optionnel) :</label>
+                    <input type="file" id="gpx_file" name="gpx_file" accept=".gpx">
+                    <small style="color: #666; font-size: 0.9em;">
+                        Si vous fournissez un fichier GPX, les coordonnées, distance et dénivelé seront automatiquement extraits.
+                    </small>
+                </div>
+                
                 <div class="button-group">
                     <button type="submit" class="submit-button">Créer</button>
                     <button type="button" class="cancel-button" onclick="toggleCreateGallery()">Annuler</button>
@@ -447,6 +526,23 @@
             const form = document.getElementById('createGalleryForm');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
+        
+        function scrollMonths(direction) {
+            const scrollContainer = document.getElementById('monthsScroll');
+            const scrollAmount = 320; // Largeur d'une carte + gap
+            
+            if (direction === 'left') {
+                scrollContainer.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            } else {
+                scrollContainer.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+        }
     </script>
 </body>
-</html> 
+</html>
