@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vol en ULM - Virus en Savoie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3em;
+            font-style: italic;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            max-width: 800px;
+            margin: 20px auto;
+            font-size: 1.1em;
+            line-height: 1.8;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .slideshow-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 40px auto;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .slide {
+            display: none;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.8s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: #fff;
+            padding: 30px 20px 20px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .navigation {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            font-size: 2em;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .dots-container {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .dot {
+            height: 15px;
+            width: 15px;
+            margin: 0 5px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active, .dot:hover {
+            background-color: #fff;
+            transform: scale(1.3);
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            padding: 12px 30px;
+            margin: 0 10px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .download-section {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .download-section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .download-info {
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px 50px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            text-decoration: none;
+            margin: 20px 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .nav-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.5em;
+            }
+
+            .download-section {
+                padding: 20px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Admin Panel Styles */
+        .admin-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-panel h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #uploadStatus {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        #uploadStatus.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #22c55e;
+        }
+
+        #uploadStatus.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Virus en Savoie</h1>
+            <div class="subtitle">ULM Virus Pisistrel - 2006</div>
+        </header>
+
+        <a href="/years" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Retour aux années
+        </a>
+
+        <div class="description">
+            Découvrez un vol exceptionnel en ULM Carbone depuis Yenne dans l'Ain jusqu'au Mont Blanc, 
+            survolant les massifs emblématiques des Alpes. Des paysages à couper le souffle capturés 
+            depuis les airs, offrant une perspective unique sur la beauté majestueuse des sommets enneigés.
+        </div>
+
+        <div class="slideshow-container">
+            {% if slides %}
+                {% for slide in slides %}
+                <div class="slide {% if loop.first %}active{% endif %}">
+                    <img src="{{ slide.url }}" alt="{{ slide.alt }}">
+                    <div class="caption">{{ slide.caption }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="slide active">
+                    <img src="https://res.cloudinary.com/dfuzvu8c5/image/upload/w_1200,h_800,c_fill,q_auto/placeholder-ulm.jpg" alt="Placeholder ULM">
+                    <div class="caption">Aucune photo disponible - Mode développement</div>
+                </div>
+            {% endif %}
+
+            <div class="navigation">
+                <button class="nav-btn" onclick="changeSlide(-1)">‹</button>
+                <button class="nav-btn" onclick="changeSlide(1)">›</button>
+            </div>
+        </div>
+
+        <div class="dots-container">
+            {% if slides %}
+                {% for slide in slides %}
+                <span class="dot {% if loop.first %}active{% endif %}" onclick="currentSlide({{ loop.index }})"></span>
+                {% endfor %}
+            {% else %}
+                <span class="dot active" onclick="currentSlide(1)"></span>
+            {% endif %}
+        </div>
+
+        {% if dev_mode %}
+        <div class="admin-panel">
+            <h3>📸 Gestion des slides (Mode Dev)</h3>
+            <form id="uploadSlideForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="slideFile">Nouvelle photo :</label>
+                    <input type="file" id="slideFile" name="slide" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="slideCaption">Légende :</label>
+                    <input type="text" id="slideCaption" name="caption" placeholder="Légende de la photo">
+                </div>
+                <div class="form-group">
+                    <label for="slideAlt">Texte alternatif :</label>
+                    <input type="text" id="slideAlt" name="alt" placeholder="Description pour l'accessibilité">
+                </div>
+                <button type="submit" class="upload-btn">
+                    <i class="fas fa-upload"></i> Ajouter au diaporama
+                </button>
+            </form>
+            <div id="uploadStatus"></div>
+        </div>
+        {% endif %}
+
+        <div class="controls">
+            <button class="control-btn" onclick="toggleAutoplay()">
+                <span id="playPauseText">⏸ Pause</span>
+            </button>
+            <button class="control-btn" onclick="resetSlideshow()">↺ Recommencer</button>
+        </div>
+
+        <div class="download-section">
+            <h2>📥 Télécharger le Diaporama Complet</h2>
+            
+            <div class="download-info">
+                <p>Envie de profiter de la <strong>version complète avec musique</strong> ?</p>
+                <p>Téléchargez les deux parties du diaporama exécutable avec toutes les photos en haute résolution et la bande sonore originale !</p>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎵</div>
+                    <div>Musique d'ambiance</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📸</div>
+                    <div>Haute résolution</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💻</div>
+                    <div>Windows</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div>Installation facile</div>
+                </div>
+            </div>
+
+            <a href="https://drive.google.com/file/d/1Ah9A-1DGnoK04p3AHKP6ljmMh0PRrP3a/view?usp=sharing" 
+               class="download-btn" 
+               target="_blank">
+                ⬇ Télécharger Partie 1 (35 Mo)
+            </a>
+            
+            <a href="https://drive.google.com/file/d/19uuCHaQEZZeMYuzRWudHL_aosUi58PEq/view?usp=sharing" 
+               class="download-btn" 
+               target="_blank">
+                ⬇ Télécharger Partie 2 (30 Mo)
+            </a>
+
+            <div class="download-info" style="margin-top: 30px; font-size: 0.95em; color: #ccc;">
+                <p><strong>Installation :</strong></p>
+                <p>1. Téléchargez les deux parties du diaporama</p>
+                <p>2. <strong>Partie 1</strong> : Double-cliquez sur <em>VirusSavoie.exe</em></p>
+                <p>3. <strong>Partie 2</strong> : Double-cliquez sur <em>virussavoieii.exe</em></p>
+                <p style="margin-top: 15px;">✨ Chaque diaporama se lance automatiquement avec la musique !</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Vol en ULM Carbone - Yenne (Ain) → Mont Blanc</p>
+            <p>Survol des massifs emblématiques des Alpes</p>
+            <p style="margin-top: 10px; opacity: 0.7;">© Tous droits réservés</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        let autoplayInterval;
+        let isPlaying = true;
+
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlide(index) {
+            if (index >= slides.length) {
+                currentIndex = 0;
+            } else if (index < 0) {
+                currentIndex = slides.length - 1;
+            } else {
+                currentIndex = index;
+            }
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            slides[currentIndex].classList.add('active');
+            dots[currentIndex].classList.add('active');
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentIndex + direction);
+        }
+
+        function currentSlide(index) {
+            showSlide(index - 1);
+        }
+
+        function startAutoplay() {
+            autoplayInterval = setInterval(() => {
+                changeSlide(1);
+            }, 4000);
+            isPlaying = true;
+            document.getElementById('playPauseText').innerHTML = '⏸ Pause';
+        }
+
+        function stopAutoplay() {
+            clearInterval(autoplayInterval);
+            isPlaying = false;
+            document.getElementById('playPauseText').innerHTML = '▶ Lecture';
+        }
+
+        function toggleAutoplay() {
+            if (isPlaying) {
+                stopAutoplay();
+            } else {
+                startAutoplay();
+            }
+        }
+
+        function resetSlideshow() {
+            showSlide(0);
+            if (!isPlaying) {
+                startAutoplay();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                toggleAutoplay();
+            }
+        });
+
+        // Start autoplay on load
+        startAutoplay();
+
+        {% if dev_mode %}
+        // Upload functionality
+        document.getElementById('uploadSlideForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Upload en cours...';
+            statusDiv.className = '';
+            
+            try {
+                const response = await fetch('/upload_ulm_slide', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = '<i class="fas fa-check"></i> Photo ajoutée avec succès !';
+                    statusDiv.className = 'success';
+                    
+                    // Reset form
+                    this.reset();
+                    
+                    // Reload page after 2 seconds to show new slide
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erreur: ${result.error}`;
+                    statusDiv.className = 'error';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erreur de connexion';
+                statusDiv.className = 'error';
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

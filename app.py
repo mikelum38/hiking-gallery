@@ -1856,6 +1856,74 @@ def memories_pile():
 def bouquetin():
     return render_template('bouquetin.html')
 
+@app.route('/galerie-ulm')
+def galerie_ulm():
+    # Charger les slides depuis le fichier JSON
+    try:
+        with open('ulm_slides.json', 'r', encoding='utf-8') as f:
+            slides_data = json.load(f)
+        slides = slides_data.get('slides', [])
+    except FileNotFoundError:
+        slides = []
+    except json.JSONDecodeError:
+        slides = []
+    
+    return render_template('galerie-ulm.html', slides=slides, dev_mode=app.config['DEV_MODE'])
+
+@app.route('/upload_ulm_slide', methods=['POST'])
+def upload_ulm_slide():
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Not allowed in production mode'}), 403
+    
+    try:
+        if 'slide' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['slide']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if file and allowed_file(file.filename):
+            # Upload to Cloudinary
+            upload_result = cloudinary.uploader.upload(
+                file,
+                folder='ulm',
+                resource_type='image',
+                transformation=[
+                    {'width': 1200, 'height': 800, 'crop': 'fill', 'quality': 'auto'},
+                    {'fetch_format': 'auto'}
+                ]
+            )
+            
+            # Load current slides
+            try:
+                with open('ulm_slides.json', 'r', encoding='utf-8') as f:
+                    slides_data = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                slides_data = {'slides': []}
+            
+            # Add new slide
+            new_slide = {
+                'id': len(slides_data['slides']) + 1,
+                'url': upload_result['secure_url'],
+                'caption': request.form.get('caption', f'Slide {len(slides_data["slides"]) + 1}'),
+                'alt': request.form.get('alt', 'Photo ULM')
+            }
+            
+            slides_data['slides'].append(new_slide)
+            
+            # Save updated slides
+            with open('ulm_slides.json', 'w', encoding='utf-8') as f:
+                json.dump(slides_data, f, indent=2, ensure_ascii=False)
+            
+            return jsonify({'success': True, 'slide': new_slide})
+        
+        return jsonify({'error': 'Invalid file type'}), 400
+    
+    except Exception as e:
+        app.logger.error(f"Error uploading ULM slide: {str(e)}")
+        return jsonify({'error': 'Upload failed'}), 500
+
 @app.route('/mountain_flowers')
 def mountain_flowers():
     flowers = load_flowers_data()

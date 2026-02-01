@@ -492,48 +492,49 @@
             }
         }
         
-        .search-floating-btn {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-            z-index: 999;
-            text-decoration: none;
-            transition: all 0.3s;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .search-floating-btn::after {
-            content: 'Recherche';
-            position: absolute;
-            bottom: -25px;
-            right: 0;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .search-floating-btn:hover::after {
-            opacity: 1;
-        }
-
-        .search-floating-btn:hover {
-            transform: scale(1.1);
-        }
+        /*         .search-floating-btn {
+        /*             position: fixed;
+        /*             bottom: 100px;
+        /*             right: 30px;
+        /*             width: 60px;
+        /*             height: 60px;
+        /*             border-radius: 50%;
+        /*             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /*             color: white;
+        /*             display: flex;
+        /*             align-items: center;
+        /*             justify-content: center;
+        /*             box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        /*             z-index: 999;
+        /*             text-decoration: none;
+        /*             transition: all 0.3s;
+        /*             font-size: 12px;
+        /*             font-weight: 500;
+        /*         }
+        /* 
+        /*         .search-floating-btn::after {
+        /*             content: 'Recherche';
+        /*             position: absolute;
+        /*             bottom: -25px;
+        /*             right: 0;
+        /*             background: rgba(0, 0, 0, 0.8);
+        /*             color: white;
+        /*             padding: 4px 8px;
+        /*             border-radius: 4px;
+        /*             font-size: 11px;
+        /*             white-space: nowrap;
+        /*             opacity: 0;
+        /*             transition: opacity 0.3s;
+        /*         }
+        /* 
+        /*         .search-floating-btn:hover::after {
+        /*             opacity: 1;
+        /*         }
+        /* 
+        /*         .search-floating-btn:hover {
+        /*             transform: scale(1.1);
+        /*         }
+ */
         
         .nav-btn {
             position: fixed;
@@ -584,6 +585,31 @@
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
+        
+        .ulm-btn {
+            position: fixed;
+            bottom: 75px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .ulm-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -594,6 +620,10 @@
         
         <a href="/inmy" class="archives-btn">
             <i class="fas fa-archive"></i> Archives
+        </a>
+        
+        <a href="/galerie-ulm" class="ulm-btn">
+            <i class="fas fa-plane"></i> Vol ULM
         </a>
         
         <a href="/map" class="nav-btn">
@@ -617,8 +647,8 @@
             </button>
         </div>
 
-        <a href="/search" class="search-floating-btn" title="Rechercher (Ctrl+K)">
-            <i class="fas fa-search"></i>
+        <a href="/search" class="search-btn" title="Rechercher (Ctrl+K)">
+            <i class="fas fa-search"></i> Recherche
         </a>
     </div>
 
@@ -794,3 +824,38 @@
     </style>
 </body>
 </html>
+    <style>
+    .search-btn {
+    position: fixed;
+    bottom: 75px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    z-index: 1000;
+    }
+
+    .search-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+    .search-btn {
+        bottom: 70px;
+        right: 15px;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        }
+    }
+    </style>
