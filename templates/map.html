@@ -130,13 +130,14 @@
             overflow-y: auto;
             padding: 1.5rem;
             box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            position: relative;
         }
 
         .sidebar-section {
             background: #333;
             border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .sidebar-section h3 {
@@ -408,22 +409,70 @@
             border-radius: 10px;
         }
 
+        /* Menu toggle button */
+        .menu-toggle {
+            display: none;
+        }
+        
         @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1003;
+                background: rgba(42, 42, 42, 0.95);
+                border: 2px solid #667eea;
+                border-radius: 8px;
+                padding: 12px;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .menu-toggle span {
+                display: block;
+                width: 25px;
+                height: 3px;
+                background: white;
+                margin: 5px 0;
+                transition: 0.3s;
+            }
+            
             .sidebar {
                 position: absolute;
                 left: -350px;
                 z-index: 1001;
                 transition: left 0.3s;
+                height: 100vh;
+                overflow-y: auto;
+                padding: 1rem;
             }
 
             .sidebar.open {
                 left: 0;
             }
+            
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
 
             .stats-banner {
-                flex-direction: column;
-                gap: 0.5rem;
-                padding: 0.8rem 1rem;
+                display: none;
+            }
+            
+            .main-content {
+                overflow: visible;
             }
         }
     </style>
@@ -455,6 +504,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Menu toggle button for mobile -->
+    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <div class="container">
         <!-- Header -->
@@ -1430,6 +1489,22 @@
                 }
             }
         });
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            console.log('toggleSidebar called');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            console.log('sidebar:', sidebar);
+            console.log('overlay:', overlay);
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            console.log('sidebar classes after toggle:', sidebar.className);
+            console.log('overlay classes after toggle:', overlay.className);
+        }
     </script>
 </body>
 </html>
