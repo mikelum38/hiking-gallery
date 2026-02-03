@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Module de recherche pour Hiking Gallery
+Module de recherche pour Hiking Gallery - Version corrigée
 Recherche dans : noms, descriptions, dates, lieux
 """
 
@@ -150,6 +150,12 @@ class SearchEngine:
             filtered = [r for r in filtered 
                        if datetime.strptime(r['date'], '%Y-%m-%d').month == month]
         
+        # Filtre par altitude
+        if 'altitude' in filters and filters['altitude']:
+            altitude_filter = filters['altitude']
+            filtered = [r for r in filtered 
+                       if self._matches_altitude_filter(r, altitude_filter)]
+        
         # Filtre par tag (si disponible)
         if 'tag' in filters and filters['tag']:
             tag = filters['tag'].lower()
@@ -157,6 +163,130 @@ class SearchEngine:
                        if tag in [t.lower() for t in r.get('tags', [])]]
         
         return filtered
+    
+    def _matches_altitude_filter(self, gallery: Dict, altitude_filter: str) -> bool:
+        """Vérifie si une galerie correspond au filtre d'altitude"""
+        max_altitude = 0
+        
+        # D'abord essayer d'extraire depuis les données de base (galleries.json)
+        name = gallery.get('name', '')
+        description = gallery.get('description', '')
+        
+        # Extraire depuis le nom
+        max_altitude = self._extract_altitude_from_name(name)
+        
+        # Si pas d'altitude, extraire depuis la description
+        if max_altitude == 0:
+            max_altitude = self._extract_altitude_from_description(description)
+        
+        # Si toujours pas d'altitude, essayer depuis le fichier annuel
+        if max_altitude == 0:
+            import os
+            date = gallery.get('date', '')
+            if date:
+                try:
+                    year = datetime.strptime(date, '%Y-%m-%d').year
+                    annual_file = f'galleries_{year}.json'
+                    
+                    if os.path.exists(annual_file):
+                        with open(annual_file, 'r', encoding='utf-8') as f:
+                            annual_galleries = json.load(f)
+                        
+                        annual_gallery = annual_galleries.get(gallery.get('id', ''))
+                        if annual_gallery:
+                            # D'abord essayer max_altitude si disponible
+                            max_altitude = annual_gallery.get('max_altitude', 0)
+                            
+                            # Si pas de max_altitude, extraire depuis la description
+                            if max_altitude == 0:
+                                description = annual_gallery.get('description', '')
+                                max_altitude = self._extract_altitude_from_description(description)
+                            
+                            # Si toujours pas d'altitude, extraire depuis le nom
+                            if max_altitude == 0:
+                                name = annual_gallery.get('name', '')
+                                max_altitude = self._extract_altitude_from_name(name)
+                except (ValueError, FileNotFoundError, json.JSONDecodeError):
+                    pass
+        
+        # Appliquer la logique de filtre
+        if altitude_filter == '2000':
+            return max_altitude < 2000
+        elif altitude_filter == '2500':
+            return max_altitude < 2500
+        elif altitude_filter == '3000':
+            return max_altitude < 3000
+        elif altitude_filter == '3000plus':
+            return max_altitude >= 3000
+        elif altitude_filter == '3500':
+            return max_altitude >= 3500
+        elif altitude_filter == '4000':
+            return max_altitude >= 4000
+        else:
+            return altitude_filter == ''
+    
+    def _extract_altitude_from_description(self, description: str) -> int:
+        """Extrait l'altitude depuis la description"""
+        if not description:
+            return 0
+        
+        # Patterns pour trouver l'altitude dans les descriptions
+        patterns = [
+            r'(\d+)\s*m\s*d\'altitude',  # "1769m d'altitude"
+            r'culminant à\s*(\d+)\s*m',   # "culminant à 2026m"
+            r'(\d+)\s*m\s*altitude',      # "1907 m altitude"
+            r'(\d+)\s*m\s*\(',            # "1907 m ("
+            r'(\d+)\s*m\s*début',         # "1060m début"
+            r'(\d+)\s*m\s*$',             # "1907m" à la fin
+            r'environ\s*(\d+)\s*m',       # "environ 2000 m"
+            r'(\d{3,4})\s*m',             # "3 chiffres ou plus suivi de m"
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, description.lower())
+            if match:
+                try:
+                    altitude = int(match.group(1))
+                    # Vérifier que c'est une altitude raisonnable (entre 500m et 5000m)
+                    if 500 <= altitude <= 5000:
+                        return altitude
+                except ValueError:
+                    continue
+        
+        return 0
+    
+    def _extract_altitude_from_name(self, name: str) -> int:
+        """Extrait l'altitude depuis le nom/titre"""
+        if not name:
+            return 0
+        
+        # Patterns pour trouver l'altitude dans les noms (plus spécifiques)
+        patterns = [
+            r'(\d{3,4})m\b',             # "3747m" (mot complet)
+            r'\((\d+)\s*m\)',            # "(1907 m)"
+            r'\((\d+)m\)',               # "(1907m)"
+            r'(\d+)\s*m\s*\)',           # "1907 m)"
+            r'(\d+)m\s*\)',              # "1907m)"
+            r'\s+(\d{3,4})m\s*$',        # "Banc Plat 1907m" à la fin
+            r'\s+(\d{3,4})\s*m$',        # "Grand Som 2026 m" à la fin
+            r'^(\d{3,4})m\s+',           # "1907m " au début
+            r'^(\d{3,4})\s*m\s+',        # "1907 m " au début
+            r'\s+(\d{3,4})m\s+',         # " 1907m " au milieu
+            r'\s+(\d{3,4})\s*m\s+',      # " 1907 m " au milieu
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, name)
+            if match:
+                try:
+                    altitude = int(match.group(1))
+                    # Vérifier que c'est une altitude raisonnable (entre 500m et 5000m)
+                    if 500 <= altitude <= 5000:
+                        return altitude
+                except ValueError:
+                    continue
+        
+        return 0
     
     def suggest(self, partial_query: str, max_suggestions: int = 5) -> List[str]:
         """
@@ -258,6 +388,7 @@ def setup_search_routes(app, search_engine):
         query = request.args.get('q', '')
         year_filter = request.args.get('year', '')
         month_filter = request.args.get('month', '')
+        altitude_filter = request.args.get('altitude', '')
         
         # Créer les filtres
         filters = {}
@@ -265,6 +396,8 @@ def setup_search_routes(app, search_engine):
             filters['year'] = year_filter
         if month_filter:
             filters['month'] = month_filter
+        if altitude_filter:
+            filters['altitude'] = altitude_filter
         
         # Rechercher avec les filtres et ajouter les cover_image
         raw_results = search_engine.search(query, filters) if query or filters else []
@@ -275,6 +408,7 @@ def setup_search_routes(app, search_engine):
             gallery_with_cover = search_engine.get_gallery_with_cover(result['id'])
             if gallery_with_cover:
                 results.append(gallery_with_cover)
+        
         stats = search_engine.get_stats()
         
         return render_template('search.html',
@@ -283,6 +417,7 @@ def setup_search_routes(app, search_engine):
                              stats=stats,
                              year_filter=year_filter,
                              month_filter=month_filter,
+                             altitude_filter=altitude_filter,
                              dev_mode=app.config.get('DEV_MODE', False))
     
     @app.route('/api/search/suggest')

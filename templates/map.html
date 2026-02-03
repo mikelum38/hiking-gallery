@@ -566,6 +566,18 @@
                             <option value="difficile">Difficile</option>
                         </select>
                     </div>
+                    <div class="filter-group">
+                        <label>Altitude max</label>
+                        <select id="altitudeFilter" onchange="applyFilters()">
+                            <option value="all">Toutes altitudes</option>
+                            <option value="2000">Moins de 2000m</option>
+                            <option value="2500">Moins de 2500m</option>
+                            <option value="3000">Moins de 3000m</option>
+                            <option value="3000plus">3000m et plus</option>
+                            <option value="3500">3500m et plus</option>
+                            <option value="4000">4000m et plus</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Hikes List -->
@@ -639,9 +651,32 @@
                 console.log(`🔄 Chargement des données pour ${year}...`);
                 const response = await fetch(`/api/hikes?year=${year}`);
                 hikesData = await response.json();
-                filteredHikes = hikesData;
                 
-                console.log(`✅ Chargement optimisé : ${hikesData.length} randonnées pour ${year}`);
+                // Appliquer les filtres de difficulté et altitude
+                const difficulty = document.getElementById('difficultyFilter').value;
+                const altitude = document.getElementById('altitudeFilter').value;
+                
+                filteredHikes = hikesData.filter(hike => {
+                    // Filtre difficulté
+                    if (difficulty !== 'all' && hike.difficulty !== difficulty) {
+                        return false;
+                    }
+                    
+                    // Filtre altitude
+                    if (altitude !== 'all') {
+                        const maxAlt = hike.max_altitude || 0;
+                        if (altitude === '2000' && maxAlt >= 2000) return false;
+                        if (altitude === '2500' && maxAlt >= 2500) return false;
+                        if (altitude === '3000' && maxAlt >= 3000) return false;
+                        if (altitude === '3000plus' && maxAlt < 3000) return false;
+                        if (altitude === '3500' && maxAlt < 3500) return false;
+                        if (altitude === '4000' && maxAlt < 4000) return false;
+                    }
+                    
+                    return true;
+                });
+                
+                console.log(`✅ Chargement optimisé : ${hikesData.length} randonnées pour ${year}, ${filteredHikes.length} après filtrage`);
                 
                 // Mettre à jour le select d'année
                 document.getElementById('yearFilter').value = year.toString();
@@ -899,6 +934,7 @@
                                 <div> ${hike.photos_count || 0} photos</div>
                                 <div> ${hike.distance || '?'} km</div>
                                 <div> ${hike.denivele || '?'} m D+</div>
+                                ${hike.max_altitude ? `<div> ${hike.max_altitude} m max</div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -930,15 +966,47 @@
         function applyFilters() {
             const year = document.getElementById('yearFilter').value;
             const difficulty = document.getElementById('difficultyFilter').value;
+            const altitude = document.getElementById('altitudeFilter').value;
             
             // Si on change d'année, recharger les données
-            if (year !== 'all') {
+            if (year !== 'all' && year !== document.getElementById('yearFilter').dataset.currentYear) {
+                document.getElementById('yearFilter').dataset.currentYear = year;
                 loadHikesData(parseInt(year));
                 return;
             }
             
+            // Sinon, appliquer les filtres sur les données existantes
+            if (hikesData.length > 0) {
+                filteredHikes = hikesData.filter(hike => {
+                    // Filtre difficulté
+                    if (difficulty !== 'all' && hike.difficulty !== difficulty) {
+                        return false;
+                    }
+                    
+                    // Filtre altitude
+                    if (altitude !== 'all') {
+                        const maxAlt = hike.max_altitude || 0;
+                        if (altitude === '2000' && maxAlt >= 2000) return false;
+                        if (altitude === '2500' && maxAlt >= 2500) return false;
+                        if (altitude === '3000' && maxAlt >= 3000) return false;
+                        if (altitude === '3000plus' && maxAlt < 3000) return false;
+                        if (altitude === '3500' && maxAlt < 3500) return false;
+                        if (altitude === '4000' && maxAlt < 4000) return false;
+                    }
+                    
+                    return true;
+                });
+                
+                // Mettre à jour l'affichage
+                updateStats();
+                updateHikesList();
+                displayMarkers();
+            }
+            
             // Si "Toutes les années", charger toutes les données
-            loadHikesData('all');
+            if (year === 'all') {
+                loadHikesData('all');
+            }
         }
 
         // Changer la vue

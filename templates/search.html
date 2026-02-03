@@ -351,7 +351,7 @@
                 <div class="filters">
                     <div class="filter-group">
                         <label><i class="fas fa-calendar-alt"></i> Année</label>
-                        <select name="year" id="yearFilter" onchange="resetAndSubmit()">
+                        <select name="year" id="yearFilter">
                             <option value="">Toutes les années</option>
                             {% for year in stats.years %}
                             <option value="{{ year }}" {% if year_filter == year|string %}selected{% endif %}>
@@ -363,7 +363,7 @@
                     
                     <div class="filter-group">
                         <label><i class="fas fa-calendar"></i> Mois</label>
-                        <select name="month" id="monthFilter" onchange="resetAndSubmit()">
+                        <select name="month" id="monthFilter">
                             <option value="">Tous les mois</option>
                             <option value="1" {% if month_filter == '1' %}selected{% endif %}>Janvier</option>
                             <option value="2" {% if month_filter == '2' %}selected{% endif %}>Février</option>
@@ -377,6 +377,19 @@
                             <option value="10" {% if month_filter == '10' %}selected{% endif %}>Octobre</option>
                             <option value="11" {% if month_filter == '11' %}selected{% endif %}>Novembre</option>
                             <option value="12" {% if month_filter == '12' %}selected{% endif %}>Décembre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label><i class="fas fa-mountain"></i> Altitude max</label>
+                        <select name="altitude" id="altitudeFilter">
+                            <option value="">Toutes altitudes</option>
+                            <option value="2000" {% if altitude_filter == '2000' %}selected{% endif %}>Moins de 2000m</option>
+                            <option value="2500" {% if altitude_filter == '2500' %}selected{% endif %}>Moins de 2500m</option>
+                            <option value="3000" {% if altitude_filter == '3000' %}selected{% endif %}>Moins de 3000m</option>
+                            <option value="3000plus" {% if altitude_filter == '3000plus' %}selected{% endif %}>3000m et plus</option>
+                            <option value="3500" {% if altitude_filter == '3500' %}selected{% endif %}>3500m et plus</option>
+                            <option value="4000" {% if altitude_filter == '4000' %}selected{% endif %}>4000m et plus</option>
                         </select>
                     </div>
                 </div>
@@ -398,7 +411,7 @@
             </form>
         </div>
         
-        {% if query %}
+        {% if query or results %}
         <div class="results">
             <h2>Résultats</h2>
             <p class="results-count">
@@ -406,6 +419,7 @@
                 {% if query %}pour "{{ query }}"{% endif %}
                 {% if year_filter %}en {{ year_filter }}{% endif %}
                 {% if month_filter %}en mois {{ month_filter }}{% endif %}
+                {% if altitude_filter %}altitude {% if altitude_filter == '3000plus' %}3000m et plus{% elif altitude_filter == '3500' %}3500m et plus{% elif altitude_filter == '4000' %}4000m et plus{% else %}moins de {{ altitude_filter }}m{% endif %}{% endif %}
             </p>
         </div>
         
@@ -469,11 +483,13 @@
                 // Ajouter la query
                 params.set('q', query);
                 
-                // Ajouter les filtres année et mois s'ils existent
+                // Ajouter les filtres année, mois et altitude s'ils existent
                 const year = formData.get('year');
                 const month = formData.get('month');
+                const altitude = formData.get('altitude');
                 if (year) params.set('year', year);
                 if (month) params.set('month', month);
+                if (altitude) params.set('altitude', altitude);
                 
                 fetch(`/api/search/suggest?${params.toString()}`)
                     .then(response => response.json())

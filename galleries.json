@@ -1886,5 +1886,29 @@
     "year": 2021,
     "month": 10,
     "day": 24
+  },
+  "8a664ee5-8e84-42c3-a3de-8a4a0406e77c": {
+    "name": "Pointes d’Archeboc (3272m) et d’Ormelune (3256m)",
+    "date": "2022-07-31",
+    "description": "Superbe randonnée dans le massif frontalier de Haute Tarentaise. C'est très varié car on visite successivement un village classé (le Monal), un vallon classé (du Clou), des lacs, puis un sommet qui offre une jolie vue sur des glaciers et des grands sommets.",
+    "year": 2022,
+    "month": 7,
+    "day": 31
+  },
+  "8284232d-fe3e-4280-abfa-2e16ec95fb8d": {
+    "name": "Le Grand Galibier (3228m)",
+    "date": "2022-07-24",
+    "description": "Dominant de toute sa masse le célèbre col du Galibier, cette montagne de plus de 3000 mètres, située à la charnière entre les Alpes du Nord et celles du Sud, offre l'un des plus sensationnels panorama des Alpes. ",
+    "year": 2022,
+    "month": 7,
+    "day": 24
+  },
+  "0136d559-5678-4c0e-b454-a8a2bf0abfea": {
+    "name": "Trek Mercantour",
+    "date": "2022-06-27",
+    "description": "En 4 étapes ",
+    "year": 2022,
+    "month": 6,
+    "day": 27
   }
 }
