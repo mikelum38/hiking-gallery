@@ -56,6 +56,25 @@
             animation: slideUp 1s ease-out forwards 0.8s;
         }
 
+        /* NOUVEAU : Petite étiquette année */
+        .year-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.2rem;
+            margin-top: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: slideUp 1s ease-out forwards 1.4s;
+        }
+
         .add-hike-btn {
             font-family: 'Poppins', sans-serif;
             background-color: white;
@@ -90,7 +109,7 @@
 
         /* Modification des vignettes */
         .month-card {
-            flex: 0 0 280px;
+            flex: 0 0 248px !important;
             scroll-snap-align: start;
             background: white;
             border-radius: 8px;
@@ -109,10 +128,10 @@
         }
 
         .month-name {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             margin: 0;
             font-weight: 500;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
             margin-bottom: 0.3rem;
         }
 
@@ -134,11 +153,14 @@
             bottom: 2rem; /* au lieu de 0 */
             left: 0;
             right: 0;
-            padding: 0 2rem; /* au lieu de padding: 2rem */
+            padding: 0 2rem;
             z-index: 2;
             opacity: 0;
             transform: translateY(30px);
             animation: slideUp 1s ease-out forwards 1.7s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .months-scroll {
@@ -146,8 +168,8 @@
             overflow-x: auto;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            gap: 1.5rem;
-            padding: 1rem 0;
+            gap: 1rem;
+            padding: 1rem;
             scrollbar-width: none;
             -ms-overflow-style: none;
             position: relative;
@@ -204,11 +226,11 @@
         }
 
         .nav-button.prev {
-            left: 1rem;
+            left: 10px;
         }
 
         .nav-button.next {
-            right: 1rem;
+            right: 10px;
         }
 
         .nav-button svg {
@@ -232,8 +254,10 @@
             display: none;
         }
 
-        .modal-content {
-            padding: 2rem;
+        .modal h2 {
+            margin-top: 0;
+            font-family: 'Playfair Display', serif;
+            color: #2c3e50;
         }
 
         .form-group {
@@ -243,7 +267,8 @@
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: #333;
+            color: #555;
+            font-weight: 500;
         }
 
         .form-group input,
@@ -252,7 +277,9 @@
             padding: 0.8rem;
             border: 1px solid #ddd;
             border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
             font-size: 1rem;
+            box-sizing: border-box;
         }
 
         .form-group textarea {
@@ -262,50 +289,52 @@
 
         .button-group {
             display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .submit-button,
+        .cancel-button {
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .submit-button {
-            background-color: #4CAF50;
+            background-color: #3498db;
             color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
         }
 
         .cancel-button {
-            background-color: #e74c3c;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            background-color: #ecf0f1;
+            color: #555;
         }
 
-        @media (max-width: 768px) {
-            .home-hero h1 {
-                font-size: 2.5rem;
-                padding: 0 20px;
-            }
-
-            .nav-button {
-                display: none !important;
-            }
-
-            .home-hero p {
-                font-size: 1.1rem;
-            }
+        .cancel-button:hover {
+            background-color: #d5dbdd;
         }
 
-        .nav-buttons {
+        .alert {
             position: fixed;
             top: 20px;
-            left: 20px;
-            display: flex;
-            gap: 1rem;
-            z-index: 10;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c3e50;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
         }
 
         .back-link {
@@ -333,91 +362,65 @@
             transform: scale(1.05);
         }
 
-        
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
+        .back-link i {
+            font-size: 0.8rem;
         }
 
         @media (max-width: 768px) {
-            .nav-buttons {
-                top: 15px;
-                left: 15px;
-                gap: 0.8rem;
+            .home-hero h1 {
+                font-size: 2.5rem;
             }
 
-            .back-link {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            white-space: nowrap;
-            z-index: 1000;
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
-        
+            .home-hero p {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
 
             .month-card {
-                flex: 0 0 250px;
+                flex: 0 0 248px !important;
                 height: 160px;
+            }
+
+            .month-name {
+                font-size: 1.1rem;
+            }
+
+            .gallery-count {
+                font-size: 0.9rem;
+            }
+
+            .nav-button {
+                width: 35px;
+                height: 35px;
+            }
+
+            .nav-button svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .nav-button.prev {
+                left: 10px;
+            }
+
+            .nav-button.next {
+                right: 10px;
+            }
+
+            .months-container {
+                padding: 0 1rem;
+                bottom: 1rem;
             }
         }
 
         @media (max-width: 480px) {
-            .nav-buttons {
+            .alert {
                 top: 10px;
+                right: 10px;
                 left: 10px;
                 gap: 0.4rem;
                 flex-direction: column;
                 align-items: flex-end;
-            }
-
-            .back-link {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            white-space: nowrap;
-            z-index: 1000;
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
-        
-
-            .back-link i {
-                font-size: 0.8rem;
             }
         }
 
@@ -467,6 +470,7 @@
     <div class="home-hero">
         <h1>Sur la crête de la Corse</h1>
         <p>Une année de voyages au fil des crêtes, toutes les sorties du 1er janvier au 31 décembre</p>
+        <div class="year-tag">2024</div>
         {% if dev_mode %}
         <button class="add-hike-btn" onclick="toggleCreateGallery()">
             <i class="fas fa-plus"></i> Ajouter une randonnée
@@ -497,7 +501,7 @@
                         style="background-image: url('{{ optimized_cover_url }}')"
                     {% endif %}>
                     <div class="month-overlay">
-                        <h2 class="month-name">{{ month }}</h2>
+                        <h2 class="month-name">{{ month.split(' ')[0] }}</h2>
                     </div>
                 </div>
             </a>

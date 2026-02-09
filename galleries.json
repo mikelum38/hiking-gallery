@@ -152,7 +152,7 @@
     "day": 7
   },
   "656acc1d-0334-4d2a-a583-b4a97cdf4b22": {
-    "name": "Rocciamelone",
+    "name": "Rocciamelone (3538m)",
     "description": "Ascension après nuitée en refuge , du sommet mythique italien.",
     "date": "2023-10-11",
     "year": 2023,
@@ -1910,5 +1910,109 @@
     "year": 2022,
     "month": 6,
     "day": 27
+  },
+  "c407bd3b-5f57-4848-8e86-0a101ff5023e": {
+    "name": "Mont Thabor (3178m)",
+    "date": "2023-10-05",
+    "description": "Par Valfrejus , en solo ",
+    "year": 2023,
+    "month": 10,
+    "day": 5
+  },
+  "66b10e73-c510-4bbb-b31b-556845c0ab0d": {
+    "name": "Trek tour du canigou",
+    "date": "2023-08-13",
+    "description": "du 14 au 18 aout 2023 (avec son ascension)",
+    "year": 2023,
+    "month": 8,
+    "day": 13
+  },
+  "8526e470-51e3-48e5-a879-fd00239b643d": {
+    "name": "Rocher blanc ( 2928m )",
+    "date": "2023-10-08",
+    "description": "Le rocher Blanc est le troisième sommet le plus haut de la chaîne de Belledonne avec 2 928 mètres d'altitude. Il domine de deux mètres la très courue Croix de Belledonne.\r\nPar la combe madame , c'est une longue randonnée .",
+    "year": 2023,
+    "month": 10,
+    "day": 8
+  },
+  "e6bd7b08-9356-4115-bd15-24163f921f8e": {
+    "name": "We en Devoluy",
+    "date": "2023-03-04",
+    "description": "Deux jolies sorties dans la neige , au dessus de St Etienne en Devoluy",
+    "year": 2023,
+    "month": 3,
+    "day": 4
+  },
+  "b3d9cdf4-b118-418d-bfff-e4aeadb52f75": {
+    "name": "Col de la Temple (écrins)",
+    "date": "2023-10-01",
+    "description": "cote atteinte : 3164m !\r\néchec dans la dernière partie , du renoncer ; au dessus du refuge de temple écrins .\r\nUn dernier voyage à la bérarde avant le désastre des 20 et 21 juin 2024.",
+    "year": 2023,
+    "month": 10,
+    "day": 1
+  },
+  "fdae6805-2d96-49ac-976c-8dde5f459b03": {
+    "name": "Grand Rocher",
+    "date": "2023-12-30",
+    "description": "La der de l'année .",
+    "year": 2023,
+    "month": 12,
+    "day": 30
+  },
+  "11677656-17a4-4f11-82c9-e9805024e651": {
+    "name": "Croix de Chamrousse ( 2250m )",
+    "date": "2023-02-04",
+    "description": "En ski de randonnée",
+    "year": 2023,
+    "month": 2,
+    "day": 4
+  },
+  "e3a8ff28-6f6e-47d9-afa7-369a6cef2ccc": {
+    "name": "Roche Cornue ( 2145m )",
+    "date": "2023-01-31",
+    "description": "En compagnie de DR , vieille connaissance alpine , secteur lauzière .",
+    "year": 2023,
+    "month": 1,
+    "day": 31
+  },
+  "06626d42-c5f7-4215-aaf9-48ea121b8604": {
+    "name": "Rochers de Belles Ombres ( Chartreuse )",
+    "date": "2022-05-13",
+    "description": "Secteur croix de l'alpe , avec le dromadaire ",
+    "year": 2022,
+    "month": 5,
+    "day": 13
+  },
+  "87e3f77b-8e46-4b40-8148-27b17c6b2b91": {
+    "name": "Ski Pralognan la Vanoise ",
+    "date": "2022-04-17",
+    "description": "du ski à pâques !",
+    "year": 2022,
+    "month": 4,
+    "day": 17
+  },
+  "7ca9a1d8-0ee4-43dd-9ffa-079c8067fbbb": {
+    "name": "St victoire",
+    "date": "2022-03-22",
+    "description": "par sa face sud avant de rejoindre la montée classique",
+    "year": 2022,
+    "month": 3,
+    "day": 22
+  },
+  "fa082f24-cf6f-44ea-9b3b-fdc52e97228d": {
+    "name": "Margeriaz ",
+    "date": "2022-02-26",
+    "description": "En ski de rando",
+    "year": 2022,
+    "month": 2,
+    "day": 26
+  },
+  "d245fbb5-6967-4bba-bd39-6d5bad10370a": {
+    "name": "Croix de Chamrousse",
+    "date": "2022-01-18",
+    "description": "Pendant qu'il faut un pass sanitaire pour skier ...",
+    "year": 2022,
+    "month": 1,
+    "day": 18
   }
 }

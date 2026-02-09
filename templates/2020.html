@@ -57,6 +57,25 @@
             animation: slideUp 1s ease-out forwards 0.8s;
         }
 
+        /* NOUVEAU : Petite étiquette année */
+        .year-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.2rem;
+            margin-top: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: slideUp 1s ease-out forwards 1.4s;
+        }
+
         /* ... Reste des styles identiques à year2021.html ... */
 
         .months-container {
@@ -120,10 +139,11 @@
         }
 
         .month-name {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 500;
-            margin-bottom: 0.2rem;
             margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            margin-bottom: 0.3rem;
         }
 
         /* ... Reste des styles identiques à year2021.html ... */
@@ -285,7 +305,16 @@
             }
 
             .month-name {
-                font-size: 1.2rem;
+                font-size: 1.3rem;
+                margin: 0;
+                font-weight: 500;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+                margin-bottom: 0.3rem;
+            }
+
+            .months-container {
+                bottom: 1rem;
+                padding: 0 1rem;
             }
 
             .back-link {
@@ -387,7 +416,8 @@
 
     <div class="home-hero">
         <h1>Cerces : l'été des grands lacs</h1>
-        <p>Trek en autonomie complète été 2020</p>
+        <p>Trek en autonomie complète en juillet depuis Névaches</p>
+        <div class="year-tag">2020</div>
         {% if dev_mode %}
         <button class="add-hike-btn" onclick="toggleCreateGallery()">
             <i class="fas fa-plus"></i> Ajouter une randonnée
@@ -408,7 +438,7 @@
                         style="background-image: url('{{ optimized_cover_url }}')"
                     {% endif %}>
                     <div class="month-overlay">
-                        <h2 class="month-name">{{ month }}</h2>
+                        <h2 class="month-name">{{ month.split(' ')[0] }}</h2>
                     </div>
                 </div>
             </a>
