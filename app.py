@@ -1536,6 +1536,13 @@ def years():
     background_url = get_cloudinary_background_url(granier_url, page_type="years")
     return render_template('years.html', dev_mode=app.config['DEV_MODE'], background_url=background_url)
 
+@app.route('/mes-treks')
+def mes_treks():
+    """Page des carnets d'altitude"""
+    granier_url = "https://res.cloudinary.com/dfuzvu8c5/image/upload/granier"
+    background_url = get_cloudinary_background_url(granier_url, page_type="others")
+    return render_template('mes-treks.html', dev_mode=app.config['DEV_MODE'], background_url=background_url)
+
 @app.route('/projets')
 def projets():
     app.logger.info("Fonction projets appelée")

@@ -69,7 +69,18 @@
             margin-top: 1rem;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             opacity: 0;
-            animation: slideUp 1s ease-out forwards 1.4s;
+            animation: slideUp 1s ease-out forwards 1.4s, yearTagPulse 2s ease-in-out infinite 2.4s;
+        }
+
+        @keyframes yearTagPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            }
         }
 
         .add-hike-btn {
@@ -449,7 +460,7 @@
 
     <div class="home-hero">
         <h1>Traversée du Grand Paradis</h1>
-        <p>Bretagne en Octobre</p>
+        <p>Trek Italie en été , découverte massif du Carroux , Chiran en Vtte en juillet et séjour Bretagne en Octobre .</p>
         <div class="year-tag">2013</div>
         {% if dev_mode %}
         <button class="add-hike-btn" onclick="toggleCreateGallery()">

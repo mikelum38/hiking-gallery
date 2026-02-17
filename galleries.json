@@ -1826,7 +1826,7 @@
   "bc0302ba-b04e-4c41-8d5d-4b684181e958": {
     "name": "Grand Rocher en VTTe",
     "date": "2011-06-26",
-    "description": "Une première en VTTe sur ce sommet de Belledonne",
+    "description": "Une première en VTTe sur ce sommet de Belledonne.\r\nL'ascension complètement folle, depuis le col des Ayes , en passant par Prapoutel puis le col de Merdaret .",
     "year": 2011,
     "month": 6,
     "day": 26
@@ -2014,5 +2014,45 @@
     "year": 2022,
     "month": 1,
     "day": 18
+  },
+  "35c37659-fb0c-419a-a226-0b0363b69a7b": {
+    "name": "2 Alpes ( col du Jandri 3126m )",
+    "date": "2010-07-31",
+    "description": "En pleine période VTTE ( première année ) , ascension très haut depuis la station des 2 alpes .\r\nCette année la 5400km seront réalisés avec cet engin.\r\nDont le Ventoux , grand Colombier , Sarennes , le Mt St clair ...",
+    "year": 2010,
+    "month": 7,
+    "day": 31
+  },
+  "3653b216-49b8-4c1f-bffc-8ea0d95119f6": {
+    "name": "Cormet d'Arêches",
+    "date": "2011-04-21",
+    "description": "Au départ d'Areches beaufort ",
+    "year": 2011,
+    "month": 4,
+    "day": 21
+  },
+  "e442227c-5e9e-4e89-945a-f127ef462569": {
+    "name": "Col de Marcieu",
+    "date": "2008-11-01",
+    "description": "Découverte / test , d'un Vae , pour grimper par st Marie du mont , ce col très difficile .\r\nEn mode précurseur , pionier , nous sommmes en 2008",
+    "year": 2008,
+    "month": 11,
+    "day": 1
+  },
+  "529eda1c-8a34-409b-a5f4-8cf81ee87952": {
+    "name": "Magie au Grand Rocher",
+    "date": "2009-11-01",
+    "description": "Grosse chutes de neige pré hivernales ",
+    "year": 2009,
+    "month": 11,
+    "day": 1
+  },
+  "ce13e003-6c01-4946-9ca3-e790a6b7b4fc": {
+    "name": "Mont Chiran ( 1905m )",
+    "date": "2013-07-24",
+    "description": "Le mont Chiran est une montagne située dans le bassin du Verdon et les Préalpes de Digne, dans le département des Alpes-de-Haute-Provence",
+    "year": 2013,
+    "month": 7,
+    "day": 24
   }
 }

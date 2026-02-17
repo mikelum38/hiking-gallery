@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Treks & Séjours en Montagne</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --stone-50: #fafaf9;
+            --stone-100: #f5f5f4;
+            --stone-200: #e7e5e4;
+            --stone-300: #d6d3d1;
+            --stone-700: #44403c;
+            --stone-800: #292524;
+            --stone-900: #1c1917;
+            --earth-dark: #2d2520;
+            --earth-mid: #5c4d42;
+            --earth-accent: #8b7355;
+            --alpine-blue: #4a7c9e;
+            --summit-white: #f8f9fa;
+            --moss-green: #6b7c59;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, #f5f3f0 0%, #e8e5e0 50%, #f0ece7 100%);
+            color: var(--stone-800);
+            line-height: 1.7;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Topographic background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(68, 64, 60, 0.03) 39px, rgba(68, 64, 60, 0.03) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(68, 64, 60, 0.03) 39px, rgba(68, 64, 60, 0.03) 40px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 5rem;
+            position: relative;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 8vw, 6.5rem);
+            letter-spacing: 0.08em;
+            color: var(--earth-dark);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--earth-accent), transparent);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--earth-mid);
+            font-weight: 300;
+            margin-top: 2rem;
+            font-style: italic;
+        }
+
+        /* Category filters */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .filter-btn {
+            padding: 0.7rem 1.8rem;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid var(--earth-mid);
+            color: var(--earth-dark);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--earth-accent);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .filter-btn:hover::before,
+        .filter-btn.active::before {
+            left: 0;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            color: white;
+            border-color: var(--earth-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Couleurs spécifiques par bouton */
+        .filter-btn[data-filter="grand-trek"]::before {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .filter-btn[data-filter="grand-trek"]:hover,
+        .filter-btn[data-filter="grand-trek"].active {
+            border-color: #3b82f6;
+        }
+
+        .filter-btn[data-filter="rando-etoile"]::before {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .filter-btn[data-filter="rando-etoile"]:hover,
+        .filter-btn[data-filter="rando-etoile"].active {
+            border-color: #10b981;
+        }
+
+        .filter-btn[data-filter="stage-alpi"]::before {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .filter-btn[data-filter="stage-alpi"]:hover,
+        .filter-btn[data-filter="stage-alpi"].active {
+            border-color: #ef4444;
+        }
+
+        /* Trek grid */
+        .trek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 2.5rem;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        /* Trek card */
+        .trek-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--stone-300);
+            padding: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .trek-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--alpine-blue), var(--moss-green));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        /* Bordures de couleur par catégorie */
+        .trek-card[data-category="grand-trek"]::before {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+
+        .trek-card[data-category="rando-etoile"]::before {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .trek-card[data-category="stage-alpi"]::before {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .trek-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Ombres colorées par catégorie */
+        .trek-card[data-category="grand-trek"]:hover {
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2);
+        }
+
+        .trek-card[data-category="rando-etoile"]:hover {
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.2);
+        }
+
+        .trek-card[data-category="stage-alpi"]:hover {
+            box-shadow: 0 12px 32px rgba(239, 68, 68, 0.2);
+        }
+
+        .trek-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .trek-header {
+            padding: 2rem 2rem 1.5rem;
+            border-bottom: 1px solid var(--stone-200);
+        }
+
+        .trek-category {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            color: var(--earth-accent);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            padding: 0.3rem 0.8rem;
+            background: linear-gradient(135deg, rgba(139, 115, 85, 0.1), rgba(139, 115, 85, 0.05));
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Couleurs par catégorie */
+        .trek-card[data-category="grand-trek"] .trek-category {
+            color: #2563eb;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.05));
+        }
+
+        .trek-card[data-category="rando-etoile"] .trek-category {
+            color: #059669;
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.15), rgba(5, 150, 105, 0.05));
+        }
+
+        .trek-card[data-category="stage-alpi"] .trek-category {
+            color: #dc2626;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.05));
+        }
+
+        .trek-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 0.03em;
+            color: var(--earth-dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .trek-location {
+            font-size: 1.1rem;
+            color: var(--earth-mid);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .trek-body {
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        .trek-description {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--stone-700);
+            margin-bottom: 1.5rem;
+        }
+
+        .trek-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--stone-200);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .detail-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            color: var(--earth-mid);
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-size: 1.05rem;
+            color: var(--stone-800);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        /* Animation hover sur les cartes pour les valeurs */
+        .trek-card:hover .detail-value {
+            color: var(--earth-dark);
+        }
+
+        /* Add trek button */
+        .add-trek-btn {
+            position: fixed;
+            bottom: 3rem;
+            right: 3rem;
+            width: 70px;
+            height: 70px;
+            background: var(--earth-accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 2.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 1s ease-out 0.8s both;
+        }
+
+        .add-trek-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: var(--earth-dark);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Staggered animation for cards */
+        .trek-card {
+            animation: fadeIn 0.6s ease-out both;
+        }
+
+        .trek-card:nth-child(1) { animation-delay: 0.1s; }
+        .trek-card:nth-child(2) { animation-delay: 0.2s; }
+        .trek-card:nth-child(3) { animation-delay: 0.3s; }
+        .trek-card:nth-child(4) { animation-delay: 0.4s; }
+        .trek-card:nth-child(5) { animation-delay: 0.5s; }
+        .trek-card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--earth-mid);
+            font-size: 1.2rem;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .trek-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            .filters {
+                gap: 0.5rem;
+            }
+
+            .filter-btn {
+                padding: 0.5rem 1.2rem;
+                font-size: 1rem;
+            }
+
+            .add-trek-btn {
+                bottom: 2rem;
+                right: 2rem;
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+        }
+
+        .back-to-years-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--earth-dark);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-to-years-btn:hover {
+            transform: scale(1.05);
+            background: var(--earth-mid);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('years') }}" class="back-to-years-btn">
+            <i class="fas fa-arrow-left"></i> Retour aux années
+        </a>
+        
+        <header>
+            <h1>Carnets d'Altitude</h1>
+            <p class="subtitle">Mes aventures en montagne</p>
+        </header>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Tous</button>
+            <button class="filter-btn" data-filter="rando-etoile">Rando en Étoile</button>
+            <button class="filter-btn" data-filter="grand-trek">Grand Trek</button>
+            <button class="filter-btn" data-filter="stage-alpi">Stage Alpi</button>
+        </div>
+
+        <div class="trek-grid" id="trekGrid">
+            <!-- Tour du Mont Blanc - 1986 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Tour du Mont Blanc</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Alpes Franco-Italo-Suisses</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Mon premier grand périple autour du plus haut sommet des Alpes. Une aventure initiatique de 7 jours traversant trois pays et une diversité de paysages époustouflants. Des glaciers aux alpages fleuris.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">150 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">6 000 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 1986</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Briançon-Menton - 1988 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Briançon - Menton</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Alpes du Nord au Sud, France</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Grande Traversée des Alpes avec l'UCPA par les GR5 et GR52. Trek intégral de Briançon à Menton avec portage des tentes. Deux semaines d'aventure du cœur des Alpes jusqu'à la Méditerranée.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">15 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">230 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">12 000 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">UCPA Trek</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 1988</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Itinéraire</span>
+                            <span class="detail-value">GR5 & GR52</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Autonomie</span>
+                            <span class="detail-value">Portage tentes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour des Glaciers de la Vanoise - 1989 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Tour des Glaciers de la Vanoise</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Pralognan-la-Vanoise, Savoie</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Trek mythique au cœur du parc national de la Vanoise avec l'UCPA. Première découverte de la marche encordée sur glacier. 7 jours d'initiation à l'alpinisme et de découverte des plus hauts sommets de la Vanoise.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">80 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">5 200 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">UCPA Trek</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 1989</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Découverte</span>
+                            <span class="detail-value">Marche encordée glacier</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hohe Tauern - 1990 -->
+            <div class="trek-card" data-category="rando-etoile">
+                <div class="trek-header">
+                    <div class="trek-category">Rando en Étoile</div>
+                    <h2 class="trek-title">Hohe Tauern - Autriche</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Massif des Hohe Tauern, Autriche</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Séjour en étoile dans le plus haut massif d'Autriche avec le CAF. Point d'orgue : ascension du Grossglockner, plus haut sommet d'Autriche à 3 798 m. 7 jours d'aventure alpine au cœur des Alpes autrichiennes.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet</span>
+                            <span class="detail-value">3 798 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">CAF Séjour</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Août 1990</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet visé</span>
+                            <span class="detail-value">Grossglockner</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Pays</span>
+                            <span class="detail-value">Autriche</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dolomites - 1991 -->
+            <div class="trek-card" data-category="rando-etoile">
+                <div class="trek-header">
+                    <div class="trek-category">Rando en Étoile</div>
+                    <h2 class="trek-title">Dolomites - Italie</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Massif des Dolomites, Italie</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Séjour d'une semaine en étoile dans les Dolomites avec le CAF. Découverte des plus belles via ferrata du massif. Entre parois verticales et paysages spectaculaires, une semaine d'émotions fortes au cœur des Alpes italiennes.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">3 343 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">CAF Séjour</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 1991</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Activité</span>
+                            <span class="detail-value">Via Ferrata</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Pays</span>
+                            <span class="detail-value">Italie</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Camps de Base Everest - 1991 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Camps de Base de l'Everest</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Khumbu, Népal</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Trek mythique vers les camps de base de l'Everest. Du classique Kalla Patar aux lacs de Gokyo en passant par le camp de base de l'Everest. Aventure avec Michel et deux sherpas, après une semaine d'acclimatation dans la vallée de Katmandou.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">14 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">5 364 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Trek Himalaya</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Oct. 1991</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Itinéraire</span>
+                            <span class="detail-value">Kalla Patar → Gokyo</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Équipe</span>
+                            <span class="detail-value">Michel + 2 sherpas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Annapurna Base Camp - 1991 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Annapurna Base Camp</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Annapurna, Népal</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Trek en solo vers le mythique ABC (Annapurna Base Camp) à 4 130 mètres. Depuis Pokhara jusqu'au cœur du sanctuaire de l'Annapurna. 10 jours menés tambour battant, parfaitement acclimaté à l'altitude, même évanouissement au camp de base !
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">10 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">4 130 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Trek Himalaya Solo</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Novembre 1991</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Départ</span>
+                            <span class="detail-value">Pokhara</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Arrivée</span>
+                            <span class="detail-value">ABC (4 130 m)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Initiation Alpinisme - 1993 -->
+            <div class="trek-card" data-category="stage-alpi">
+                <div class="trek-header">
+                    <div class="trek-category">Stage Alpi</div>
+                    <h2 class="trek-title">Initiation Alpinisme</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Argentières, Haute-Savoie</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Stage d'initiation à l'alpinisme avec l'UCPA Argentières. Encadrement par Marc Batard, célèbre alpiniste. Premières techniques de progression sur glacier, cramponnage, et découverte de l'univers vertical.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Encadrant</span>
+                            <span class="detail-value">Marc Batard</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">UCPA Stage</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 1993</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage Alpi Chamonix CAF - 1994 -->
+            <div class="trek-card" data-category="stage-alpi">
+                <div class="trek-header">
+                    <div class="trek-category">Stage Alpi</div>
+                    <h2 class="trek-title">Stage Alpi Chamonix CAF</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Chamonix, Haute-Savoie</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Stage alpin avec le CAF de Chamonix. Point d'orgue de ma période alpi avec l'ascension du Mont Blanc par la traversée Aiguille du Midi - Mont Blanc. Compagnons de cordée : François Rubin et Jean-Pierre Serres.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet</span>
+                            <span class="detail-value">4 810 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">CAF Stage</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 1994</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet MB</span>
+                            <span class="detail-value">23 Juillet 1994</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cordée</span>
+                            <span class="detail-value">F. Rubin & J-P. Serres</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tyrol - Février 1995 -->
+            <div class="trek-card" data-category="rando-etoile">
+                <div class="trek-header">
+                    <div class="trek-category">Rando en Étoile</div>
+                    <h2 class="trek-title">Tyrol - Autriche</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Tyrol, Autriche</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Séjour d'une semaine dans le Tyrol avec le CAF. Ski de randonnée et ski de piste à Kitzbühel notamment. Une semaine de glisse au cœur des Alpes autrichiennes.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">2 800 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">CAF Séjour</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Février 1995</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Station</span>
+                            <span class="detail-value">Kitzbühel</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Activité</span>
+                            <span class="detail-value">Ski de rando & piste</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raid Pyrénées Centrales - Juillet 1997 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Raid Pyrénées Centrales</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Pyrénées, France</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Raid en couple à travers les Pyrénées centrales. Deux binômes à l'assaut du cirque de Gavarnie et ascension du Taillon. Une aventure partagée dans les hautes Pyrénées.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet</span>
+                            <span class="detail-value">3 144 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Raid en couple</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 1997</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Lieu phare</span>
+                            <span class="detail-value">Cirque de Gavarnie</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet visé</span>
+                            <span class="detail-value">Taillon</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Équipe</span>
+                            <span class="detail-value">2 binômes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour du Viso - Août 1998 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Tour du Viso</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Queyras, Hautes-Alpes</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Tour du Mont Viso du 16 au 22 août 1998. Depuis le col Agnel jusqu'à Abriès, itinéraire en couple comme l'année précédente. Une semaine d'itinérance autour de ce sommet emblématique franco-italien.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">75 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">4 500 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Raid en couple</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">16-22 Août 1998</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Départ</span>
+                            <span class="detail-value">Col Agnel</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Arrivée</span>
+                            <span class="detail-value">Abriès</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oberland Bernois - Juillet 2007 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Trek en Oberland Bernois</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Oberland Bernois, Suisse</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Retour à la montagne après fractures lombaires en 2004. Une semaine de trek avec Allibert dans l'Oberland bernois. Un retour tant attendu sur les sentiers alpins suisses.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">2 800 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Allibert Trekking</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 2007</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Contexte</span>
+                            <span class="detail-value">Retour après fractures</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Pays</span>
+                            <span class="detail-value">Suisse</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour du Mont Blanc - Juillet 2008 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Tour du Mont Blanc (2ème)</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Alpes Franco-Italo-Suisses</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Deuxième tour du Mont Blanc, cette fois-ci avec Allibert. Retour sur cet itinéraire mythique 22 ans après le premier tour. Une semaine autour du toit des Alpes.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">170 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">10 000 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Allibert Trekking</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 2008</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Note</span>
+                            <span class="detail-value">2ème TMB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traversée du Grand Paradis - Juillet 2013 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Traversée du Grand Paradis</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Parc National du Grand Paradis, Italie</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Traversée avec Allibert du parc national du Grand Paradis. Trek terminé très difficilement avec œdèmes aux pieds, manque d'entraînement. Une semaine éprouvante mais au cœur d'un massif préservé.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">3 200 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Allibert Trekking</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 2013</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Difficulté</span>
+                            <span class="detail-value">Œdèmes aux pieds</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Pays</span>
+                            <span class="detail-value">Italie</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Villard d'Arènes - Août 2014 -->
+            <div class="trek-card" data-category="rando-etoile">
+                <div class="trek-header">
+                    <div class="trek-category">Rando en Étoile</div>
+                    <h2 class="trek-title">Villard d'Arènes - Glaciers de la Meije</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Oisans, Hautes-Alpes</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Semaine en étoile basée à Villard d'Arènes. Exploration des glaciers de la Meije et des sommets de l'Oisans. Une semaine d'immersion au cœur du massif.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">3 000 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Rando en étoile</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Août 2014</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Base</span>
+                            <span class="detail-value">Villard d'Arènes</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Objectif</span>
+                            <span class="detail-value">Glaciers de la Meije</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vallée de la Clarée - 2015 -->
+            <div class="trek-card" data-category="rando-etoile">
+                <div class="trek-header">
+                    <div class="trek-category">Rando en Étoile</div>
+                    <h2 class="trek-title">Vallée de la Clarée</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Hautes-Alpes, France</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Une semaine d'exploration depuis un camp de base à Névache, rayonnant vers les plus beaux lacs et sommets de cette vallée préservée. Authenticité et tranquillité.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">2 800 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">6 200 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Août 2015</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mercantour - 2022 -->
+            <div class="trek-card" data-category="rando-etoile">
+                <div class="trek-header">
+                    <div class="trek-category">Rando en Étoile</div>
+                    <h2 class="trek-title">Mercantour</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Alpes-Maritimes, France</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Exploration du parc national du Mercantour depuis Saint-Dalmas-Valdeblore. Découverte des gravures rupestres de la vallée des Merveilles et des lacs d'altitude. 4 jours de randonnée sauvage.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">4 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">2 650 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">3 000 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 2022</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour du Canigou - Juillet 2023 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Tour du Canigou</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Pyrénées-Orientales, France</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Tour du Canigou avec ascension du sommet emblématique catalan (2 784 m). Petit groupe de 6 personnes organisé par moi-même. Une semaine de trek dans les Pyrénées catalanes.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">7 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet</span>
+                            <span class="detail-value">2 784 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Organisation perso</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Juillet 2023</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Groupe</span>
+                            <span class="detail-value">6 personnes</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommet visé</span>
+                            <span class="detail-value">Canigou</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GR20 Corse - Septembre 2024 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">GR20 Corse</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Corse, France</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Le sentier de grande randonnée le plus difficile d'Europe. Un défi physique intense à travers les montagnes corses, entre mer et sommets rocheux. 14 jours d'aventure pure.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">14 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">208 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dénivelé +</span>
+                            <span class="detail-value">14 322 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Sept. 2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour du Queyras - Août 2025 -->
+            <div class="trek-card" data-category="grand-trek">
+                <div class="trek-header">
+                    <div class="trek-category">Grand Trek</div>
+                    <h2 class="trek-title">Tour du Queyras</h2>
+                    <div class="trek-location">
+                        <span>🗻</span>
+                        <span>Queyras, Hautes-Alpes</span>
+                    </div>
+                </div>
+                <div class="trek-body">
+                    <p class="trek-description">
+                        Tour du Queyras avec 5 étapes et 5 sommets dont deux 3000. Équipe de 6 personnes, organisé par moi-même. Début août 2025, itinérance dans ce massif préservé des Hautes-Alpes.
+                    </p>
+                    <div class="trek-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Durée</span>
+                            <span class="detail-value">5 jours</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Sommets</span>
+                            <span class="detail-value">5 sommets</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Altitude max</span>
+                            <span class="detail-value">3 000 m</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Organisation perso</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">Début Août 2025</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Groupe</span>
+                            <span class="detail-value">6 personnes</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Particularité</span>
+                            <span class="detail-value">2 sommets de 3000m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <button class="add-trek-btn" title="Ajouter un nouveau trek">+</button>
+
+    <script>
+        // Filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const trekCards = document.querySelectorAll('.trek-card');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+
+                    const filter = this.getAttribute('data-filter');
+
+                    trekCards.forEach(card => {
+                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                            card.style.display = 'block';
+                            // Re-trigger animation
+                            card.style.animation = 'none';
+                            setTimeout(() => {
+                                card.style.animation = '';
+                            }, 10);
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

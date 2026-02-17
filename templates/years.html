@@ -36,6 +36,17 @@
             z-index: 0;
         }
 
+        /* Canvas pour les particules */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         .main-container {
             position: relative;
             width: 100%;
@@ -64,6 +75,7 @@
             opacity: 0;
             animation: fadeIn 1.5s ease-out forwards;
             z-index: 2;
+            transition: transform 0.3s ease-out;
         }
 
         .main-title::after {
@@ -157,6 +169,62 @@
             cursor: pointer;
             overflow: hidden;
             will-change: transform, background;
+            position: relative;
+        }
+
+        /* Effet de pulsation lumineux renforcé pour la carte centrale */
+        .year-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .year-card.central::before {
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.3);
+            }
+        }
+        
+        /* Ajout d'un halo lumineux externe */
+        .year-card.central::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 
+                        0 0 60px rgba(255, 255, 255, 0.4),
+                        inset 0 0 20px rgba(255, 255, 255, 0.2);
+            animation: halo 2.5s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes halo {
+            0%, 100% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.9;
+            }
         }
 
         /* Couleurs spécifiques pour chaque année */
@@ -214,75 +282,60 @@
         }
         
         .year-card.central p {
-            font-size: 1.6rem;
-            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+            font-size: 1.2rem;
         }
 
-        .year-card h2 {
-            font-size: 2.8rem;
+        h2 {
             color: white;
+            font-size: 2.5rem;
             margin: 0 0 15px 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             font-weight: 600;
-            text-align: center;
-            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .year-card p {
-            font-size: 1.4rem;
-            color: rgba(255, 255, 255, 0.9);
+        p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1rem;
             margin: 0;
             text-align: center;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-            padding: 0 10px;
-            line-height: 1.4;
-        }
-
-        /* Effet de brillance au survol */
-        .year-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0.3),
-                transparent
-            );
-            transition: 0.5s;
-        }
-
-        .year-card:hover::before {
-            left: 100%;
+            font-weight: 300;
         }
 
         .controls {
-            position: absolute;
-            bottom: 8%;
+            position: fixed;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 3rem;
+            gap: 8rem;
             z-index: 10;
         }
 
         .control-btn {
-            background: rgba(255, 255, 255, 0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 1rem;
-            border-radius: 50%;
+            font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         }
 
         .control-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.25);
             transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
         }
 
         .back-link {
@@ -309,232 +362,6 @@
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
-
-        @keyframes initialRotation {
-            from {
-                transform: rotateY(180deg);
-            }
-            to {
-                transform: rotateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-title {
-                font-size: 2.5rem;
-                top: 100px;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                width: 100%;
-                text-align: center;
-                padding: 0 20px;
-                box-sizing: border-box;
-            }
-            
-            .main-title::after {
-                left: 50%;
-                transform: translateX(-50%);
-            }
-
-            body {
-                perspective: 800px;
-                overflow-x: hidden;
-            }
-            
-            .wheel-container {
-                width: 400px;
-                height: 400px;
-                transform: scale(0.65) !important;
-                margin-top: -100px !important;
-                transform-origin: center;
-            }
-
-            .year-link {
-                width: 200px;
-                height: 120px;
-                transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(200px);
-            }
-
-            .year-card {
-                backdrop-filter: blur(5px);
-                pointer-events: auto;
-            }
-
-            .year-card:hover {
-                transform: scale(1.02);
-            }
-
-            .year-card h2 {
-                font-size: 1.4rem;
-            }
-
-            .year-card p {
-                font-size: 0.8rem;
-            }
-
-            .controls {
-                display: none !important;
-                bottom: 10%;
-                gap: 6rem;
-                z-index: 1000;
-            }
-
-            .control-btn {
-                width: 2.5rem;
-                height: 2.5rem;
-            }
-
-            .back-link {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-            
-            .archives-btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-                bottom: 15px;
-                left: 15px;
-            }
-
-            .nav-btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-                top: 15px;
-                right: 15px;
-            }
-
-            .search-floating-btn {
-                width: 50px;
-                height: 50px;
-                bottom: 80px;
-                right: 20px;
-                font-size: 10px;
-            }
-
-            .search-floating-btn::after {
-                content: 'Recherche';
-                position: static;
-                background: transparent;
-                color: white;
-                padding: 0;
-                border-radius: 0;
-                font-size: 10px;
-                opacity: 1;
-                margin-top: 2px;
-                display: none; /* Masquer le texte au survol */
-            }
-
-            .search-floating-btn {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                width: 80px;
-                height: 80px;
-                font-size: 12px;
-                padding: 8px;
-                text-align: center;
-                line-height: 1.2;
-                border-radius: 50%;
-            }
-
-            .search-floating-btn i {
-                font-size: 20px;
-                margin-bottom: 4px;
-            }
-
-            .search-floating-btn::before {
-                content: 'Recherche';
-                position: static;
-                font-size: 12px;
-                line-height: 1.2;
-                margin-top: 2px;
-                font-weight: 500;
-            }
-
-            .search-floating-btn i {
-                display: block;
-                margin-bottom: 2px;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .wheel-container {
-                width: 800px;
-                height: 800px;
-                margin-top: -40px;
-            }
-
-            .year-link {
-                width: 240px;
-                height: 160px;
-                transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(400px);
-            }
-
-            .year-card h2 {
-                font-size: 1.8rem;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .wheel-container {
-                transform: scale(0.3);
-            }
-
-            .controls {
-                bottom: 8%;
-                gap: 3rem;
-            }
-
-            .control-btn {
-                width: 2.5rem;
-                height: 2.5rem;
-            }
-        }
-        
-        /*         .search-floating-btn {
-        /*             position: fixed;
-        /*             bottom: 100px;
-        /*             right: 30px;
-        /*             width: 60px;
-        /*             height: 60px;
-        /*             border-radius: 50%;
-        /*             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        /*             color: white;
-        /*             display: flex;
-        /*             align-items: center;
-        /*             justify-content: center;
-        /*             box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-        /*             z-index: 999;
-        /*             text-decoration: none;
-        /*             transition: all 0.3s;
-        /*             font-size: 12px;
-        /*             font-weight: 500;
-        /*         }
-        /* 
-        /*         .search-floating-btn::after {
-        /*             content: 'Recherche';
-        /*             position: absolute;
-        /*             bottom: -25px;
-        /*             right: 0;
-        /*             background: rgba(0, 0, 0, 0.8);
-        /*             color: white;
-        /*             padding: 4px 8px;
-        /*             border-radius: 4px;
-        /*             font-size: 11px;
-        /*             white-space: nowrap;
-        /*             opacity: 0;
-        /*             transition: opacity 0.3s;
-        /*         }
-        /* 
-        /*         .search-floating-btn:hover::after {
-        /*             opacity: 1;
-        /*         }
-        /* 
-        /*         .search-floating-btn:hover {
-        /*             transform: scale(1.1);
-        /*         }
- */
         
         .nav-btn {
             position: fixed;
@@ -560,7 +387,18 @@
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
-        
+
+        @keyframes initialRotation {
+            from {
+                opacity: 0;
+                transform: rotateY(-30deg) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: rotateY(0deg) scale(1);
+            }
+        }
+
         .archives-btn {
             position: fixed;
             bottom: 20px;
@@ -572,7 +410,6 @@
             border-radius: 30px;
             text-decoration: none;
             font-size: 0.9rem;
-            font-weight: 500;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
             display: flex;
@@ -586,15 +423,15 @@
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
-        
+
         .ulm-btn {
             position: fixed;
-            bottom: 140px;
+            bottom: 80px;
             left: 20px;
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 0.6rem 1.2rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 30px;
             text-decoration: none;
             font-size: 0.9rem;
@@ -604,60 +441,180 @@
             align-items: center;
             gap: 0.5rem;
             white-space: nowrap;
-            z-index: 1000;
+            z-index: 1001;
         }
 
         .ulm-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
+
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .main-title {
+                font-size: 3rem;
+                top: 6%;
+            }
+
+            .wheel-container {
+                transform: scale(0.7);
+            }
+
+            .controls {
+                bottom: 50px;
+                gap: 5rem;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+                top: 80px;
+            }
+
+            .wheel-container {
+                transform: scale(0.45);
+                margin-top: -200px;
+            }
+
+            .controls {
+                bottom: 60px;
+                gap: 4rem;
+            }
+
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Canvas pour les particules -->
+    <canvas id="particles-canvas"></canvas>
+
     <div class="main-container">
         <a href="/" class="back-link">
             <i class="fas fa-arrow-left"></i> Retour
         </a>
         
-        <a href="/inmy" class="archives-btn">
-            <i class="fas fa-archive"></i> Archives
-        </a>
-        
-        <a href="/galerie-ulm" class="ulm-btn">
-            <i class="fas fa-plane"></i> Vol ULM
-        </a>
-        
         <a href="/map" class="nav-btn">
             <i class="fas fa-map"></i> Carte Interactive
+        </a>
+        
+        <a href="/mes-treks" class="treks-btn">
+            <i class="fas fa-mountain"></i> Carnets d'altitude
         </a>
 
         <h1 class="main-title">La roue du temps</h1>
 
         <div class="wheel-container">
-            <div class="wheel" id="wheel">
-                <!-- Les blocs seront générés en JavaScript -->
-            </div>
+            <div class="wheel" id="wheel"></div>
         </div>
 
         <div class="controls">
-            <button class="control-btn" onclick="rotateWheel(-1)">
+            <button class="control-btn" id="prevBtn" aria-label="Précédent">
                 <i class="fas fa-chevron-left"></i>
             </button>
-            <button class="control-btn" onclick="rotateWheel(1)">
+            <button class="control-btn" id="nextBtn" aria-label="Suivant">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
-
-        <a href="/search" class="search-btn" title="Rechercher (Ctrl+K)">
-            <i class="fas fa-search"></i> Recherche
-        </a>
     </div>
 
+    <a href="/galerie-ulm" class="ulm-btn">
+        <i class="fas fa-plane"></i> Vol ULM
+    </a>
+
+    <a href="/inmy" class="archives-btn">
+        <i class="fas fa-archive"></i> Archives
+    </a>
+
+    <a href="/search" class="search-btn">
+        <i class="fas fa-search"></i> Recherche
+    </a>
+
     <script>
+        // Système de particules flottantes
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        const particleCount = 80;
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.5 + 0.3;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Effet de lueur
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = `rgba(255, 255, 255, ${this.opacity})`;
+            }
+        }
+        
+        // Créer les particules
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+        
+        // Animation des particules
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        animateParticles();
+        
+        // Redimensionnement du canvas
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Effet parallaxe sur le titre
+        const title = document.querySelector('.main-title');
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            title.style.transform = `translateX(calc(-50% + ${moveX}px)) translateY(${moveY}px)`;
+        });
+
+        // Données des années
         const years = [
             { year: 2008, route: '/2008', desc: 'Le tour des trois frontières' },
             { year: 2009, route: '/2009', desc: 'Haute Cime, lumière de 3257 m' },
-            { year: 2010, route: '/2010', desc: 'Tyrol, lumière de l\’Est' },
+            { year: 2010, route: '/2010', desc: 'Tyrol, lumière de l\'Est' },
             { year: 2011, route: '/2011', desc: 'Grand Rocher en VTTÉ' },
             { year: 2012, route: '/2012', desc: 'Sous le soleil de Ténérife' },
             { year: 2013, route: '/2013', desc: 'Traversée du Grand Paradis' },
@@ -665,9 +622,9 @@
             { year: 2015, route: '/2015', desc: 'En étoile depuis Névache' },
             { year: 2016, route: '/2016', desc: 'En Croisière méditerrannée 2016' },
             { year: 2017, route: '/2017', desc: 'Au royaume des Dieux' },
-            { year: 2018, route: '/2018', desc: '3747 mètres d\’émotion' },
+            { year: 2018, route: '/2018', desc: '3747 mètres d\'émotion' },
             { year: 2019, route: '/2019', desc: 'Cheval blanc, chemin de lumière' },
-            { year: 2020, route: '/2020', desc: 'Cerces : l\’été des grands lacs' },
+            { year: 2020, route: '/2020', desc: 'Cerces : l\'été des grands lacs' },
             { year: 2021, route: '/2021', desc: 'Obiou, la montagne blanche' },
             { year: 2022, route: '/2022', desc: 'Cimes et sommets' },
             { year: 2023, route: '/2023', desc: 'Autour du géant catalan' },
@@ -758,6 +715,14 @@
                 console.log('Central element:', years[index].year);
             }
         }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            rotateWheel(-1);
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            rotateWheel(1);
+        });
 
         document.addEventListener('wheel', (e) => {
             if (!isRotating) {
@@ -872,6 +837,40 @@
     @media (max-width: 768px) {
     .search-btn {
         bottom: 70px;
+        right: 15px;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        }
+    }
+    
+    .treks-btn {
+        position: fixed;
+        top: 70px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        z-index: 1002;
+    }
+
+    .treks-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+    .treks-btn {
+        top: 130px;
         right: 15px;
         padding: 0.6rem 1rem;
         font-size: 0.85rem;
