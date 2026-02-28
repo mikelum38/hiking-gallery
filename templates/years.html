@@ -506,6 +506,10 @@
             <i class="fas fa-mountain"></i> Carnets d'altitude
         </a>
 
+        <a href="{{ url_for('flowers') }}" class="flowers-btn">
+            <i class="fas fa-spa"></i> Flower Power
+        </a>
+
         <h1 class="main-title">La roue du temps</h1>
 
         <div class="wheel-container">
@@ -871,6 +875,42 @@
     @media (max-width: 768px) {
     .treks-btn {
         top: 130px;
+        right: 15px;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        }
+    }
+
+    .flowers-btn {
+        position: fixed;
+        top: 125px;
+        right: 20px;
+        background: rgba(232, 160, 180, 0.22);
+        border: 2px solid rgba(232, 160, 180, 0.45);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        z-index: 1002;
+    }
+
+    .flowers-btn:hover {
+        background: rgba(232, 160, 180, 0.4);
+        border-color: rgba(232, 160, 180, 0.7);
+        transform: scale(1.05);
+        box-shadow: 0 0 18px rgba(232, 160, 180, 0.35);
+    }
+
+    @media (max-width: 768px) {
+    .flowers-btn {
+        top: 185px;
         right: 15px;
         padding: 0.6rem 1rem;
         font-size: 0.85rem;

@@ -3262,6 +3262,295 @@ def edit_inmy_life_page():
         app.logger.error(f"Erreur lors de l'édition de la page: {str(e)}")
         return jsonify({'error': f'Erreur lors de l\'édition: {str(e)}'}), 500 
 
+
+
+# ─────────────────────────────────────────────────────────────────
+# FLOWER POWER — galerie botanique
+# ─────────────────────────────────────────────────────────────────
+
+FLOWERS_JSON = 'flower_galleries.json'
+
+
+def load_flower_galleries():
+    """Charge les galeries de fleurs depuis flower_galleries.json."""
+    try:
+        with open(FLOWERS_JSON, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError as e:
+        app.logger.error(f"Erreur décodage {FLOWERS_JSON}: {e}")
+        return []
+
+
+def save_flower_galleries(data):
+    """Sauvegarde les galeries de fleurs dans flower_galleries.json."""
+    with open(FLOWERS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+def get_optimized_flower_gallery_url(image_url, width=400, height=500):
+    """Génère une URL Cloudinary optimisée pour les vignettes de la galerie florale."""
+    if not image_url:
+        return None
+    try:
+        transformations = f'f_auto,q_auto,w_{width},h_{height},c_fill'
+        return image_url.replace('/upload/', '/upload/' + transformations + '/')
+    except Exception as e:
+        app.logger.error(f"Erreur optimisation URL fleur: {e}")
+        return image_url
+
+
+@app.route('/flowers')
+def flowers():
+    """Page principale Flower Power — galerie botanique."""
+    galleries = load_flower_galleries()
+
+    # Optimiser les URLs de vignettes pour chaque galerie
+    for gallery in galleries:
+        photos = gallery.get('photos', [])
+        if photos:
+            gallery['thumb_url'] = get_optimized_flower_gallery_url(photos[0]['url'])
+        else:
+            gallery['thumb_url'] = None
+
+    # Image de fond : première photo disponible ou image par défaut
+    cover_url = None
+    for g in galleries:
+        if g.get('cover_image'):
+            cover_url = get_cloudinary_background_url(g['cover_image'], page_type='others')
+            break
+    if not cover_url:
+        # Fond par défaut (réutilise l'image du granier)
+        cover_url = get_cloudinary_background_url(
+            "https://res.cloudinary.com/dfuzvu8c5/image/upload/granier",
+            page_type='others'
+        )
+
+    return render_template(
+        'flowers.html',
+        flower_galleries=galleries,
+        flowers_cover_url=cover_url,
+        dev_mode=app.config['DEV_MODE']
+    )
+
+
+@app.route('/flowers/<gallery_id>')
+def flower_gallery(gallery_id):
+    """Page d'une galerie de fleurs individuelle."""
+    galleries = load_flower_galleries()
+    gallery = next((g for g in galleries if g['id'] == gallery_id), None)
+
+    if not gallery:
+        app.logger.error(f"Galerie de fleurs non trouvée: {gallery_id}")
+        return "Galerie introuvable", 404
+
+    # Pagination
+    page = request.args.get('page', 1, type=int)
+    per_page = app.config.get('PHOTOS_PER_PAGE', 20)
+    photos = gallery.get('photos', [])
+    total_photos = len(photos)
+    total_pages = max(1, (total_photos + per_page - 1) // per_page)
+
+    start = (page - 1) * per_page
+    paginated_photos = photos[start:start + per_page]
+
+    # Optimisation des URLs pour le lightbox
+    for photo in paginated_photos:
+        url = photo.get('url', '')
+        if url and 'cloudinary.com' in url:
+            parts = url.split('/upload/')
+            if len(parts) == 2:
+                photo['url'] = f"{parts[0]}/upload/f_auto,q_auto,w_1200,c_limit/{parts[1]}"
+
+    # Image de fond = cover_image ou première photo
+    bg_url = None
+    if gallery.get('cover_image'):
+        bg_url = get_cloudinary_background_url(gallery['cover_image'], page_type='others')
+    elif photos:
+        bg_url = get_cloudinary_background_url(photos[0]['url'], page_type='others')
+
+    gallery_copy = gallery.copy()
+    gallery_copy['photos_paginated'] = paginated_photos
+    gallery_copy['pagination'] = {
+        'current_page': page,
+        'total_pages': total_pages,
+        'total_photos': total_photos,
+        'has_prev': page > 1,
+        'has_next': page < total_pages,
+        'prev_page': page - 1 if page > 1 else None,
+        'next_page': page + 1 if page < total_pages else None
+    }
+
+    return render_template(
+        'flower_gallery.html',
+        gallery=gallery_copy,
+        optimized_background_url=bg_url,
+        dev_mode=app.config['DEV_MODE']
+    )
+
+
+@app.route('/create_flower_gallery', methods=['POST'])
+def create_flower_gallery():
+    """Crée une nouvelle galerie de fleurs (mode dev uniquement)."""
+    if not app.config['DEV_MODE']:
+        abort(403)
+
+    name = request.form.get('name', '').strip()
+    date = request.form.get('date', '').strip()
+    description = request.form.get('description', '').strip()
+
+    if not name or not date:
+        flash('Nom et date obligatoires', 'error')
+        return redirect(url_for('flowers'))
+
+    gallery_id = str(uuid.uuid4())
+    new_gallery = {
+        'id': gallery_id,
+        'name': name,
+        'date': date,
+        'description': description,
+        'cover_image': None,
+        'photos': []
+    }
+
+    # Upload de l'image de couverture si fournie
+    if 'cover_image' in request.files:
+        cover_file = request.files['cover_image']
+        if cover_file and cover_file.filename and allowed_file(cover_file.filename):
+            try:
+                result = cloudinary.uploader.upload(cover_file, folder='flowers')
+                new_gallery['cover_image'] = result['secure_url']
+            except Exception as e:
+                app.logger.error(f"Erreur upload cover fleur: {e}")
+                flash("Erreur lors de l'upload de l'image de couverture", 'warning')
+
+    galleries = load_flower_galleries()
+    galleries.append(new_gallery)
+    save_flower_galleries(galleries)
+
+    app.logger.info(f"✅ Galerie de fleurs créée : {gallery_id} — {name}")
+    flash(f'Galerie « {name} » créée avec succès', 'success')
+    return redirect(url_for('flowers'))
+
+
+@app.route('/upload_flower_photos/<gallery_id>', methods=['POST'])
+def upload_flower_photos(gallery_id):
+    """Upload de photos dans une galerie de fleurs (mode dev uniquement)."""
+    if not app.config['DEV_MODE']:
+        abort(403)
+
+    galleries = load_flower_galleries()
+    gallery = next((g for g in galleries if g['id'] == gallery_id), None)
+
+    if not gallery:
+        flash('Galerie de fleurs introuvable', 'error')
+        return redirect(url_for('flowers'))
+
+    files = request.files.getlist('photos')
+    uploaded = 0
+
+    for file in files:
+        if not file or not file.filename:
+            continue
+        if not allowed_file(file.filename):
+            flash(f'{file.filename} : type non autorisé', 'warning')
+            continue
+        try:
+            result = cloudinary.uploader.upload(file, folder='flowers')
+            gallery['photos'].append({'url': result['secure_url']})
+            uploaded += 1
+        except Exception as e:
+            app.logger.error(f"Erreur upload photo fleur {file.filename}: {e}")
+            flash(f'Erreur lors du téléchargement de {file.filename}', 'error')
+
+    save_flower_galleries(galleries)
+    app.logger.info(f"✅ {uploaded} photo(s) ajoutée(s) à la galerie {gallery_id}")
+    flash(f'{uploaded} photo(s) ajoutée(s) avec succès', 'success')
+    return redirect(url_for('flower_gallery', gallery_id=gallery_id))
+
+
+@app.route('/delete_flower_gallery/<gallery_id>', methods=['POST'])
+def delete_flower_gallery(gallery_id):
+    """Supprime une galerie de fleurs (mode dev uniquement)."""
+    if not app.config['DEV_MODE']:
+        abort(403)
+
+    galleries = load_flower_galleries()
+    before = len(galleries)
+    galleries = [g for g in galleries if g['id'] != gallery_id]
+
+    if len(galleries) == before:
+        flash('Galerie introuvable', 'error')
+    else:
+        save_flower_galleries(galleries)
+        flash('Galerie supprimée avec succès', 'success')
+        app.logger.info(f"✅ Galerie de fleurs supprimée : {gallery_id}")
+
+    return redirect(url_for('flowers'))
+
+
+@app.route('/edit_flower_gallery/<gallery_id>', methods=['POST'])
+def edit_flower_gallery(gallery_id):
+    """Édite les métadonnées d'une galerie de fleurs (mode dev uniquement)."""
+    if not app.config['DEV_MODE']:
+        abort(403)
+
+    galleries = load_flower_galleries()
+    gallery = next((g for g in galleries if g['id'] == gallery_id), None)
+
+    if not gallery:
+        flash('Galerie introuvable', 'error')
+        return redirect(url_for('flowers'))
+
+    gallery['name'] = request.form.get('name', gallery['name']).strip()
+    gallery['description'] = request.form.get('description', '').strip()
+    date = request.form.get('date', '').strip()
+    if date:
+        gallery['date'] = date
+
+    # Mise à jour de l'image de couverture si fournie
+    if 'cover_image' in request.files:
+        cover_file = request.files['cover_image']
+        if cover_file and cover_file.filename and allowed_file(cover_file.filename):
+            try:
+                result = cloudinary.uploader.upload(cover_file, folder='flowers')
+                gallery['cover_image'] = result['secure_url']
+            except Exception as e:
+                app.logger.error(f"Erreur upload cover fleur: {e}")
+                flash("Erreur lors de l'upload de l'image", 'warning')
+
+    save_flower_galleries(galleries)
+    flash('Galerie mise à jour', 'success')
+    return redirect(url_for('flower_gallery', gallery_id=gallery_id))
+
+
+@app.route('/delete_flower_photo/<gallery_id>', methods=['POST'])
+def delete_flower_photo(gallery_id):
+    """Supprime une photo d'une galerie de fleurs (mode dev uniquement)."""
+    if not app.config['DEV_MODE']:
+        return jsonify({'error': 'Non autorisé'}), 403
+
+    photo_url = request.form.get('photo_url', '')
+    if not photo_url:
+        return jsonify({'error': 'URL manquante'}), 400
+
+    galleries = load_flower_galleries()
+    gallery = next((g for g in galleries if g['id'] == gallery_id), None)
+
+    if not gallery:
+        return jsonify({'error': 'Galerie introuvable'}), 404
+
+    before = len(gallery['photos'])
+    gallery['photos'] = [p for p in gallery['photos'] if p.get('url') != photo_url]
+
+    if len(gallery['photos']) == before:
+        return jsonify({'error': 'Photo introuvable'}), 404
+
+    save_flower_galleries(galleries)
+    app.logger.info(f"✅ Photo supprimée de la galerie {gallery_id}")
+    return jsonify({'success': True})
+
 @app.route('/stats')
 def stats():
     """Page des statistiques des randonnées"""
